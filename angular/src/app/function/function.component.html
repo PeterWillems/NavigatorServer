@@ -1,0 +1,32 @@
+<div class="card border-primary">
+  <div class="card-header">
+    Functions
+  </div>
+  <div *ngIf="selectedDataset" class="card-body">
+    <table class="table table-hover table-bordered table-sm">
+      <thead class="thead-light">
+      <tr>
+        <th>Function</th>
+        <th>label</th>
+        <th>assembly</th>
+      </tr>
+      </thead>
+      <tbody *ngIf="functions">
+      <tr class="table-record {{function==selectedFunction?'table-record-selected':''}}"
+          *ngFor="let function of functions" (click)="onClick(function)">
+        <td>{{function.uri}}</td>
+        <td>{{function.label}}</td>
+        <td>{{function.assembly ? getFunctionLabel(function.assembly) : ''}}</td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <button class="btn btn-outline-primary" (click)="createFunction()">new Function</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <br>
+    <!--<app-selected-function *ngIf="selectedFunction"-->
+    <!--[selectedFunction]="selectedFunction"></app-selected-function>-->
+  </div>
+</div>

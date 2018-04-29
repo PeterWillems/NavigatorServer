@@ -1,0 +1,15 @@
+<h3 class="h3">{{title}}</h3>
+<div style="padding: 5px">
+  <ul class="nav nav-tabs">
+    <li class="nav-item" routerLinkActive="active activeTab"><a class="nav-link" routerLink="datasets">datasets</a> </li>
+    <li class="nav-item" routerLinkActive="active activeTab"><a class="nav-link" routerLink="systemslots">system slots</a> </li>
+    <li class="nav-item" routerLinkActive="active activeTab"><a class="nav-link" routerLink="functions">functions</a> </li>
+  </ul>
+</div>
+<router-outlet></router-outlet>
+
+
+<!--<app-dataset (selectedDatasetChanged)="onSelectedDatasetChanged($event)"></app-dataset>-->
+<!--<app-system-slot *ngIf="selectedDataset" [selectedDataset]="selectedDataset"></app-system-slot>-->
+<!--<app-selected-system-slot *ngIf="selectedSystemSlot"-->
+<!--[selectedSystemSlot]="selectedSystemSlot"></app-selected-system-slot>-->

@@ -1,0 +1,37 @@
+<div class="card border-primary">
+  <div class="card-header">
+    Selected System Slot
+  </div>
+  <div class="card-body">
+    <table class="table table-bordered table-sm">
+      <thead class="thead-light">
+      <tr>
+        <th>Property</th>
+        <th>Value</th>
+      </tr>
+      </thead>
+      <tbody *ngIf="selectedSystemSlot">
+      <tr>
+        <td>uri</td>
+        <td>{{selectedSystemSlot.uri}}</td>
+      </tr>
+      <tr>
+        <td>label</td>
+        <td><input class="form-control" type="text" [(ngModel)]="selectedSystemSlot.label"></td>
+      </tr>
+      <tr>
+        <td>assembly</td>
+        <td><select class="form-control" id="assembly" [(ngModel)]="selectedSystemSlot.assembly">
+          <option [ngValue]="null"></option>
+          <option *ngFor="let systemSlot of systemSlots" [value]="systemSlot.uri">{{systemSlot.label}}</option>
+        </select></td>
+      </tr>
+      <tr>
+        <td>functions</td>
+        <td>{{showLabels(selectedSystemSlot.functions)}}</td>
+      </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-outline-primary" (click)="commit()">Commit</button>
+  </div>
+</div>

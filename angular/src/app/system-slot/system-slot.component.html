@@ -1,0 +1,32 @@
+<div class="card border-primary">
+  <div class="card-header">
+    System Slots
+  </div>
+  <div *ngIf="selectedDataset" class="card-body">
+    <table class="table table-hover table-bordered table-sm">
+      <thead class="thead-light">
+      <tr>
+        <th>System Slot</th>
+        <th>label</th>
+        <th>assembly</th>
+      </tr>
+      </thead>
+      <tbody *ngIf="systemSlots">
+      <tr class="table-record {{systemSlot==selectedSystemSlot?'table-record-selected':''}}"
+          *ngFor="let systemSlot of systemSlots" (click)="onClick(systemSlot)">
+        <td>{{systemSlot.uri}}</td>
+        <td>{{systemSlot.label}}</td>
+        <td>{{systemSlot.assembly ? getSystemSlotLabel(systemSlot.assembly) : ''}}</td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <button class="btn btn-outline-primary" (click)="createSystemSlot()">new SystemSlot</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <br>
+    <app-selected-system-slot *ngIf="selectedSystemSlot"
+                              [selectedSystemSlot]="selectedSystemSlot"></app-selected-system-slot>
+  </div>
+</div>

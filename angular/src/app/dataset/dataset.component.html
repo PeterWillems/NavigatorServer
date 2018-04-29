@@ -1,0 +1,25 @@
+<div class="card border-primary">
+  <div class="card-header">
+    Datasets
+  </div>
+  <div class="card-body">
+    <table class="table table-hover table-bordered table-sm">
+      <thead class="thead-light">
+      <tr>
+        <th>id</th>
+        <th>file path</th>
+        <th>uri</th>
+      </tr>
+      </thead>
+      <tbody *ngIf="datasets">
+      <tr class="table-record {{selectedDataset?(dataset.uri===selectedDataset.uri?'table-record-selected':''):''}}"
+          *ngFor="let dataset of datasets"
+          (click)="onClick(dataset)">
+        <td>{{dataset.id}}</td>
+        <td>{{dataset.filepath}}</td>
+        <td>{{dataset.uri}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
