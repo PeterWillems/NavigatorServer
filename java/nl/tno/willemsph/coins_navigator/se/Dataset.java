@@ -7,6 +7,7 @@ public class Dataset {
 	private int id;
 	private String filepath;
 	private URI uri;
+	private URI ontologyUri;
 
 	public Dataset() {
 	}
@@ -39,6 +40,14 @@ public class Dataset {
 
 	public void setUri(URI uri) {
 		this.uri = uri;
+	}
+
+	public URI getOntologyUri() {
+		return ontologyUri;
+	}
+
+	public void setOntologyUri(URI ontologyUri) {
+		this.ontologyUri = ontologyUri;
 	}
 
 }

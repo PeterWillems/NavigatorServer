@@ -37,10 +37,16 @@ public class SeController {
 	}
 
 	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-slots/{localName}")
+	public SystemSlot getSystemSlot(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getSystemSlot(id, localName);
+	}
+
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-slots/{localName}")
 	public SystemSlot updateSystemSlot(@PathVariable int id, @PathVariable String localName,
 			@RequestBody SystemSlot systemSlot) throws URISyntaxException, IOException {
-		System.out.println("Assembly: " + systemSlot.getAssembly());
 		return _seService.updateSystemSlot(id, localName, systemSlot);
 	}
 
@@ -48,6 +54,12 @@ public class SeController {
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/functions")
 	public List<Function> getAllFunctions(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.getAllFunctions(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/functions")
+	public Function createFunction(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createFunction(id);
 	}
 
 }

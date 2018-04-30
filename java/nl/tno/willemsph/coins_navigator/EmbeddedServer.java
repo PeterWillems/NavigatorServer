@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFWriter;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
@@ -61,6 +64,11 @@ public class EmbeddedServer {
 			Model namedModel = ModelFactory.createDefaultModel();
 			Resource model = new ClassPathResource(dataset.getFilepath());
 			namedModel.read(model.getInputStream(), null, "TURTLE");
+			StmtIterator ontologyIterator = namedModel.listStatements(null, RDF.type, OWL.Ontology);
+			if (ontologyIterator.hasNext()) {
+				Statement nextOntology = ontologyIterator.next();
+				dataset.setOntologyUri(new URI(nextOntology.getSubject().getURI()));
+			}
 			ds.addNamedModel(dataset.getUri().toString(), namedModel);
 		}
 

@@ -76,69 +76,27 @@ public class SeService {
 		return functionUris;
 	}
 
-	public SystemSlot getSystemSlot(int datasetId, String systemSlotUri) throws URISyntaxException, IOException {
-		SystemSlot systemSlot = new SystemSlot();
-		List<Dataset> datasets = _embeddedServer.getDatasets();
-		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
-		queryStr.setIri("graph", datasets.get(datasetId).getUri().toString());
-		queryStr.setIri("selected_system_slot", systemSlotUri);
-		queryStr.append("SELECT ?label ?assembly ");
-		queryStr.append("{");
-		queryStr.append("  GRAPH ?graph { ");
-		queryStr.append("    ?selected_system_slot rdf:type se:SystemSlot .");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?selected_system_slot rdfs:label ?label .");
-		queryStr.append("    }");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?contains coins2:hasPart ?selected_system_slot .");
-		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains .");
-		queryStr.append("    }");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?contains coins2:hasPart ?selected_system_slot .");
-		queryStr.append("      ?contains coins2:hasAssembly ?assembly .");
-		queryStr.append("    }");
-		queryStr.append("  }");
-		queryStr.append("}");
+	public Function getFunction(int datasetId, String functionUri) throws URISyntaxException, IOException {
+		return (Function) getSeObject(datasetId, functionUri, SeObjectType.Function);
+	}
 
-		JsonNode responseNodes = _embeddedServer.query(queryStr);
-		for (JsonNode node : responseNodes) {
-			JsonNode labelNode = node.get("label");
-			String label = labelNode != null ? labelNode.get("value").asText() : null;
-			JsonNode assemblyNode = node.get("assembly");
-			String assembly = assemblyNode != null ? node.get("assembly").get("value").asText() : null;
-			systemSlot = new SystemSlot(systemSlotUri, label, assembly);
-		}
-
-		return systemSlot;
+	public SystemSlot getSystemSlot(int datasetId, String localName) throws URISyntaxException, IOException {
+		return (SystemSlot) getSeObject(datasetId, localName, SeObjectType.SystemSlot);
 	}
 
 	public List<Dataset> getAllDatasets() throws URISyntaxException {
 		return _embeddedServer.getDatasets();
 	}
 
+	public Function createFunction(int datasetId) throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String functionUri = createSeObject(datasetUri, SeObjectType.Function);
+		return getFunction(datasetId, functionUri);
+	}
+
 	public SystemSlot createSystemSlot(int datasetId) throws URISyntaxException, IOException {
-		String datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri().toString();
-		String localName = "SystemSlot_" + UUID.randomUUID().toString();
-		String label = localName.substring(0, "SystemSlot_".length() + 4);
-		String systemSlotUri = datasetUri + "#" + localName;
-		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
-		queryStr.setIri("system_slot", systemSlotUri);
-		queryStr.setIri("graph", datasetUri);
-		queryStr.setLiteral("label", label);
-		queryStr.append("INSERT {");
-		queryStr.append("  GRAPH ?graph {");
-		queryStr.append("    ?system_slot rdf:type se:SystemSlot .");
-		queryStr.append("    ?system_slot rdf:type coins2:CoinsContainerObject .");
-		queryStr.append("    ?system_slot rdfs:label ?label .");
-		queryStr.append("  }");
-		queryStr.append("}");
-		queryStr.append("WHERE {");
-		queryStr.append("}");
-
-		_embeddedServer.update(queryStr);
-
-		// _embeddedServer.saveDataset(datasetId);
-
+		String datasetUri = getDatasetUri(datasetId);
+		String systemSlotUri = createSeObject(datasetUri, SeObjectType.SystemSlot);
 		return getSystemSlot(datasetId, systemSlotUri);
 	}
 
@@ -282,9 +240,85 @@ public class SeService {
 		return seObjects;
 	}
 
+	public SeObject getSeObject(int datasetId, String localName, SeObjectType seObjectType)
+			throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String ontologyUri = getOntologyUri(datasetId);
+		String seObjectUri = ontologyUri + "#" + localName;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("se_object", seObjectUri);
+		queryStr.setIri("SeObject", seObjectType.getUri());
+		queryStr.append("SELECT ?label ?assembly ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("    ?se_object rdf:type ?SeObject .");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?se_object rdfs:label ?label . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?contains coins2:hasPart ?se_object . ");
+		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?contains coins2:hasPart ?se_object . ");
+		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
+		queryStr.append("      ?se_object coins2:partOf ?contains . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
+		queryStr.append("      ?se_object coins2:partOf ?contains . ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		SeObject seObject = null;
+		for (JsonNode node : responseNodes) {
+			JsonNode labelNode = node.get("label");
+			String label = labelNode != null ? labelNode.get("value").asText() : null;
+			JsonNode assemblyNode = node.get("assembly");
+			String assembly = assemblyNode != null ? node.get("assembly").get("value").asText() : null;
+			seObject = seObjectType.create(seObjectUri, label, assembly);
+		}
+
+		return seObject;
+	}
+
+	private String createSeObject(String datasetUri, SeObjectType seObjectType) throws URISyntaxException, IOException {
+		String localName = seObjectType.name() + "_" + UUID.randomUUID().toString();
+		String label = localName.substring(0, seObjectType.name().length() + 5);
+		String seObjectUri = datasetUri + "#" + localName;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("se_object", seObjectUri);
+		queryStr.setIri("SeObject", seObjectType.getUri());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setLiteral("label", label);
+		queryStr.append("INSERT {");
+		queryStr.append("  GRAPH ?graph {");
+		queryStr.append("    ?se_object rdf:type ?SeObject .");
+		queryStr.append("    ?se_object rdf:type coins2:CoinsContainerObject .");
+		queryStr.append("    ?se_object rdfs:label ?label .");
+		queryStr.append("  }");
+		queryStr.append("}");
+		queryStr.append("WHERE {");
+		queryStr.append("}");
+
+		_embeddedServer.update(queryStr);
+
+		return localName;
+	}
+
 	private String getDatasetUri(int datasetId) throws URISyntaxException {
 		return _embeddedServer.getDatasets().get(datasetId).getUri().toString();
 
+	}
+
+	private String getOntologyUri(int datasetId) throws URISyntaxException {
+		return _embeddedServer.getDatasets().get(datasetId).getOntologyUri().toString();
 	}
 
 }
