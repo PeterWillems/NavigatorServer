@@ -37,7 +37,7 @@ public class EmbeddedServer {
 	public static final String SE_EXAMPLE_URI = "http://www.coinsweb.nl/coins2/reffrm/se/";
 	private static final String COINS2 = "http://www.coinsweb.nl/cbim-2.0.rdf#";
 	private static final String CBIM2_RESOURCE = "cbim-2.0.rdf";
-	private static final String SE = "http://www.coinsweb.nl/coins2/reffrm/se#";
+	public static final String SE = "http://www.coinsweb.nl/coins2/reffrm/se#";
 	private static final String SE_RESOURCE = "se.ttl";
 	private static final String[] EXAMPLES = { "parkbank", "parkbank2", "roadjunction", "wissel" };
 	private static Dataset ds;

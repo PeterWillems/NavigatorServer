@@ -17,54 +17,38 @@ import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 
 @Service
 public class SeService {
+	private enum SeObjectType {
+		SystemSlot, Function;
+
+		SeObject create(String uri, String label, String assembly) throws URISyntaxException {
+			switch (this) {
+			case Function:
+				return new Function(uri, label, assembly);
+			case SystemSlot:
+				return new SystemSlot(uri, label, assembly);
+			default:
+				return null;
+			}
+		}
+
+		String getUri() {
+			return EmbeddedServer.SE + this.name();
+		}
+	}
+
 	@Autowired
 	private EmbeddedServer _embeddedServer;
 
 	public List<SystemSlot> getAllSystemSlots(int datasetId) throws IOException, URISyntaxException {
-		List<Dataset> datasets = _embeddedServer.getDatasets();
-		String datasetUri = datasets.get(datasetId).getUri().toString();
-		List<SystemSlot> systemSlots = new ArrayList<>();
-		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
-		queryStr.setIri("graph", datasetUri);
-		queryStr.append("SELECT ?system_slot ?label ?assembly ");
-		queryStr.append("{");
-		queryStr.append("  GRAPH ?graph { ");
-		queryStr.append("    ?system_slot rdf:type se:SystemSlot . ");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?system_slot rdfs:label ?label . ");
-		queryStr.append("    }");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?contains coins2:hasPart ?system_slot . ");
-		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
-		queryStr.append("    }");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?contains coins2:hasPart ?system_slot . ");
-		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
-		queryStr.append("    }");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
-		queryStr.append("      ?system_slot coins2:partOf ?contains . ");
-		queryStr.append("    }");
-		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
-		queryStr.append("      ?system_slot coins2:partOf ?contains . ");
-		queryStr.append("    }");
-		queryStr.append("  }");
-		queryStr.append("}");
-		queryStr.append("ORDER BY ?label");
+		String datasetUri = getDatasetUri(datasetId);
+		List<SeObject> seObjects = getAllSeObjects(datasetUri, SeObjectType.SystemSlot);
 
-		JsonNode responseNodes = _embeddedServer.query(queryStr);
-		for (JsonNode node : responseNodes) {
-			String systemSlotUri = node.get("system_slot").get("value").asText();
-			JsonNode labelNode = node.get("label");
-			String label = labelNode != null ? labelNode.get("value").asText() : null;
-			JsonNode assemblyNode = node.get("assembly");
-			String assembly = assemblyNode != null ? node.get("assembly").get("value").asText() : null;
-			SystemSlot systemSlot = new SystemSlot(systemSlotUri, label, assembly);
-			systemSlot.setFunctions(getFunctionsOfSystemSlot(datasetUri, systemSlotUri));
+		List<SystemSlot> systemSlots = new ArrayList<>();
+		for (SeObject seObject : seObjects) {
+			SystemSlot systemSlot = (SystemSlot) seObject;
+			systemSlot.setFunctions(getFunctionsOfSystemSlot(datasetUri, systemSlot.getUri().toString()));
 			systemSlots.add(systemSlot);
 		}
-
 		return systemSlots;
 	}
 
@@ -239,35 +223,46 @@ public class SeService {
 			_embeddedServer.update(queryStr);
 		}
 	}
-	
+
 	public List<Function> getAllFunctions(int datasetId) throws IOException, URISyntaxException {
-		List<Dataset> datasets = _embeddedServer.getDatasets();
-		String datasetUri = datasets.get(datasetId).getUri().toString();
+		String datasetUri = getDatasetUri(datasetId);
+		List<SeObject> seObjects = getAllSeObjects(datasetUri, SeObjectType.Function);
+
 		List<Function> functions = new ArrayList<>();
+		for (SeObject seObject : seObjects) {
+			functions.add((Function) seObject);
+		}
+		return functions;
+	}
+
+	private List<SeObject> getAllSeObjects(String datasetUri, SeObjectType seObjectType)
+			throws IOException, URISyntaxException {
+		List<SeObject> seObjects = new ArrayList<>();
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri);
-		queryStr.append("SELECT ?function ?label ?assembly ");
+		queryStr.setIri("SeObject", seObjectType.getUri());
+		queryStr.append("SELECT ?se_object ?label ?assembly ");
 		queryStr.append("{");
 		queryStr.append("  GRAPH ?graph { ");
-		queryStr.append("    ?function rdf:type se:Function . ");
+		queryStr.append("    ?se_object rdf:type ?SeObject . ");
 		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?function rdfs:label ?label . ");
+		queryStr.append("      ?se_object rdfs:label ?label . ");
 		queryStr.append("    }");
 		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?contains coins2:hasPart ?function . ");
+		queryStr.append("      ?contains coins2:hasPart ?se_object . ");
 		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
 		queryStr.append("    }");
 		queryStr.append("    OPTIONAL {");
-		queryStr.append("      ?contains coins2:hasPart ?function . ");
+		queryStr.append("      ?contains coins2:hasPart ?se_object . ");
 		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
 		queryStr.append("    }");
 		queryStr.append("    OPTIONAL {");
 		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
-		queryStr.append("      ?function coins2:partOf ?contains . ");
+		queryStr.append("      ?se_object coins2:partOf ?contains . ");
 		queryStr.append("    }");
 		queryStr.append("    OPTIONAL {");
 		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
-		queryStr.append("      ?function coins2:partOf ?contains . ");
+		queryStr.append("      ?se_object coins2:partOf ?contains . ");
 		queryStr.append("    }");
 		queryStr.append("  }");
 		queryStr.append("}");
@@ -275,17 +270,21 @@ public class SeService {
 
 		JsonNode responseNodes = _embeddedServer.query(queryStr);
 		for (JsonNode node : responseNodes) {
-			String functionUri = node.get("function").get("value").asText();
+			String seObjectUri = node.get("se_object").get("value").asText();
 			JsonNode labelNode = node.get("label");
 			String label = labelNode != null ? labelNode.get("value").asText() : null;
 			JsonNode assemblyNode = node.get("assembly");
 			String assembly = assemblyNode != null ? node.get("assembly").get("value").asText() : null;
-			Function function = new Function(functionUri, label, assembly);
-//			function.setRequirements(getRequirementsOfFunction(datasetUri, functionUri));
-			functions.add(function);
+			SeObject seObject = seObjectType.create(seObjectUri, label, assembly);
+			seObjects.add(seObject);
 		}
 
-		return functions;
+		return seObjects;
+	}
+
+	private String getDatasetUri(int datasetId) throws URISyntaxException {
+		return _embeddedServer.getDatasets().get(datasetId).getUri().toString();
+
 	}
 
 }
