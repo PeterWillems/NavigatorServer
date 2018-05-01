@@ -1,4 +1,4 @@
-<div class="card border-primary">
+<div *ngIf="selectedSystemSlot" class="card border-primary">
   <div class="card-header">
     Selected System Slot
   </div>
@@ -10,25 +10,42 @@
         <th>Value</th>
       </tr>
       </thead>
-      <tbody *ngIf="selectedSystemSlot">
+      <tbody>
       <tr>
         <td>uri</td>
-        <td>{{selectedSystemSlot.uri}}</td>
+        <td colspan="2">{{selectedSystemSlot.uri}}</td>
       </tr>
       <tr>
         <td>label</td>
-        <td><input class="form-control" type="text" [(ngModel)]="selectedSystemSlot.label"></td>
+        <td colspan="2"><input class="form-control" type="text" [(ngModel)]="selectedSystemSlot.label"></td>
       </tr>
       <tr>
         <td>assembly</td>
-        <td><select class="form-control" id="assembly" [(ngModel)]="selectedSystemSlot.assembly">
-          <option [ngValue]="null"></option>
-          <option *ngFor="let systemSlot of systemSlots" [value]="systemSlot.uri">{{systemSlot.label}}</option>
-        </select></td>
+        <!--<td><select class="form-control" id="assembly" [(ngModel)]="selectedSystemSlot.assembly">-->
+        <!--<option [ngValue]="null"></option>-->
+        <!--<option *ngFor="let systemSlot of systemSlots" [value]="systemSlot.uri">{{systemSlot.label}}</option>-->
+        <!--</select></td>-->
+        <td>
+          <div *ngIf="getSystemSlot(selectedSystemSlot.assembly)" class="container">
+            <button type="button" class="btn btn-outline-info" (click)="isOpen = !isOpen">
+              {{getSystemSlot(selectedSystemSlot.assembly).label}}
+            </button>
+            <div *ngIf="isOpen">
+              <app-selected-system-slot
+                [selectedSystemSlot]="getSystemSlot(selectedSystemSlot.assembly)"></app-selected-system-slot>
+            </div>
+          </div>
+        </td>
+        <td>
+          <select class="form-control" id="assembly" [(ngModel)]="selectedSystemSlot.assembly">
+            <option [ngValue]="null"></option>
+            <option *ngFor="let systemSlot of systemSlots" [value]="systemSlot.uri">{{systemSlot.label}}</option>
+          </select>
+        </td>
       </tr>
       <tr>
         <td>functions</td>
-        <td>{{showLabels(selectedSystemSlot.functions)}}</td>
+        <td colspan="2">{{showLabels(selectedSystemSlot.functions)}}</td>
       </tr>
       </tbody>
     </table>

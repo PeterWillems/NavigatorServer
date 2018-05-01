@@ -1,6 +1,5 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {SystemSlot} from './system-slot/system-slot.model';
 import {Dataset} from './dataset/dataset.model';
 
 @Injectable()

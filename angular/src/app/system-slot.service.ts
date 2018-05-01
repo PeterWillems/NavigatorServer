@@ -1,25 +1,25 @@
 import {EventEmitter, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {SystemSlot} from './system-slot/system-slot.model';
+import {SystemSlotModel} from './system-slot/system-slot.model';
 import {Dataset} from './dataset/dataset.model';
 
 @Injectable()
 export class SystemSlotService {
   apiAddress: string;
   systemSlotsUpdated = new EventEmitter();
-  systemSlots: SystemSlot[];
+  systemSlots: SystemSlotModel[];
   dataset: Dataset;
 
   constructor(private _httpClient: HttpClient) {
     this.apiAddress = 'http://localhost:8080/se';
   }
 
-  getSystemSlots(dataset: Dataset): void {
+  loadSystemSlots(dataset: Dataset): void {
     this.dataset = dataset;
-    console.log('getSystemSlots: ' + this.dataset.id);
-    let systemSlots: Array<SystemSlot> = [];
+    console.log('loadSystemSlots: ' + this.dataset.id);
+    let systemSlots: Array<SystemSlotModel> = [];
     const request = this.apiAddress + '/datasets/' + dataset.id + '/system-slots';
-    const systemSlots$ = this._httpClient.get<Array<SystemSlot>>(request);
+    const systemSlots$ = this._httpClient.get<Array<SystemSlotModel>>(request);
     systemSlots$.subscribe(value => {
       systemSlots = value;
     }, error => {
@@ -32,8 +32,8 @@ export class SystemSlotService {
 
   createSystemSlot(): void {
     const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots';
-    let systemSlot = <SystemSlot>{uri: 'xxx', label: '', assembly: ''};
-    const systemSlot$ = this._httpClient.post<SystemSlot>(request, systemSlot);
+    let systemSlot = <SystemSlotModel>{uri: 'xxx', label: '', assembly: ''};
+    const systemSlot$ = this._httpClient.post<SystemSlotModel>(request, systemSlot);
     systemSlot$.subscribe(value => {
       systemSlot = value;
     }, error => {
@@ -44,20 +44,20 @@ export class SystemSlotService {
     });
   }
 
-  update(systemSlot: SystemSlot): void {
+  update(systemSlot: SystemSlotModel): void {
     const hashMark = systemSlot.uri.indexOf('#') + 1;
     const localName = systemSlot.uri.substring(hashMark);
     console.log('update: ' + this.dataset.id + ' system slot: ' + localName + ' assembly: ' + systemSlot.assembly);
     const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots/' + localName;
     this._httpClient.put(request, systemSlot).subscribe(value => {
-      console.log('Assembly: ' + (<SystemSlot>value).assembly);
+      console.log('Assembly: ' + (<SystemSlotModel>value).assembly);
     }, error => {
     }, () => {
       console.log('Put operation ready');
     });
   }
 
-  getSystemSlot(uri: string): SystemSlot {
+  getSystemSlot(uri: string): SystemSlotModel {
     for (let index = 0; index < this.systemSlots.length; index++) {
       if (this.systemSlots[index].uri === uri) {
         return this.systemSlots[index];

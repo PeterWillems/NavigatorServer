@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {SystemSlot} from '../system-slot/system-slot.model';
+import {SystemSlotModel} from '../system-slot/system-slot.model';
 import {SystemSlotService} from '../system-slot.service';
 import {FunctionService} from '../function.service';
 
@@ -9,8 +9,9 @@ import {FunctionService} from '../function.service';
   styleUrls: ['./selected-system-slot.component.css'],
 })
 export class SelectedSystemSlotComponent implements OnInit {
-  @Input() selectedSystemSlot: SystemSlot;
-  systemSlots: SystemSlot[];
+  isOpen = false;
+  @Input() selectedSystemSlot: SystemSlotModel;
+  systemSlots: SystemSlotModel[];
 
   constructor(private _systemSlotService: SystemSlotService, private _functionService: FunctionService) {
   }
@@ -24,10 +25,14 @@ export class SelectedSystemSlotComponent implements OnInit {
     const labels = [];
     if (this._functionService.functions && functionUris) {
       for (let index = 0; index < functionUris.length; index++) {
-        labels.push(this._functionService.getFunction(functionUris[index]).label);
+        labels.push(this._functionService.getSeObject(functionUris[index]).label);
       }
     }
     return labels;
+  }
+
+  getSystemSlot(systemSlotUri: string): SystemSlotModel {
+    return systemSlotUri ? this._systemSlotService.getSystemSlot(systemSlotUri) : null;
   }
 
   commit(): void {

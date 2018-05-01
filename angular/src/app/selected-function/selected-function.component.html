@@ -1,0 +1,23 @@
+<div *ngIf="selectedFunction" class="card border-primary">
+  <div class="card-header">
+    Selected Function
+  </div>
+  <div class="card-body">
+    <table class="table table-bordered table-sm">
+      <thead class="thead-light">
+      <tr>
+        <th>Property</th>
+        <th>Value</th>
+      </tr>
+      </thead>
+      <tbody>
+      <app-selected-se-object [selectedSeObject]="selectedFunction" [seObjectService]="_functionService"></app-selected-se-object>
+      <tr>
+        <td>requirements</td>
+        <td>{{showLabels(selectedFunction.requirements)}}</td>
+      </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-outline-primary" (click)="commit()">Commit</button>
+  </div>
+</div>

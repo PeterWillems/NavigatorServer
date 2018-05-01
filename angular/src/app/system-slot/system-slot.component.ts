@@ -1,5 +1,5 @@
 import {Component, Input, OnInit, OnChanges, SimpleChanges, EventEmitter, Output} from '@angular/core';
-import {SystemSlot} from './system-slot.model';
+import {SystemSlotModel} from './system-slot.model';
 import {SystemSlotService} from '../system-slot.service';
 import {Dataset} from '../dataset/dataset.model';
 import {DatasetService} from '../dataset.service';
@@ -11,40 +11,39 @@ import {DatasetService} from '../dataset.service';
 })
 export class SystemSlotComponent implements OnInit, OnChanges {
   @Input() selectedDataset: Dataset;
-  systemSlots: SystemSlot[];
-  selectedSystemSlot: SystemSlot;
-  @Output() selectedSystemSlotChanged: EventEmitter<SystemSlot> = new EventEmitter<SystemSlot>();
+  systemSlots: SystemSlotModel[];
+  selectedSystemSlot: SystemSlotModel;
+  @Output() selectedSystemSlotChanged: EventEmitter<SystemSlotModel> = new EventEmitter<SystemSlotModel>();
 
 
   constructor(private _systemSlotService: SystemSlotService, private _datasetService: DatasetService) {
+    console.log('SystemSlot component created');
   }
 
   ngOnInit() {
     this._datasetService.selectedDatasetUpdated.subscribe((dataset) => {
-        console.log('datasets updated!');
         this.selectedDataset = dataset;
-        this._systemSlotService.getSystemSlots(this.selectedDataset);
+        this._systemSlotService.loadSystemSlots(this.selectedDataset);
       }
     );
     this.selectedDataset = this._datasetService.selectedDataset;
 
     this._systemSlotService.systemSlotsUpdated.subscribe((systemSlots) => {
-      console.log('systemSlots updated!');
       this.systemSlots = systemSlots;
     });
 
     if (this.selectedDataset) {
-      this._systemSlotService.getSystemSlots(this.selectedDataset);
+      this._systemSlotService.loadSystemSlots(this.selectedDataset);
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     const dataset = changes.selectedDataset.currentValue;
     console.log('dataset: ' + dataset ? dataset.toString() : '');
-    this._systemSlotService.getSystemSlots(dataset);
+    this._systemSlotService.loadSystemSlots(dataset);
   }
 
-  onClick(systemSlot: SystemSlot) {
+  onClick(systemSlot: SystemSlotModel) {
     this.selectedSystemSlot = systemSlot;
     this.selectedSystemSlotChanged.emit(this.selectedSystemSlot);
   }

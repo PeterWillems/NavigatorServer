@@ -20,9 +20,10 @@ export class DatasetComponent implements OnInit {
       console.log('datasets updated!');
       this.datasets = datasets;
     });
+    this._datasetService.selectedDatasetUpdated.subscribe((dataset) => this.selectedDataset = dataset);
+    this.datasets = this._datasetService.datasets;
     this.selectedDataset = this._datasetService.selectedDataset;
-    this._datasetService.getDatasets();
-  }
+   }
 
   onClick(dataset: Dataset) {
     console.log('onCLick: ' + dataset.filepath);

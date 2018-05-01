@@ -1,0 +1,23 @@
+<table class="table table-hover table-bordered table-sm">
+  <thead class="thead-light">
+  <tr>
+    <th>{{seObjectType}}</th>
+    <th>label</th>
+    <th>assembly</th>
+  </tr>
+  </thead>
+  <tbody *ngIf="seObjects">
+  <tr class="table-record"
+      *ngFor="let seObject of seObjects" (click)="onClick(seObject)"
+      [class]="selectedSeObject ? (seObject.uri === selectedSeObject.uri?'table-record-selected':''):''">
+    <td>{{seObject.uri}}</td>
+    <td>{{seObject.label}}</td>
+    <td>{{seObject.assembly ? getSeObjectLabel(seObject.assembly) : ''}}</td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <button class="btn btn-outline-primary" (click)="createSeObject()">new {{seObjectType}}</button>
+    </td>
+  </tr>
+  </tbody>
+</table>

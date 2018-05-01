@@ -9,6 +9,9 @@ import {SystemSlotComponent} from './system-slot/system-slot.component';
 import {DatasetComponent} from './dataset/dataset.component';
 import {SelectedSystemSlotComponent} from './selected-system-slot/selected-system-slot.component';
 import {FunctionComponent} from './function/function.component';
+import { SeObjectslistComponent } from './se-objectslist/se-objectslist.component';
+import { SelectedSeObjectComponent } from './selected-se-object/selected-se-object.component';
+import { SelectedFunctionComponent } from './selected-function/selected-function.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
@@ -23,7 +26,10 @@ const appRoutes: Routes = [
     SystemSlotComponent,
     DatasetComponent,
     SelectedSystemSlotComponent,
-    FunctionComponent
+    FunctionComponent,
+    SeObjectslistComponent,
+    SelectedSeObjectComponent,
+    SelectedFunctionComponent
   ],
   imports: [
     BrowserModule,

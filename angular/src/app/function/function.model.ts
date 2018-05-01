@@ -1,6 +1,5 @@
-export class Function {
-  uri: string;
-  label: string;
-  assembly: string;
+import {SeObjectModel} from '../se-objectslist/se-object.model';
+
+export class FunctionModel extends SeObjectModel {
   requirements: string[];
 }

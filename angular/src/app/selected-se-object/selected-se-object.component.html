@@ -1,0 +1,28 @@
+<tr>
+  <td>uri</td>
+  <td colspan="2">{{selectedSeObject.uri}}</td>
+</tr>
+<tr>
+  <td>label</td>
+  <td colspan="2"><input class="form-control" type="text" [(ngModel)]="selectedSeObject.label"></td>
+</tr>
+<tr>
+  <td>assembly</td>
+  <td>
+    <div *ngIf="getSeObject(selectedSeObject.assembly)" class="container">
+      <button type="button" class="btn btn-outline-info" (click)="isOpen = !isOpen">
+        {{getSeObject(selectedSeObject.assembly).label}}
+      </button>
+      <div *ngIf="isOpen">
+        <app-selected-se-object
+          [selectedSeObject]="getSeObject(selectedSeObject.assembly)" [seObjectService]="seObjectService"></app-selected-se-object>
+      </div>
+    </div>
+  </td>
+  <td>
+    <select class="form-control" id="assembly" [(ngModel)]="selectedSeObject.assembly">
+      <option [ngValue]="null"></option>
+      <option *ngFor="let seObject of seObjects" [value]="seObject.uri">{{seObject.label}}</option>
+    </select>
+  </td>
+</tr>
