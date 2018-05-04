@@ -84,6 +84,16 @@ public class SeService {
 		return (SystemSlot) getSeObject(datasetId, localName, SeObjectType.SystemSlot);
 	}
 
+	public List<SystemSlot> getSystemSlotParts(int datasetId, String localName) throws URISyntaxException, IOException {
+		List<String> partUris = getSeObjectParts(datasetId, localName, SeObjectType.SystemSlot);
+		List<SystemSlot> parts = new ArrayList<>();
+		for (String partUri : partUris) {
+			String partLocalName = partUri.substring(partUri.indexOf('#') + 1);
+			parts.add(getSystemSlot(datasetId, partLocalName));
+		}
+		return parts;
+	}
+
 	public List<Dataset> getAllDatasets() throws URISyntaxException {
 		return _embeddedServer.getDatasets();
 	}
@@ -92,6 +102,14 @@ public class SeService {
 		String datasetUri = getDatasetUri(datasetId);
 		String functionUri = createSeObject(datasetUri, SeObjectType.Function);
 		return getFunction(datasetId, functionUri);
+	}
+
+	public Function updateFunction(int datasetId, String localName, Function function)
+			throws URISyntaxException, IOException {
+		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
+		updateLabel(datasetUri, function.getUri(), function.getLabel());
+		updateAssembly(datasetUri, function.getUri(), function.getAssembly());
+		return getFunction(datasetId, function.getUri().toString());
 	}
 
 	public SystemSlot createSystemSlot(int datasetId) throws URISyntaxException, IOException {
@@ -105,7 +123,6 @@ public class SeService {
 		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
 		updateLabel(datasetUri, systemSlot.getUri(), systemSlot.getLabel());
 		updateAssembly(datasetUri, systemSlot.getUri(), systemSlot.getAssembly());
-
 		return getSystemSlot(datasetId, systemSlot.getUri().toString());
 	}
 
@@ -286,6 +303,50 @@ public class SeService {
 		}
 
 		return seObject;
+	}
+
+	public List<String> getSeObjectParts(int datasetId, String localName, SeObjectType seObjectType)
+			throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String ontologyUri = getOntologyUri(datasetId);
+		String seObjectUri = ontologyUri + "#" + localName;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("assembly", seObjectUri);
+		queryStr.setIri("SeObject", seObjectType.getUri());
+		queryStr.append("SELECT ?part ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?contains coins2:hasPart ?part . ");
+		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?contains coins2:hasPart ?part . ");
+		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?assembly coins2:hasContainsRelation ?contains . ");
+		queryStr.append("      ?part coins2:partOf ?contains . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?contains coins2:hasAssembly ?assembly . ");
+		queryStr.append("      ?part coins2:partOf ?contains . ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		List<String> parts = new ArrayList<>();
+		for (JsonNode node : responseNodes) {
+			JsonNode partNode = node.get("part");
+			if (partNode != null) {
+				String partUri = partNode.get("value").asText();
+				parts.add(partUri);
+			}
+		}
+
+		return parts;
 	}
 
 	private String createSeObject(String datasetUri, SeObjectType seObjectType) throws URISyntaxException, IOException {
