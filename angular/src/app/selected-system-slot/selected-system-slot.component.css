@@ -1,3 +1,7 @@
+.label {
+  font-weight: bold;
+}
+
 .table-record {
   cursor: pointer;
 }

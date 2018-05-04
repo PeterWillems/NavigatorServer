@@ -1,8 +1,9 @@
-import {Component, Input, OnInit, OnChanges, SimpleChanges, EventEmitter, Output} from '@angular/core';
+import {Component, OnInit, OnChanges, SimpleChanges} from '@angular/core';
 import {SystemSlotModel} from './system-slot.model';
 import {SystemSlotService} from '../system-slot.service';
 import {Dataset} from '../dataset/dataset.model';
 import {DatasetService} from '../dataset.service';
+import {SeObjectModel} from '../se-objectslist/se-object.model';
 
 @Component({
   selector: 'app-system-slot',
@@ -10,13 +11,11 @@ import {DatasetService} from '../dataset.service';
   styleUrls: ['./system-slot.component.css']
 })
 export class SystemSlotComponent implements OnInit, OnChanges {
-  @Input() selectedDataset: Dataset;
+  selectedDataset: Dataset;
   systemSlots: SystemSlotModel[];
   selectedSystemSlot: SystemSlotModel;
-  @Output() selectedSystemSlotChanged: EventEmitter<SystemSlotModel> = new EventEmitter<SystemSlotModel>();
 
-
-  constructor(private _systemSlotService: SystemSlotService, private _datasetService: DatasetService) {
+  constructor(public _systemSlotService: SystemSlotService, private _datasetService: DatasetService) {
     console.log('SystemSlot component created');
   }
 
@@ -28,13 +27,15 @@ export class SystemSlotComponent implements OnInit, OnChanges {
     );
     this.selectedDataset = this._datasetService.selectedDataset;
 
-    this._systemSlotService.systemSlotsUpdated.subscribe((systemSlots) => {
+    this._systemSlotService.seObjectsUpdated.subscribe((systemSlots) => {
       this.systemSlots = systemSlots;
     });
 
     if (this.selectedDataset) {
       this._systemSlotService.loadSystemSlots(this.selectedDataset);
     }
+
+    this.selectedSystemSlot = this._systemSlotService.selectedSystemSlot;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -43,21 +44,19 @@ export class SystemSlotComponent implements OnInit, OnChanges {
     this._systemSlotService.loadSystemSlots(dataset);
   }
 
-  onClick(systemSlot: SystemSlotModel) {
-    this.selectedSystemSlot = systemSlot;
-    this.selectedSystemSlotChanged.emit(this.selectedSystemSlot);
-  }
-
-  createSystemSlot(): void {
-    this._systemSlotService.createSystemSlot();
-  }
-
   getSystemSlotLabel(uri: string): string {
     if (Boolean(uri)) {
-      return this._systemSlotService.getSystemSlot(uri).label;
+      return this._systemSlotService.getSeObject(uri).label;
     } else {
       return '';
     }
   }
+
+  onSelectedSystemSlotChanged(seObject: SeObjectModel): void {
+    this.selectedSystemSlot = <SystemSlotModel>seObject;
+    this._systemSlotService.selectSystemSlot(this.selectedSystemSlot);
+    console.log(this.selectedSystemSlot.uri);
+  }
+
 
 }

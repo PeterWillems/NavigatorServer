@@ -12,6 +12,9 @@ import {FunctionComponent} from './function/function.component';
 import { SeObjectslistComponent } from './se-objectslist/se-objectslist.component';
 import { SelectedSeObjectComponent } from './selected-se-object/selected-se-object.component';
 import { SelectedFunctionComponent } from './selected-function/selected-function.component';
+import { LiteralPropertyComponent } from './literal-property/literal-property.component';
+import { IriPropertyComponent } from './iri-property/iri-property.component';
+import { IriPropertyListComponent } from './iri-property-list/iri-property-list.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
@@ -29,7 +32,10 @@ const appRoutes: Routes = [
     FunctionComponent,
     SeObjectslistComponent,
     SelectedSeObjectComponent,
-    SelectedFunctionComponent
+    SelectedFunctionComponent,
+    LiteralPropertyComponent,
+    IriPropertyComponent,
+    IriPropertyListComponent
   ],
   imports: [
     BrowserModule,

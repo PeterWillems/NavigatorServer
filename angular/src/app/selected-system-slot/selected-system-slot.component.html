@@ -1,54 +1,16 @@
 <div *ngIf="selectedSystemSlot" class="card border-primary">
   <div class="card-header">
-    Selected System Slot
+    <span class="label">Selected System Slot:</span> {{selectedSystemSlot.label}}
   </div>
   <div class="card-body">
-    <table class="table table-bordered table-sm">
-      <thead class="thead-light">
-      <tr>
-        <th>Property</th>
-        <th>Value</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td>uri</td>
-        <td colspan="2">{{selectedSystemSlot.uri}}</td>
-      </tr>
-      <tr>
-        <td>label</td>
-        <td colspan="2"><input class="form-control" type="text" [(ngModel)]="selectedSystemSlot.label"></td>
-      </tr>
-      <tr>
-        <td>assembly</td>
-        <!--<td><select class="form-control" id="assembly" [(ngModel)]="selectedSystemSlot.assembly">-->
-        <!--<option [ngValue]="null"></option>-->
-        <!--<option *ngFor="let systemSlot of systemSlots" [value]="systemSlot.uri">{{systemSlot.label}}</option>-->
-        <!--</select></td>-->
-        <td>
-          <div *ngIf="getSystemSlot(selectedSystemSlot.assembly)" class="container">
-            <button type="button" class="btn btn-outline-info" (click)="isOpen = !isOpen">
-              {{getSystemSlot(selectedSystemSlot.assembly).label}}
-            </button>
-            <div *ngIf="isOpen">
-              <app-selected-system-slot
-                [selectedSystemSlot]="getSystemSlot(selectedSystemSlot.assembly)"></app-selected-system-slot>
-            </div>
-          </div>
-        </td>
-        <td>
-          <select class="form-control" id="assembly" [(ngModel)]="selectedSystemSlot.assembly">
-            <option [ngValue]="null"></option>
-            <option *ngFor="let systemSlot of systemSlots" [value]="systemSlot.uri">{{systemSlot.label}}</option>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td>functions</td>
-        <td colspan="2">{{showLabels(selectedSystemSlot.functions)}}</td>
-      </tr>
-      </tbody>
-    </table>
-    <button class="btn btn-outline-primary" (click)="commit()">Commit</button>
+    <app-literal-property name="uri" [value]="selectedSystemSlot.uri" valueType="url"
+                          [disabled]="true"></app-literal-property>
+    <app-literal-property name="label" [value]="selectedSystemSlot.label" valueType="text" [disabled]="false"
+                          (valueChanged)="onLabelChanged($event)"></app-literal-property>
+    <app-iri-property name="assembly" [seObjectType]="systemSlotType" [seObject]="getAssembly()" (valueChanged)="onAssemblyChanged($event)"
+                      [disabled]="false"></app-iri-property>
+    <app-iri-property-list name="parts" [items]="parts"></app-iri-property-list>
+
+    <!--<button class="btn btn-outline-primary" (click)="commit()">Commit</button>-->
   </div>
 </div>

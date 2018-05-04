@@ -1,9 +1,11 @@
-import {EventEmitter, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Dataset} from './dataset/dataset.model';
 import {FunctionModel} from './function/function.model';
 import {SeObjectService} from './se-object.service';
 import {SeObjectModel} from './se-objectslist/se-object.model';
+import {SystemSlotModel} from './system-slot/system-slot.model';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class FunctionService extends SeObjectService {
@@ -12,14 +14,13 @@ export class FunctionService extends SeObjectService {
   functions: FunctionModel[];
   selectedFunction: FunctionModel;
 
-  // functionsUpdated = new EventEmitter();
-
   constructor(private _httpClient: HttpClient) {
     super();
     this.apiAddress = 'http://localhost:8080/se';
   }
 
   loadFunctions(dataset: Dataset): void {
+    this.selectFunction(null);
     this.dataset = dataset;
     console.log('loadFunctions: ' + this.dataset.id);
     let functions: Array<FunctionModel> = [];
@@ -49,6 +50,18 @@ export class FunctionService extends SeObjectService {
     });
   }
 
+  updateSeObject(functionModel: FunctionModel): void {
+    const hashMark = functionModel.uri.indexOf('#') + 1;
+    const localName = functionModel.uri.substring(hashMark);
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/functions/' + localName;
+    this._httpClient.put(request, functionModel).subscribe(value => {
+      console.log('Assembly: ' + (<FunctionModel>value).assembly);
+    }, error => {
+    }, () => {
+      console.log('Put operation ready');
+    });
+  }
+
   selectFunction(selectedFunction: FunctionModel) {
     this.selectedFunction = selectedFunction;
   }
@@ -70,5 +83,12 @@ export class FunctionService extends SeObjectService {
 
   getSeObjects(): SeObjectModel[] {
     return this.functions;
+  }
+
+  getSeObjectParts(assembly: FunctionModel): Observable<FunctionModel[]> {
+    const hashMark = assembly.uri.indexOf('#') + 1;
+    const localName = assembly.uri.substring(hashMark);
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/functions/' + localName + '/parts';
+    return this._httpClient.get<Array<FunctionModel>>(request);
   }
 }

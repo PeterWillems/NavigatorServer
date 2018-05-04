@@ -1,0 +1,22 @@
+<div class="container-fluid">
+  <div class="input-group mb-3">
+
+    <div class="input-group-prepend">
+      <span class="input-group-text label" id="basic-addon1">{{name}}</span>
+    </div>
+    <input id="input" class="form-control" type="text" [value]="getLabels()" disabled>
+    <div class="input-group-append">
+      <button [class]="editMode ? 'btn btn-warning' : 'btn btn-info'" type="button"
+              (click)="editMode = !editMode"><span
+        class="fa fa-edit fa-lg"></span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="editMode">
+    <div class="input-group mb-3">
+      <app-iri-property *ngFor="let item of items" name="part" [seObject]="item"
+                        [disabled]="false"></app-iri-property>
+    </div>
+  </div>
+</div>

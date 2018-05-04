@@ -20,4 +20,8 @@ export class SelectedFunctionComponent implements OnInit {
     return null;
   }
 
+  commit(): void {
+    this._functionService.updateSeObject(this.selectedFunction);
+  }
+
 }

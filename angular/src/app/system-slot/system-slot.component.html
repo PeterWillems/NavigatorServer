@@ -1,32 +1,19 @@
-<div class="card border-primary">
-  <div class="card-header">
-    System Slots
-  </div>
-  <div *ngIf="selectedDataset" class="card-body">
-    <table class="table table-hover table-bordered table-sm">
-      <thead class="thead-light">
-      <tr>
-        <th>System Slot</th>
-        <th>label</th>
-        <th>assembly</th>
-      </tr>
-      </thead>
-      <tbody *ngIf="systemSlots">
-      <tr class="table-record {{systemSlot==selectedSystemSlot?'table-record-selected':''}}"
-          *ngFor="let systemSlot of systemSlots" (click)="onClick(systemSlot)">
-        <td>{{systemSlot.uri}}</td>
-        <td>{{systemSlot.label}}</td>
-        <td>{{systemSlot.assembly ? getSystemSlotLabel(systemSlot.assembly) : ''}}</td>
-      </tr>
-      <tr>
-        <td colspan="3">
-          <button class="btn btn-outline-primary" (click)="createSystemSlot()">new SystemSlot</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <br>
-    <app-selected-system-slot *ngIf="selectedSystemSlot"
-                              [selectedSystemSlot]="selectedSystemSlot"></app-selected-system-slot>
+<div class="container-fluid">
+  <div class="row ">
+    <div class="col-md-5 column-content left-column">
+      <div class="card border-primary">
+        <div class="card-header">
+          <span class="label">System slots</span>
+        </div>
+        <div *ngIf="selectedDataset" class="card-body">
+          <app-se-objectslist [seObjectType]="'SystemSlot'" [seObjectService]="_systemSlotService"
+                              [seObjects]="systemSlots" [selectedSeObject]="selectedSystemSlot"
+                              (selectedSeObjectChanged)="onSelectedSystemSlotChanged($event)"></app-se-objectslist>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7 column-content">
+      <app-selected-system-slot *ngIf="selectedSystemSlot" [selectedSystemSlot]="selectedSystemSlot"></app-selected-system-slot>
+    </div>
   </div>
 </div>

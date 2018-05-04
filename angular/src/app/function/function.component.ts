@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {DatasetService} from '../dataset.service';
 import {Dataset} from '../dataset/dataset.model';
 import {FunctionService} from '../function.service';
@@ -12,7 +12,9 @@ import {SeObjectModel} from '../se-objectslist/se-object.model';
 })
 export class FunctionComponent implements OnInit {
   selectedDataset: Dataset;
+  @Input() functionUris: string[];
   functions: FunctionModel[];
+  @Input() context: SeObjectModel;
   selectedFunction: FunctionModel;
 
   constructor(private _datasetService: DatasetService, public _functionService: FunctionService) {
@@ -28,15 +30,20 @@ export class FunctionComponent implements OnInit {
     this.selectedDataset = this._datasetService.selectedDataset;
 
     this._functionService.seObjectsUpdated.subscribe((functions) => {
-      console.log('functions updated!');
       this.functions = functions;
     });
 
-    if (this.selectedDataset) {
-      this._functionService.loadFunctions(this.selectedDataset);
+    if (!this.context) {
+      this.functions = this._functionService.functions;
+      this.selectedFunction = this._functionService.selectedFunction;
+    } else {
+      if (this.functionUris) {
+        this.functions = [];
+        for (let index = 0; index < this.functionUris.length; index++) {
+          this.functions.push(this._functionService.getSeObject(this.functionUris[index]));
+        }
+      }
     }
-
-    this.selectedFunction = this._functionService.selectedFunction;
   }
 
   onSelectedFunctionChanged(seObject: SeObjectModel): void {
