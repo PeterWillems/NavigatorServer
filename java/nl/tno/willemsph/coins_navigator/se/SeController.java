@@ -76,4 +76,11 @@ public class SeController {
 		return _seService.updateFunction(id, localName, function);
 	}
 
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/network-connections")
+	public List<NetworkConnection> getAllNetworkConnections(@PathVariable int id)
+			throws IOException, URISyntaxException {
+		return _seService.getAllNetworkConnections(id);
+	}
+
 }

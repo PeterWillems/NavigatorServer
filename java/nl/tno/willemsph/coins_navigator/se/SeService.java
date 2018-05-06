@@ -18,12 +18,14 @@ import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 @Service
 public class SeService {
 	private enum SeObjectType {
-		SystemSlot, Function;
+		SystemSlot, Function, NetworkConnection;
 
 		SeObject create(String uri, String label, String assembly) throws URISyntaxException {
 			switch (this) {
 			case Function:
 				return new Function(uri, label, assembly);
+			case NetworkConnection:
+				return new NetworkConnection(uri, label, assembly);
 			case SystemSlot:
 				return new SystemSlot(uri, label, assembly);
 			default:
@@ -47,6 +49,7 @@ public class SeService {
 		for (SeObject seObject : seObjects) {
 			SystemSlot systemSlot = (SystemSlot) seObject;
 			systemSlot.setFunctions(getFunctionsOfSystemSlot(datasetUri, systemSlot.getUri().toString()));
+			systemSlot.setInterfaces(getInterfacesOfSystemSlot(datasetUri, systemSlot.getUri().toString()));
 			systemSlots.add(systemSlot);
 		}
 		return systemSlots;
@@ -74,6 +77,30 @@ public class SeService {
 			functionUris.add(new URI(uri));
 		}
 		return functionUris;
+	}
+
+	private List<URI> getInterfacesOfSystemSlot(String datasetUri, String systemSlotUri)
+			throws IOException, URISyntaxException {
+		List<URI> interfaceUris = null;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("system_slot", systemSlotUri);
+		queryStr.append("SELECT ?interface ");
+		queryStr.append("WHERE {");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("    ?system_slot se:hasInterfaces ?interface . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		if (responseNodes.size() > 0) {
+			interfaceUris = new ArrayList<>();
+		}
+		for (JsonNode node : responseNodes) {
+			String uri = node.get("interface").get("value").asText();
+			interfaceUris.add(new URI(uri));
+		}
+		return interfaceUris;
 	}
 
 	public Function getFunction(int datasetId, String functionUri) throws URISyntaxException, IOException {
@@ -208,6 +235,17 @@ public class SeService {
 			functions.add((Function) seObject);
 		}
 		return functions;
+	}
+
+	public List<NetworkConnection> getAllNetworkConnections(int datasetId) throws IOException, URISyntaxException {
+		String datasetUri = getDatasetUri(datasetId);
+		List<SeObject> seObjects = getAllSeObjects(datasetUri, SeObjectType.NetworkConnection);
+
+		List<NetworkConnection> networkConnections = new ArrayList<>();
+		for (SeObject seObject : seObjects) {
+			networkConnections.add((NetworkConnection) seObject);
+		}
+		return networkConnections;
 	}
 
 	private List<SeObject> getAllSeObjects(String datasetUri, SeObjectType seObjectType)

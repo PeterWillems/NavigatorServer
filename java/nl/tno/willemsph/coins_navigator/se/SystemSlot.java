@@ -6,6 +6,7 @@ import java.util.List;
 
 public class SystemSlot extends SeObject {
 	private List<URI> functions;
+	private List<URI> interfaces;
 
 	public SystemSlot() {
 	}
@@ -20,6 +21,14 @@ public class SystemSlot extends SeObject {
 
 	public void setFunctions(List<URI> functions) {
 		this.functions = functions;
+	}
+
+	public List<URI> getInterfaces() {
+		return interfaces;
+	}
+
+	public void setInterfaces(List<URI> interfaces) {
+		this.interfaces = interfaces;
 	}
 
 }
