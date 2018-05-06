@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {SeObjectModel} from './se-object.model';
+import {SeObjectModel} from '../models/se-object.model';
 import {SeObjectService} from '../se-object.service';
 
 @Component({

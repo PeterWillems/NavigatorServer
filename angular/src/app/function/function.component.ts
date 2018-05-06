@@ -2,8 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {DatasetService} from '../dataset.service';
 import {Dataset} from '../dataset/dataset.model';
 import {FunctionService} from '../function.service';
-import {FunctionModel} from './function.model';
-import {SeObjectModel} from '../se-objectslist/se-object.model';
+import {FunctionModel} from '../models/function.model';
+import {SeObjectModel} from '../models/se-object.model';
 
 @Component({
   selector: 'app-function',

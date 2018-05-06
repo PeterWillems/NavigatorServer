@@ -1,5 +1,5 @@
 import {EventEmitter, Injectable} from '@angular/core';
-import {SeObjectModel} from './se-objectslist/se-object.model';
+import {SeObjectModel} from './models/se-object.model';
 import {Observable} from 'rxjs/Observable';
 
 @Injectable()

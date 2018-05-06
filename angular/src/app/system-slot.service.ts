@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {SystemSlotModel} from './system-slot/system-slot.model';
+import {SystemSlotModel} from './models/system-slot.model';
 import {Dataset} from './dataset/dataset.model';
 import {SeObjectService} from './se-object.service';
-import {SeObjectModel} from './se-objectslist/se-object.model';
+import {SeObjectModel} from './models/se-object.model';
 import {Observable} from 'rxjs/Observable';
+import {FunctionModel} from './models/function.model';
 
 @Injectable()
 export class SystemSlotService extends SeObjectService {
@@ -88,4 +89,5 @@ export class SystemSlotService extends SeObjectService {
     const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots/' + localName + '/parts';
     return this._httpClient.get<Array<SystemSlotModel>>(request);
   }
+
 }

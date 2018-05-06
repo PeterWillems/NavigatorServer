@@ -7,10 +7,30 @@
                           [disabled]="true"></app-literal-property>
     <app-literal-property name="label" [value]="selectedSystemSlot.label" valueType="text" [disabled]="false"
                           (valueChanged)="onLabelChanged($event)"></app-literal-property>
-    <app-iri-property name="assembly" [seObjectType]="systemSlotType" [seObject]="getAssembly()" (valueChanged)="onAssemblyChanged($event)"
+    <app-iri-property name="assembly" [seObjectType]="systemSlotType" [seObject]="getAssembly()"
+                      (valueChanged)="onAssemblyChanged($event)"
                       [disabled]="false"></app-iri-property>
-    <app-iri-property-list name="parts" [items]="parts"></app-iri-property-list>
+    <app-iri-property-list name="functions" [items]="functions"
+                           (editModeChanged)="onFunctionsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="functionsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of functions" name="function" [seObject]="item" [seObjectType]="functionType"
+                        [disabled]="false"></app-iri-property>
+    </div>
 
-    <!--<button class="btn btn-outline-primary" (click)="commit()">Commit</button>-->
+    <app-iri-property-list name="parts" [items]="parts"
+                           (editModeChanged)="onPartsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="systemSlotType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
+    <app-iri-property-list name="interfaces" [items]="interfaces"
+                           (editModeChanged)="onInterfacesEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="interfacesEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of interfaces" name="interface" [seObject]="item" [seObjectType]="networkConnectionType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
+
   </div>
 </div>

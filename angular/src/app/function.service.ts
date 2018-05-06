@@ -1,11 +1,12 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Dataset} from './dataset/dataset.model';
-import {FunctionModel} from './function/function.model';
+import {FunctionModel} from './models/function.model';
 import {SeObjectService} from './se-object.service';
-import {SeObjectModel} from './se-objectslist/se-object.model';
-import {SystemSlotModel} from './system-slot/system-slot.model';
+import {SeObjectModel} from './models/se-object.model';
+import {SystemSlotModel} from './models/system-slot.model';
 import {Observable} from 'rxjs/Observable';
+import {DatasetService} from './dataset.service';
 
 @Injectable()
 export class FunctionService extends SeObjectService {
@@ -14,13 +15,18 @@ export class FunctionService extends SeObjectService {
   functions: FunctionModel[];
   selectedFunction: FunctionModel;
 
-  constructor(private _httpClient: HttpClient) {
+  constructor(private _httpClient: HttpClient, private _datasetService: DatasetService) {
     super();
     this.apiAddress = 'http://localhost:8080/se';
+    this._datasetService.selectedDatasetUpdated.subscribe(value => {
+      this.dataset = value;
+      console.log('FunctionService: new dataset: ' + this.dataset.filepath);
+      this.loadFunctions(this.dataset);
+    });
   }
 
   loadFunctions(dataset: Dataset): void {
-    this.selectFunction(null);
+    this.selectedFunction = null;
     this.dataset = dataset;
     console.log('loadFunctions: ' + this.dataset.id);
     let functions: Array<FunctionModel> = [];

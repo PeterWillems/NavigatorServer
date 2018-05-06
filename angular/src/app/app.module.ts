@@ -9,12 +9,12 @@ import {SystemSlotComponent} from './system-slot/system-slot.component';
 import {DatasetComponent} from './dataset/dataset.component';
 import {SelectedSystemSlotComponent} from './selected-system-slot/selected-system-slot.component';
 import {FunctionComponent} from './function/function.component';
-import { SeObjectslistComponent } from './se-objectslist/se-objectslist.component';
-import { SelectedSeObjectComponent } from './selected-se-object/selected-se-object.component';
-import { SelectedFunctionComponent } from './selected-function/selected-function.component';
-import { LiteralPropertyComponent } from './literal-property/literal-property.component';
-import { IriPropertyComponent } from './iri-property/iri-property.component';
-import { IriPropertyListComponent } from './iri-property-list/iri-property-list.component';
+import {SeObjectslistComponent} from './se-objectslist/se-objectslist.component';
+import {SelectedSeObjectComponent} from './selected-se-object/selected-se-object.component';
+import {SelectedFunctionComponent} from './selected-function/selected-function.component';
+import {LiteralPropertyComponent} from './literal-property/literal-property.component';
+import {IriPropertyComponent} from './iri-property/iri-property.component';
+import {IriPropertyListComponent} from './iri-property-list/iri-property-list.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},

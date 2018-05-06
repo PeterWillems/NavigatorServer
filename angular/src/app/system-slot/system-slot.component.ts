@@ -1,9 +1,9 @@
 import {Component, OnInit, OnChanges, SimpleChanges} from '@angular/core';
-import {SystemSlotModel} from './system-slot.model';
+import {SystemSlotModel} from '../models/system-slot.model';
 import {SystemSlotService} from '../system-slot.service';
 import {Dataset} from '../dataset/dataset.model';
 import {DatasetService} from '../dataset.service';
-import {SeObjectModel} from '../se-objectslist/se-object.model';
+import {SeObjectModel} from '../models/se-object.model';
 
 @Component({
   selector: 'app-system-slot',

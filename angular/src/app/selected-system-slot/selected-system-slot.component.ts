@@ -1,10 +1,13 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {SystemSlotModel} from '../system-slot/system-slot.model';
+import {SystemSlotModel} from '../models/system-slot.model';
 import {SystemSlotService} from '../system-slot.service';
 import {FunctionService} from '../function.service';
 import {SeObjectType} from '../se-object-type';
 import {Observable} from 'rxjs/Observable';
-import {SeObjectModel} from '../se-objectslist/se-object.model';
+import {SeObjectModel} from '../models/se-object.model';
+import {FunctionModel} from '../models/function.model';
+import {NetworkConnectionModel} from '../models/network-connection.model';
+import {NetworkConnectionService} from '../network-connection.service';
 
 @Component({
   selector: 'app-selected-system-slot',
@@ -13,16 +16,27 @@ import {SeObjectModel} from '../se-objectslist/se-object.model';
 })
 export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   systemSlotType = SeObjectType.SystemSlotModel;
+  functionType = SeObjectType.FunctionModel;
+  networkConnectionType = SeObjectType.NetworkConnectionModel;
   isOpen = false;
   @Input() selectedSystemSlot: SystemSlotModel;
   parts: SystemSlotModel[];
+  partsEditMode = false;
+  functions: FunctionModel[];
+  functionsEditMode = false;
+  interfaces: NetworkConnectionModel[];
+  interfacesEditMode = false;
 
-  constructor(private _systemSlotService: SystemSlotService, private _functionService: FunctionService) {
+  constructor(private _systemSlotService: SystemSlotService,
+              private _functionService: FunctionService,
+              private _networkConnectionService: NetworkConnectionService) {
   }
 
   ngOnInit() {
     this.getAssembly();
     this.getParts().subscribe(value => this.parts = value);
+    this.functions = this.getFunctions();
+    this.interfaces = this.getInterfaces();
   }
 
   getAssembly(): SystemSlotModel {
@@ -36,29 +50,33 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
     return this._systemSlotService.getSeObjectParts(this.selectedSystemSlot);
   }
 
-  showLabels(functionUris: string[]): string[] {
-    const labels = [];
-    if (this._functionService.functions && functionUris) {
-      console.log('functionUris: ' + functionUris.toString());
-      for (let index = 0; index < functionUris.length; index++) {
-        labels.push(this._functionService.getSeObject(functionUris[index]).label);
+  getFunctions(): FunctionModel[] {
+    const functions = [];
+    if (this.selectedSystemSlot.functions) {
+      for (let index = 0; index < this.selectedSystemSlot.functions.length; index++) {
+        functions.push(this._functionService.getSeObject(this.selectedSystemSlot.functions[index]));
       }
     }
-    return labels;
+    return functions;
   }
 
-  getSystemSlot(systemSlotUri: string): SystemSlotModel {
-    return systemSlotUri ? this._systemSlotService.getSeObject(systemSlotUri) : null;
-  }
-
-  commit(): void {
-    this._systemSlotService.updateSeObject(this.selectedSystemSlot);
+  getInterfaces(): NetworkConnectionModel[] {
+    const interfaces = [];
+    if (this.selectedSystemSlot.interfaces) {
+      for (let index = 0; index < this.selectedSystemSlot.interfaces.length; index++) {
+        const connection = this._networkConnectionService.getSeObject(this.selectedSystemSlot.interfaces[index]);
+        interfaces.push(connection);
+      }
+    }
+    return interfaces;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     const selectedSystemSlotChange = changes['selectedSystemSlot'];
     if (selectedSystemSlotChange) {
       this.getParts().subscribe(value => this.parts = value);
+      this.functions = this.getFunctions();
+      this.interfaces = this.getInterfaces();
     }
   }
 
@@ -70,6 +88,20 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   onAssemblyChanged(assembly: SeObjectModel): void {
     this.selectedSystemSlot.assembly = assembly ? assembly.uri : null;
     this._systemSlotService.updateSeObject(this.selectedSystemSlot);
+  }
+
+  onFunctionsEditModeChange(editMode: boolean): void {
+    console.log('onFunctionsEditModeChange: ' + editMode);
+    this.functionsEditMode = editMode;
+  }
+
+  onPartsEditModeChange(editMode: boolean): void {
+    console.log('onPartsEditModeChange: ' + editMode);
+    this.partsEditMode = editMode;
+  }
+
+  onInterfacesEditModeChange(editMode: boolean): void {
+    this.interfacesEditMode = editMode;
   }
 
 }

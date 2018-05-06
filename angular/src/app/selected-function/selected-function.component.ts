@@ -1,5 +1,5 @@
 import {Component, OnInit, Input} from '@angular/core';
-import {FunctionModel} from '../function/function.model';
+import {FunctionModel} from '../models/function.model';
 import {FunctionService} from '../function.service';
 
 @Component({

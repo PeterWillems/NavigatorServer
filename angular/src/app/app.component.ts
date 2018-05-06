@@ -3,12 +3,13 @@ import {SystemSlotService} from './system-slot.service';
 import {DatasetService} from './dataset.service';
 import {FunctionService} from './function.service';
 import {Dataset} from './dataset/dataset.model';
+import {NetworkConnectionService} from './network-connection.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [DatasetService, SystemSlotService, FunctionService]
+  providers: [DatasetService, SystemSlotService, FunctionService, NetworkConnectionService]
 })
 export class AppComponent implements OnInit {
   title = 'COINS SE Navigator';
@@ -17,7 +18,8 @@ export class AppComponent implements OnInit {
 
   constructor(private _datasetService: DatasetService,
               private _systemSlotService: SystemSlotService,
-              private _functionService: FunctionService) {
+              private _functionService: FunctionService,
+              private _networkConnectionService: NetworkConnectionService) {
   }
 
   ngOnInit(): void {
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit {
       this._datasetService.selectDataset(this.selectedDataset);
       this._systemSlotService.loadSystemSlots(this.selectedDataset);
       this._functionService.loadFunctions(this.selectedDataset);
+      this._networkConnectionService.loadNetworkConnections(this.selectedDataset);
     }
   }
 }
