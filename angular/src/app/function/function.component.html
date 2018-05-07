@@ -1,10 +1,19 @@
-<div class="card border-primary">
-  <div class="card-header">
-    Functions
-  </div>
-  <div *ngIf="selectedDataset" class="card-body">
-    <app-se-objectslist [seObjectType]="'Function'" [seObjectService]="_functionService" [seObjects]="functions" [selectedSeObject]="selectedFunction"
-                        (selectedSeObjectChanged)="onSelectedFunctionChanged($event)"></app-se-objectslist>
-    <app-selected-function [selectedFunction]="selectedFunction"></app-selected-function>
+<div class="container-fluid">
+  <div class="row ">
+    <div class="col-md-5 column-content left-column">
+      <div class="card border-primary">
+        <div class="card-header">
+          <span class="label">Functions</span>
+        </div>
+        <div *ngIf="selectedDataset" class="card-body">
+          <app-se-objectslist seObjectType="Function" [seObjectService]="_functionService"
+                              [seObjects]="functions" [selectedSeObject]="selectedFunction"
+                              (selectedSeObjectChanged)="onSelectedFunctionChanged($event)"></app-se-objectslist>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7 column-content">
+      <app-selected-function *ngIf="selectedFunction" [selectedFunction]="selectedFunction"></app-selected-function>
+    </div>
   </div>
 </div>

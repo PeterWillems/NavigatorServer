@@ -15,11 +15,13 @@ import {SelectedFunctionComponent} from './selected-function/selected-function.c
 import {LiteralPropertyComponent} from './literal-property/literal-property.component';
 import {IriPropertyComponent} from './iri-property/iri-property.component';
 import {IriPropertyListComponent} from './iri-property-list/iri-property-list.component';
+import {RealisationModuleComponent} from './realisation-module/realisation-module.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
   {path: 'systemslots', component: SystemSlotComponent},
   {path: 'functions', component: FunctionComponent},
+  {path: 'realisationmodules', component: RealisationModuleComponent},
   {path: '', redirectTo: '/datasets', pathMatch: 'full'}
 ];
 
@@ -35,7 +37,8 @@ const appRoutes: Routes = [
     SelectedFunctionComponent,
     LiteralPropertyComponent,
     IriPropertyComponent,
-    IriPropertyListComponent
+    IriPropertyListComponent,
+    RealisationModuleComponent
   ],
   imports: [
     BrowserModule,

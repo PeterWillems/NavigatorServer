@@ -80,6 +80,7 @@ export class FunctionService extends SeObjectService {
         }
       }
     }
+    console.log('getSeObject5 ' + functionUri + ' / ' + this.functions);
     return null;
   }
 
@@ -89,12 +90,5 @@ export class FunctionService extends SeObjectService {
 
   getSeObjects(): SeObjectModel[] {
     return this.functions;
-  }
-
-  getSeObjectParts(assembly: FunctionModel): Observable<FunctionModel[]> {
-    const hashMark = assembly.uri.indexOf('#') + 1;
-    const localName = assembly.uri.substring(hashMark);
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/functions/' + localName + '/parts';
-    return this._httpClient.get<Array<FunctionModel>>(request);
   }
 }

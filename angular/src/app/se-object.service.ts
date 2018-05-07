@@ -18,6 +18,4 @@ export abstract class SeObjectService {
   abstract createSeObject(): void;
 
   abstract updateSeObject(seObject: SeObjectModel): void;
-
-  abstract getSeObjectParts(assembly: SeObjectModel): Observable<SeObjectModel[]>;
 }

@@ -74,7 +74,7 @@ export class NetworkConnectionService extends SeObjectService {
     if (this.networkConnections) {
       for (let index = 0; index < this.networkConnections.length; index++) {
         if (this.networkConnections[index].uri === networkConnectionUri) {
-         return this.networkConnections[index];
+          return this.networkConnections[index];
         }
       }
     }
@@ -88,12 +88,5 @@ export class NetworkConnectionService extends SeObjectService {
 
   getSeObjects(): NetworkConnectionModel[] {
     return this.networkConnections;
-  }
-
-  getSeObjectParts(assembly: NetworkConnectionModel): Observable<NetworkConnectionModel[]> {
-    const hashMark = assembly.uri.indexOf('#') + 1;
-    const localName = assembly.uri.substring(hashMark);
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/network-connections/' + localName + '/parts';
-    return this._httpClient.get<Array<NetworkConnectionModel>>(request);
   }
 }

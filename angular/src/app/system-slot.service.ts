@@ -6,6 +6,7 @@ import {SeObjectService} from './se-object.service';
 import {SeObjectModel} from './models/se-object.model';
 import {Observable} from 'rxjs/Observable';
 import {FunctionModel} from './models/function.model';
+import {DatasetService} from './dataset.service';
 
 @Injectable()
 export class SystemSlotService extends SeObjectService {
@@ -14,9 +15,14 @@ export class SystemSlotService extends SeObjectService {
   systemSlots: SystemSlotModel[];
   selectedSystemSlot: SystemSlotModel;
 
-  constructor(private _httpClient: HttpClient) {
+  constructor(private _httpClient: HttpClient, private _datasetService: DatasetService) {
     super();
     this.apiAddress = 'http://localhost:8080/se';
+    this._datasetService.selectedDatasetUpdated.subscribe(value => {
+      this.dataset = value;
+      console.log('SystemSlotService: new dataset: ' + this.dataset.filepath);
+      this.loadSystemSlots(this.dataset);
+    });
   }
 
   loadSystemSlots(dataset: Dataset): void {
@@ -82,12 +88,4 @@ export class SystemSlotService extends SeObjectService {
   getSeObjects(): SeObjectModel[] {
     return this.systemSlots;
   }
-
-  getSeObjectParts(assembly: SystemSlotModel): Observable<SystemSlotModel[]> {
-    const hashMark = assembly.uri.indexOf('#') + 1;
-    const localName = assembly.uri.substring(hashMark);
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots/' + localName + '/parts';
-    return this._httpClient.get<Array<SystemSlotModel>>(request);
-  }
-
 }

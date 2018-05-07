@@ -1,23 +1,26 @@
 <div *ngIf="selectedFunction" class="card border-primary">
   <div class="card-header">
-    Selected Function
+    <span class="label">Selected Function:</span> {{selectedFunction.label}}
   </div>
   <div class="card-body">
-    <table class="table table-bordered table-sm">
-      <thead class="thead-light">
-      <tr>
-        <th>Property</th>
-        <th>Value</th>
-      </tr>
-      </thead>
-      <tbody>
-      <app-selected-se-object [selectedSeObject]="selectedFunction" [seObjectService]="_functionService"></app-selected-se-object>
-      <tr>
-        <td>requirements</td>
-        <td>{{showLabels(selectedFunction.requirements)}}</td>
-      </tr>
-      </tbody>
-    </table>
-    <button class="btn btn-outline-primary" (click)="commit()">Commit</button>
+    <app-literal-property name="uri" [value]="selectedFunction.uri" valueType="url"
+                          [disabled]="true"></app-literal-property>
+    <app-literal-property name="label" [value]="selectedFunction.label" valueType="text" [disabled]="false"
+                          (valueChanged)="onLabelChanged($event)"></app-literal-property>
+    <app-iri-property name="assembly" [seObjectType]="functionType" [seObject]="assembly"
+                      (valueChanged)="onAssemblyChanged($event)"
+                      [disabled]="false"></app-iri-property>
+    <app-iri-property-list name="parts" [items]="parts"
+                           (editModeChanged)="onPartsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="functionType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
+    <app-iri-property name="input" [seObjectType]="networkConnectionType" [seObject]="input"
+                      [disabled]="false"></app-iri-property>
+    <app-iri-property name="output" [seObjectType]="networkConnectionType" [seObject]="output"
+                      [disabled]="false"></app-iri-property>
+
   </div>
 </div>

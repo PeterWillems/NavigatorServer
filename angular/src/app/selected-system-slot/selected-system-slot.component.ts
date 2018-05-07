@@ -3,7 +3,6 @@ import {SystemSlotModel} from '../models/system-slot.model';
 import {SystemSlotService} from '../system-slot.service';
 import {FunctionService} from '../function.service';
 import {SeObjectType} from '../se-object-type';
-import {Observable} from 'rxjs/Observable';
 import {SeObjectModel} from '../models/se-object.model';
 import {FunctionModel} from '../models/function.model';
 import {NetworkConnectionModel} from '../models/network-connection.model';
@@ -20,6 +19,7 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   networkConnectionType = SeObjectType.NetworkConnectionModel;
   isOpen = false;
   @Input() selectedSystemSlot: SystemSlotModel;
+  assembly: SystemSlotModel;
   parts: SystemSlotModel[];
   partsEditMode = false;
   functions: FunctionModel[];
@@ -33,8 +33,19 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.getAssembly();
-    this.getParts().subscribe(value => this.parts = value);
+    this._loadStateValues();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const selectedSystemSlotChange = changes['selectedSystemSlot'];
+    if (selectedSystemSlotChange) {
+      this._loadStateValues();
+    }
+  }
+
+  private _loadStateValues(): void {
+    this.assembly = this.getAssembly();
+    this.parts = this.getParts();
     this.functions = this.getFunctions();
     this.interfaces = this.getInterfaces();
   }
@@ -46,15 +57,22 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
     return null;
   }
 
-  getParts(): Observable<SystemSlotModel[]> {
-    return this._systemSlotService.getSeObjectParts(this.selectedSystemSlot);
+  getParts(): SystemSlotModel[] {
+    const parts = [];
+    if (this.selectedSystemSlot.parts) {
+      for (let index = 0; index < this.selectedSystemSlot.parts.length; index++) {
+        parts.push(this._systemSlotService.getSeObject(this.selectedSystemSlot.parts[index]));
+      }
+    }
+    return parts;
   }
 
   getFunctions(): FunctionModel[] {
     const functions = [];
     if (this.selectedSystemSlot.functions) {
       for (let index = 0; index < this.selectedSystemSlot.functions.length; index++) {
-        functions.push(this._functionService.getSeObject(this.selectedSystemSlot.functions[index]));
+        const functionModel = this._functionService.getSeObject(this.selectedSystemSlot.functions[index]);
+        functions.push(functionModel);
       }
     }
     return functions;
@@ -69,15 +87,6 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
       }
     }
     return interfaces;
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    const selectedSystemSlotChange = changes['selectedSystemSlot'];
-    if (selectedSystemSlotChange) {
-      this.getParts().subscribe(value => this.parts = value);
-      this.functions = this.getFunctions();
-      this.interfaces = this.getInterfaces();
-    }
   }
 
   onLabelChanged(label: string): void {

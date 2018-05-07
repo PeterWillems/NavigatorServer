@@ -1,0 +1,19 @@
+<div class="container-fluid">
+  <div class="row ">
+    <div class="col-md-5 column-content left-column">
+      <div class="card border-primary">
+        <div class="card-header">
+          <span class="label">Realisation Modules</span>
+        </div>
+        <div *ngIf="selectedDataset" class="card-body">
+          <app-se-objectslist seObjectType="Realisation Module" [seObjectService]="_realisationModuleService"
+                              [seObjects]="realisationModules" [selectedSeObject]="selectedRealisationModule"
+                              (selectedSeObjectChanged)="onSelectedRealisationModuleChanged($event)"></app-se-objectslist>
+        </div>
+      </div>
+    </div>
+    <!--<div class="col-md-7 column-content">-->
+      <!--<app-selected-function *ngIf="selectedFunction" [selectedFunction]="selectedFunction"></app-selected-function>-->
+    <!--</div>-->
+  </div>
+</div>
