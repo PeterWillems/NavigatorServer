@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import nl.tno.willemsph.coins_navigator.se.model.Function;
+import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
+import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
+
 @RestController
 public class SeController {
 
@@ -51,13 +56,6 @@ public class SeController {
 	}
 
 	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-slots/{localName}/parts")
-	public List<SystemSlot> getSystemSlotParts(@PathVariable int id, @PathVariable String localName)
-			throws URISyntaxException, IOException {
-		return _seService.getSystemSlotParts(id, localName);
-	}
-
-	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/functions")
 	public List<Function> getAllFunctions(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.getAllFunctions(id);
@@ -81,6 +79,13 @@ public class SeController {
 	public List<NetworkConnection> getAllNetworkConnections(@PathVariable int id)
 			throws IOException, URISyntaxException {
 		return _seService.getAllNetworkConnections(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules")
+	public List<RealisationModule> getAllRealisationModules(@PathVariable int id)
+			throws IOException, URISyntaxException {
+		return _seService.getAllRealisationModules(id);
 	}
 
 }

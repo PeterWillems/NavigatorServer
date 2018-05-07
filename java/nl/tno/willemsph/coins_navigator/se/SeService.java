@@ -14,20 +14,27 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import nl.tno.willemsph.coins_navigator.EmbeddedServer;
+import nl.tno.willemsph.coins_navigator.se.model.Function;
+import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
+import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.SeObject;
+import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 
 @Service
 public class SeService {
 	private enum SeObjectType {
-		SystemSlot, Function, NetworkConnection;
+		SystemSlot, RealisationModule, Function, NetworkConnection;
 
-		SeObject create(String uri, String label, String assembly) throws URISyntaxException {
+		SeObject create(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
 			switch (this) {
 			case Function:
-				return new Function(uri, label, assembly);
+				return new Function(uri, label, assemblyUri, partUris);
 			case NetworkConnection:
-				return new NetworkConnection(uri, label, assembly);
+				return new NetworkConnection(uri, label, assemblyUri, partUris);
 			case SystemSlot:
-				return new SystemSlot(uri, label, assembly);
+				return new SystemSlot(uri, label, assemblyUri, partUris);
+			case RealisationModule:
+				return new RealisationModule(uri, label, assemblyUri, partUris);
 			default:
 				return null;
 			}
@@ -43,7 +50,7 @@ public class SeService {
 
 	public List<SystemSlot> getAllSystemSlots(int datasetId) throws IOException, URISyntaxException {
 		String datasetUri = getDatasetUri(datasetId);
-		List<SeObject> seObjects = getAllSeObjects(datasetUri, SeObjectType.SystemSlot);
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.SystemSlot);
 
 		List<SystemSlot> systemSlots = new ArrayList<>();
 		for (SeObject seObject : seObjects) {
@@ -109,16 +116,6 @@ public class SeService {
 
 	public SystemSlot getSystemSlot(int datasetId, String localName) throws URISyntaxException, IOException {
 		return (SystemSlot) getSeObject(datasetId, localName, SeObjectType.SystemSlot);
-	}
-
-	public List<SystemSlot> getSystemSlotParts(int datasetId, String localName) throws URISyntaxException, IOException {
-		List<String> partUris = getSeObjectParts(datasetId, localName, SeObjectType.SystemSlot);
-		List<SystemSlot> parts = new ArrayList<>();
-		for (String partUri : partUris) {
-			String partLocalName = partUri.substring(partUri.indexOf('#') + 1);
-			parts.add(getSystemSlot(datasetId, partLocalName));
-		}
-		return parts;
 	}
 
 	public List<Dataset> getAllDatasets() throws URISyntaxException {
@@ -228,18 +225,62 @@ public class SeService {
 
 	public List<Function> getAllFunctions(int datasetId) throws IOException, URISyntaxException {
 		String datasetUri = getDatasetUri(datasetId);
-		List<SeObject> seObjects = getAllSeObjects(datasetUri, SeObjectType.Function);
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.Function);
 
 		List<Function> functions = new ArrayList<>();
 		for (SeObject seObject : seObjects) {
-			functions.add((Function) seObject);
+			Function function = (Function) seObject;
+			function.setInput(getInputOfFunction(datasetUri, function.getUri().toString()));
+			function.setOutput(getOutputOfFunction(datasetUri, function.getUri().toString()));
+			functions.add(function);
 		}
 		return functions;
 	}
 
+	private URI getInputOfFunction(String datasetUri, String functionUri) throws IOException, URISyntaxException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("function", functionUri);
+		queryStr.append("SELECT ?input ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?function se:input ?input . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		URI inputUri = null;
+		for (JsonNode node : responseNodes) {
+			JsonNode inputNode = node.get("input");
+			String input = inputNode != null ? inputNode.get("value").asText() : null;
+			inputUri = input != null ? new URI(input) : null;
+		}
+		return inputUri;
+	}
+
+	private URI getOutputOfFunction(String datasetUri, String functionUri) throws IOException, URISyntaxException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("function", functionUri);
+		queryStr.append("SELECT ?output ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?function se:output ?output . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		URI outputUri = null;
+		for (JsonNode node : responseNodes) {
+			JsonNode outputNode = node.get("output");
+			String output = outputNode != null ? outputNode.get("value").asText() : null;
+			outputUri = output != null ? new URI(output) : null;
+		}
+		return outputUri;
+	}
+
 	public List<NetworkConnection> getAllNetworkConnections(int datasetId) throws IOException, URISyntaxException {
-		String datasetUri = getDatasetUri(datasetId);
-		List<SeObject> seObjects = getAllSeObjects(datasetUri, SeObjectType.NetworkConnection);
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.NetworkConnection);
 
 		List<NetworkConnection> networkConnections = new ArrayList<>();
 		for (SeObject seObject : seObjects) {
@@ -248,8 +289,19 @@ public class SeService {
 		return networkConnections;
 	}
 
-	private List<SeObject> getAllSeObjects(String datasetUri, SeObjectType seObjectType)
+	public List<RealisationModule> getAllRealisationModules(int datasetId) throws IOException, URISyntaxException {
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.RealisationModule);
+
+		List<RealisationModule> realisationModules = new ArrayList<>();
+		for (SeObject seObject : seObjects) {
+			realisationModules.add((RealisationModule) seObject);
+		}
+		return realisationModules;
+	}
+
+	private List<SeObject> getAllSeObjects(int datasetId, SeObjectType seObjectType)
 			throws IOException, URISyntaxException {
+		String datasetUri = getDatasetUri(datasetId);
 		List<SeObject> seObjects = new ArrayList<>();
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri);
@@ -288,7 +340,8 @@ public class SeService {
 			String label = labelNode != null ? labelNode.get("value").asText() : null;
 			JsonNode assemblyNode = node.get("assembly");
 			String assembly = assemblyNode != null ? node.get("assembly").get("value").asText() : null;
-			SeObject seObject = seObjectType.create(seObjectUri, label, assembly);
+			List<String> seObjectParts = getSeObjectParts(datasetId, getLocalName(seObjectUri), seObjectType);
+			SeObject seObject = seObjectType.create(seObjectUri, label, assembly, seObjectParts);
 			seObjects.add(seObject);
 		}
 
@@ -337,7 +390,8 @@ public class SeService {
 			String label = labelNode != null ? labelNode.get("value").asText() : null;
 			JsonNode assemblyNode = node.get("assembly");
 			String assembly = assemblyNode != null ? node.get("assembly").get("value").asText() : null;
-			seObject = seObjectType.create(seObjectUri, label, assembly);
+			List<String> seObjectParts = getSeObjectParts(datasetId, getLocalName(seObjectUri), seObjectType);
+			seObject = seObjectType.create(seObjectUri, label, assembly, seObjectParts);
 		}
 
 		return seObject;
@@ -418,6 +472,11 @@ public class SeService {
 
 	private String getOntologyUri(int datasetId) throws URISyntaxException {
 		return _embeddedServer.getDatasets().get(datasetId).getOntologyUri().toString();
+	}
+
+	private String getLocalName(String uri) {
+		int indexOfHashMark = uri.indexOf('#');
+		return uri.substring(indexOfHashMark + 1);
 	}
 
 }

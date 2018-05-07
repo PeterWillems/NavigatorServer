@@ -1,4 +1,4 @@
-package nl.tno.willemsph.coins_navigator.se;
+package nl.tno.willemsph.coins_navigator.se.model;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,8 +11,8 @@ public class SystemSlot extends SeObject {
 	public SystemSlot() {
 	}
 
-	public SystemSlot(String uri, String label, String assembly) throws URISyntaxException {
-		super(uri, label, assembly);
+	public SystemSlot(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
+		super(uri, label, assemblyUri, partUris);
 	}
 
 	public List<URI> getFunctions() {
