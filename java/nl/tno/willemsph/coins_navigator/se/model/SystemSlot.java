@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class SystemSlot extends SeObject {
+	private List<URI> requirements;
 	private List<URI> functions;
 	private List<URI> interfaces;
 
@@ -13,6 +14,14 @@ public class SystemSlot extends SeObject {
 
 	public SystemSlot(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
 		super(uri, label, assemblyUri, partUris);
+	}
+
+	public List<URI> getRequirements() {
+		return requirements;
+	}
+
+	public void setRequirements(List<URI> requirements) {
+		this.requirements = requirements;
 	}
 
 	public List<URI> getFunctions() {

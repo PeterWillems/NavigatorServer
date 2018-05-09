@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import nl.tno.willemsph.coins_navigator.se.model.Function;
+import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
 import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.Requirement;
 import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 
 @RestController
@@ -49,6 +51,13 @@ public class SeController {
 	}
 
 	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-slots/{localName}/hamburgers")
+	public List<Hamburger> getHamburgersForSystemSlot(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getHamburgersForSystemSlot(id, localName);
+	}
+
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-slots/{localName}")
 	public SystemSlot updateSystemSlot(@PathVariable int id, @PathVariable String localName,
 			@RequestBody SystemSlot systemSlot) throws URISyntaxException, IOException {
@@ -72,6 +81,18 @@ public class SeController {
 	public Function updateFunction(@PathVariable int id, @PathVariable String localName, @RequestBody Function function)
 			throws URISyntaxException, IOException {
 		return _seService.updateFunction(id, localName, function);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/requirements")
+	public List<Requirement> getAllRequirements(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllRequirements(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/requirements")
+	public Requirement createRequirement(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createRequirement(id);
 	}
 
 	@CrossOrigin

@@ -22,5 +22,12 @@
     <app-iri-property name="output" [seObjectType]="networkConnectionType" [seObject]="output"
                       [disabled]="false"></app-iri-property>
 
+    <app-iri-property-list name="requirements" [items]="requirements"
+                           (editModeChanged)="onRequirementsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="requirementsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of requirements" name="requirement" [seObject]="item" [seObjectType]="requirementType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
   </div>
 </div>

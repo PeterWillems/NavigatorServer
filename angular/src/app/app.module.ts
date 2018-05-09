@@ -16,11 +16,14 @@ import {LiteralPropertyComponent} from './literal-property/literal-property.comp
 import {IriPropertyComponent} from './iri-property/iri-property.component';
 import {IriPropertyListComponent} from './iri-property-list/iri-property-list.component';
 import {RealisationModuleComponent} from './realisation-module/realisation-module.component';
+import { RequirementComponent } from './requirement/requirement.component';
+import { SelectedRequirementComponent } from './selected-requirement/selected-requirement.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
   {path: 'systemslots', component: SystemSlotComponent},
   {path: 'functions', component: FunctionComponent},
+  {path: 'requirements', component: RequirementComponent},
   {path: 'realisationmodules', component: RealisationModuleComponent},
   {path: '', redirectTo: '/datasets', pathMatch: 'full'}
 ];
@@ -38,7 +41,9 @@ const appRoutes: Routes = [
     LiteralPropertyComponent,
     IriPropertyComponent,
     IriPropertyListComponent,
-    RealisationModuleComponent
+    RealisationModuleComponent,
+    RequirementComponent,
+    SelectedRequirementComponent
   ],
   imports: [
     BrowserModule,

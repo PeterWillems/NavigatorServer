@@ -7,6 +7,7 @@ import {SeObjectModel} from './models/se-object.model';
 import {Observable} from 'rxjs/Observable';
 import {FunctionModel} from './models/function.model';
 import {DatasetService} from './dataset.service';
+import {HamburgerModel} from './models/hamburger.model';
 
 @Injectable()
 export class SystemSlotService extends SeObjectService {
@@ -87,5 +88,12 @@ export class SystemSlotService extends SeObjectService {
 
   getSeObjects(): SeObjectModel[] {
     return this.systemSlots;
+  }
+
+  getHamburgers(systemSlotUri: string): Observable<Array<HamburgerModel>> {
+    const hashMark = systemSlotUri.indexOf('#') + 1;
+    const localName = systemSlotUri.substring(hashMark);
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots/' + localName + '/hamburgers';
+    return this._httpClient.get<Array<HamburgerModel>>(request);
   }
 }

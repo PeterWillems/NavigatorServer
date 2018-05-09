@@ -1,5 +1,8 @@
 export enum SeObjectType {
   FunctionModel,
   NetworkConnectionModel,
-  SystemSlotModel
+  SystemSlotModel,
+  HamburgerModel,
+  RealisationModuleModel,
+  RequirementModel
 }

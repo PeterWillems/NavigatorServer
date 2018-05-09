@@ -5,6 +5,8 @@ import {SeObjectModel} from '../models/se-object.model';
 import {FunctionModel} from '../models/function.model';
 import {NetworkConnectionModel} from '../models/network-connection.model';
 import {NetworkConnectionService} from '../network-connection.service';
+import {RequirementModel} from '../models/requirement.model';
+import {RequirementService} from '../requirement.service';
 
 @Component({
   selector: 'app-selected-function',
@@ -13,6 +15,7 @@ import {NetworkConnectionService} from '../network-connection.service';
 })
 export class SelectedFunctionComponent implements OnInit, OnChanges {
   functionType = SeObjectType.FunctionModel;
+  requirementType = SeObjectType.RequirementModel;
   networkConnectionType = SeObjectType.NetworkConnectionModel;
   isOpen = false;
   @Input() selectedFunction: FunctionModel;
@@ -21,8 +24,11 @@ export class SelectedFunctionComponent implements OnInit, OnChanges {
   partsEditMode = false;
   input: NetworkConnectionModel;
   output: NetworkConnectionModel;
+  requirements: RequirementModel[];
+  requirementsEditMode = false;
 
   constructor(private _functionService: FunctionService,
+              private _requirementService: RequirementService,
               private _networkConnectionService: NetworkConnectionService) {
   }
 
@@ -42,7 +48,7 @@ export class SelectedFunctionComponent implements OnInit, OnChanges {
     this.parts = this.getParts();
     this.input = this.getInput();
     this.output = this.getOutput();
-    console.log('_loadStateValues: input/output ' + this.input + ' ' + this.output);
+    this.requirements = this.getRequirements();
   }
 
   getAssembly(): FunctionModel {
@@ -76,6 +82,16 @@ export class SelectedFunctionComponent implements OnInit, OnChanges {
     return null;
   }
 
+  getRequirements(): RequirementModel[] {
+    const requirements = [];
+    if (this.selectedFunction.requirements) {
+      for (let index = 0; index < this.selectedFunction.requirements.length; index++) {
+        requirements.push(this._requirementService.getSeObject(this.selectedFunction.requirements[index]));
+      }
+    }
+    return requirements;
+  }
+
   onLabelChanged(label: string): void {
     this.selectedFunction.label = label;
     this._functionService.updateSeObject(this.selectedFunction);
@@ -88,6 +104,10 @@ export class SelectedFunctionComponent implements OnInit, OnChanges {
 
   onPartsEditModeChange(editMode: boolean): void {
     this.partsEditMode = editMode;
+  }
+
+  onRequirementsEditModeChange(editMode: boolean): void {
+    this.requirementsEditMode = editMode;
   }
 
 }

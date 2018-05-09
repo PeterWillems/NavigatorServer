@@ -4,6 +4,7 @@ import {SystemSlotService} from '../system-slot.service';
 import {FunctionService} from '../function.service';
 import {SeObjectModel} from '../models/se-object.model';
 import {NetworkConnectionService} from '../network-connection.service';
+import {RequirementService} from '../requirement.service';
 
 @Component({
   selector: 'app-iri-property',
@@ -23,6 +24,7 @@ export class IriPropertyComponent implements OnInit, OnChanges {
 
   constructor(private _functionService: FunctionService,
               private _networkConnectionService: NetworkConnectionService,
+              private _requirementService: RequirementService,
               private _systemSlotService: SystemSlotService) {
     console.log('IriPropertyComponent created ', this.seObjectType);
   }
@@ -64,6 +66,11 @@ export class IriPropertyComponent implements OnInit, OnChanges {
       case SeObjectType.SystemSlotModel:
         console.log('system-slot options');
         this.options = this._systemSlotService.systemSlots;
+        break;
+
+      case SeObjectType.RequirementModel:
+        console.log('requirement options');
+        this.options = this._requirementService.requirements;
         break;
 
       default:

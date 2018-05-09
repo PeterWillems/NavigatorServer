@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -15,26 +17,32 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.model.Function;
+import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
 import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.Requirement;
 import nl.tno.willemsph.coins_navigator.se.model.SeObject;
 import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 
 @Service
 public class SeService {
 	private enum SeObjectType {
-		SystemSlot, RealisationModule, Function, NetworkConnection;
+		SystemSlot, RealisationModule, Function, Requirement, NetworkConnection, Hamburger;
 
 		SeObject create(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
 			switch (this) {
 			case Function:
 				return new Function(uri, label, assemblyUri, partUris);
+			case Hamburger:
+				return new Hamburger(uri, label, assemblyUri, partUris);
 			case NetworkConnection:
 				return new NetworkConnection(uri, label, assemblyUri, partUris);
-			case SystemSlot:
-				return new SystemSlot(uri, label, assemblyUri, partUris);
 			case RealisationModule:
 				return new RealisationModule(uri, label, assemblyUri, partUris);
+			case Requirement:
+				return new Requirement(uri, label, assemblyUri, partUris);
+			case SystemSlot:
+				return new SystemSlot(uri, label, assemblyUri, partUris);
 			default:
 				return null;
 			}
@@ -55,6 +63,7 @@ public class SeService {
 		List<SystemSlot> systemSlots = new ArrayList<>();
 		for (SeObject seObject : seObjects) {
 			SystemSlot systemSlot = (SystemSlot) seObject;
+			systemSlot.setRequirements(getRequirements(datasetId, systemSlot.getUri().toString()));
 			systemSlot.setFunctions(getFunctionsOfSystemSlot(datasetUri, systemSlot.getUri().toString()));
 			systemSlot.setInterfaces(getInterfacesOfSystemSlot(datasetUri, systemSlot.getUri().toString()));
 			systemSlots.add(systemSlot);
@@ -123,8 +132,7 @@ public class SeService {
 	}
 
 	public Function createFunction(int datasetId) throws URISyntaxException, IOException {
-		String datasetUri = getDatasetUri(datasetId);
-		String functionUri = createSeObject(datasetUri, SeObjectType.Function);
+		String functionUri = createSeObject(datasetId, SeObjectType.Function);
 		return getFunction(datasetId, functionUri);
 	}
 
@@ -136,9 +144,17 @@ public class SeService {
 		return getFunction(datasetId, function.getUri().toString());
 	}
 
+	public Requirement createRequirement(int datasetId) throws URISyntaxException, IOException {
+		String requirementUri = createSeObject(datasetId, SeObjectType.Requirement);
+		return getRequirement(datasetId, requirementUri);
+	}
+
+	public Requirement getRequirement(int datasetId, String functionUri) throws URISyntaxException, IOException {
+		return (Requirement) getSeObject(datasetId, functionUri, SeObjectType.Requirement);
+	}
+
 	public SystemSlot createSystemSlot(int datasetId) throws URISyntaxException, IOException {
-		String datasetUri = getDatasetUri(datasetId);
-		String systemSlotUri = createSeObject(datasetUri, SeObjectType.SystemSlot);
+		String systemSlotUri = createSeObject(datasetId, SeObjectType.SystemSlot);
 		return getSystemSlot(datasetId, systemSlotUri);
 	}
 
@@ -232,6 +248,7 @@ public class SeService {
 			Function function = (Function) seObject;
 			function.setInput(getInputOfFunction(datasetUri, function.getUri().toString()));
 			function.setOutput(getOutputOfFunction(datasetUri, function.getUri().toString()));
+			function.setRequirements(getRequirements(datasetId, function.getUri().toString()));
 			functions.add(function);
 		}
 		return functions;
@@ -279,6 +296,41 @@ public class SeService {
 		return outputUri;
 	}
 
+	private List<URI> getRequirements(int datasetId, String ownerUri) throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("owner", ownerUri);
+		queryStr.append("SELECT ?requirement ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?owner se:hasRequirement ?requirement . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		List<URI> requirementUris = new ArrayList<>();
+		for (JsonNode node : responseNodes) {
+			JsonNode requirementNode = node.get("requirement");
+			String requirementUri = requirementNode != null ? requirementNode.get("value").asText() : null;
+			if (requirementUri != null) {
+				requirementUris.add(new URI(requirementUri));
+			}
+		}
+		return requirementUris;
+	}
+
+	public List<Requirement> getAllRequirements(int datasetId) throws IOException, URISyntaxException {
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.Requirement);
+
+		List<Requirement> requirements = new ArrayList<>();
+		for (SeObject seObject : seObjects) {
+			Requirement requirement = (Requirement) seObject;
+			requirements.add(requirement);
+		}
+		return requirements;
+	}
+
 	public List<NetworkConnection> getAllNetworkConnections(int datasetId) throws IOException, URISyntaxException {
 		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.NetworkConnection);
 
@@ -297,6 +349,48 @@ public class SeService {
 			realisationModules.add((RealisationModule) seObject);
 		}
 		return realisationModules;
+	}
+
+	public List<Hamburger> getHamburgersForSystemSlot(int datasetId, String systemSlotLocalName)
+			throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String ontologyUri = getOntologyUri(datasetId);
+		String systemSlotUri = ontologyUri + "#" + systemSlotLocalName;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("system_slot", systemSlotUri);
+		queryStr.append("SELECT ?hamburger ?technical_solution ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("    ?hamburger se:functionalUnit ?system_slot . ");
+		queryStr.append("    OPTIONAL { ");
+		queryStr.append("      ?hamburger se:technicalSolution ?technical_solution . ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		Map<String, String> hamburgerMap = new HashMap<>();
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			String hamburgerUri = node.get("hamburger").get("value").asText();
+			JsonNode technical_solutionNode = node.get("technical_solution");
+			String technical_solutionUri = technical_solutionNode != null ? technical_solutionNode.get("value").asText()
+					: null;
+			hamburgerMap.put(hamburgerUri, technical_solutionUri);
+		}
+
+		List<Hamburger> hamburgers = new ArrayList<>();
+		for (String hamburgerUri : hamburgerMap.keySet()) {
+			String hamburgerLocalName = getLocalName(hamburgerUri);
+			Hamburger hamburger = (Hamburger) getSeObject(datasetId, hamburgerLocalName, SeObjectType.Hamburger);
+			hamburger.setFunctionalUnit(new URI(systemSlotUri));
+			String technicalSolutionUri = hamburgerMap.get(hamburgerUri);
+			if (technicalSolutionUri != null)
+				hamburger.setTechnicalSolution(new URI(technicalSolutionUri));
+			hamburgers.add(hamburger);
+		}
+
+		return hamburgers;
 	}
 
 	private List<SeObject> getAllSeObjects(int datasetId, SeObjectType seObjectType)
@@ -441,10 +535,12 @@ public class SeService {
 		return parts;
 	}
 
-	private String createSeObject(String datasetUri, SeObjectType seObjectType) throws URISyntaxException, IOException {
+	private String createSeObject(int datasetId, SeObjectType seObjectType) throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String ontologyUri = getOntologyUri(datasetId);
 		String localName = seObjectType.name() + "_" + UUID.randomUUID().toString();
 		String label = localName.substring(0, seObjectType.name().length() + 5);
-		String seObjectUri = datasetUri + "#" + localName;
+		String seObjectUri = ontologyUri + "#" + localName;
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("se_object", seObjectUri);
 		queryStr.setIri("SeObject", seObjectType.getUri());

@@ -18,7 +18,9 @@ export class SeObjectslistComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.seObjectService.seObjectsUpdated.subscribe((seObjects) => this.seObjects = seObjects);
+    this.seObjectService.seObjectsUpdated.subscribe((seObjects) => {
+      this.seObjects = seObjects;
+    });
   }
 
   onClick(seObject: SeObjectModel): void {

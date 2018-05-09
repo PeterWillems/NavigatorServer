@@ -5,6 +5,7 @@ import {FunctionService} from './function.service';
 import {Dataset} from './dataset/dataset.model';
 import {NetworkConnectionService} from './network-connection.service';
 import {RealisationModuleService} from './realisation-module.service';
+import {RequirementService} from './requirement.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,7 @@ import {RealisationModuleService} from './realisation-module.service';
     SystemSlotService,
     RealisationModuleService,
     FunctionService,
+    RequirementService,
     NetworkConnectionService
   ]
 })
@@ -27,6 +29,7 @@ export class AppComponent implements OnInit {
               private _systemSlotService: SystemSlotService,
               private _realisationModuleService: RealisationModuleService,
               private _functionService: FunctionService,
+              private _requirementService: RequirementService,
               private _networkConnectionService: NetworkConnectionService) {
   }
 
@@ -45,6 +48,7 @@ export class AppComponent implements OnInit {
       this._systemSlotService.loadSystemSlots(this.selectedDataset);
       this._realisationModuleService.loadRealisationModules(this.selectedDataset);
       this._functionService.loadFunctions(this.selectedDataset);
+      this._requirementService.loadRequirements(this.selectedDataset);
       this._networkConnectionService.loadNetworkConnections(this.selectedDataset);
     }
   }
