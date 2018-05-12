@@ -26,7 +26,7 @@ export class SelectedRequirementComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const selectedRequirementChange = changes['selectedRequirement'];
+    const selectedRequirementChange = changes['selectedPerformance'];
     if (selectedRequirementChange) {
       this._loadStateValues();
     }

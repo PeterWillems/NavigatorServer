@@ -16,8 +16,11 @@ import {LiteralPropertyComponent} from './literal-property/literal-property.comp
 import {IriPropertyComponent} from './iri-property/iri-property.component';
 import {IriPropertyListComponent} from './iri-property-list/iri-property-list.component';
 import {RealisationModuleComponent} from './realisation-module/realisation-module.component';
-import { RequirementComponent } from './requirement/requirement.component';
-import { SelectedRequirementComponent } from './selected-requirement/selected-requirement.component';
+import {RequirementComponent} from './requirement/requirement.component';
+import {SelectedRequirementComponent} from './selected-requirement/selected-requirement.component';
+import { SelectedRealisationModuleComponent } from './selected-realisation-module/selected-realisation-module.component';
+import { PerformanceComponent } from './performance/performance.component';
+import { SelectedPerformanceComponent } from './selected-performance/selected-performance.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
@@ -25,6 +28,7 @@ const appRoutes: Routes = [
   {path: 'functions', component: FunctionComponent},
   {path: 'requirements', component: RequirementComponent},
   {path: 'realisationmodules', component: RealisationModuleComponent},
+  {path: 'performances', component: PerformanceComponent},
   {path: '', redirectTo: '/datasets', pathMatch: 'full'}
 ];
 
@@ -43,7 +47,10 @@ const appRoutes: Routes = [
     IriPropertyListComponent,
     RealisationModuleComponent,
     RequirementComponent,
-    SelectedRequirementComponent
+    SelectedRequirementComponent,
+    SelectedRealisationModuleComponent,
+    PerformanceComponent,
+    SelectedPerformanceComponent
   ],
   imports: [
     BrowserModule,

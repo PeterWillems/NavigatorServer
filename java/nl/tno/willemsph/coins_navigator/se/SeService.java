@@ -19,6 +19,7 @@ import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.model.Function;
 import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
 import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
+import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
 import nl.tno.willemsph.coins_navigator.se.model.Requirement;
 import nl.tno.willemsph.coins_navigator.se.model.SeObject;
@@ -27,7 +28,7 @@ import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 @Service
 public class SeService {
 	private enum SeObjectType {
-		SystemSlot, RealisationModule, Function, Requirement, NetworkConnection, Hamburger;
+		SystemSlot, RealisationModule, Function, Performance, Requirement, NetworkConnection, Hamburger;
 
 		SeObject create(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
 			switch (this) {
@@ -39,6 +40,8 @@ public class SeService {
 				return new NetworkConnection(uri, label, assemblyUri, partUris);
 			case RealisationModule:
 				return new RealisationModule(uri, label, assemblyUri, partUris);
+			case Performance:
+				return new Performance(uri, label, assemblyUri, partUris);
 			case Requirement:
 				return new Requirement(uri, label, assemblyUri, partUris);
 			case SystemSlot:
@@ -144,9 +147,27 @@ public class SeService {
 		return getFunction(datasetId, function.getUri().toString());
 	}
 
+	public RealisationModule createRealisationModule(int datasetId) throws URISyntaxException, IOException {
+		String realisationModuleUri = createSeObject(datasetId, SeObjectType.RealisationModule);
+		return getRealisationModule(datasetId, realisationModuleUri);
+	}
+
+	public RealisationModule getRealisationModule(int datasetId, String realisationModuleUri)
+			throws URISyntaxException, IOException {
+		RealisationModule realisationModule = (RealisationModule) getSeObject(datasetId, realisationModuleUri,
+				SeObjectType.RealisationModule);
+		realisationModule.setPerformances(getPerformances(datasetId, realisationModule.getUri().toString()));
+
+		return realisationModule;
+	}
+
 	public Requirement createRequirement(int datasetId) throws URISyntaxException, IOException {
 		String requirementUri = createSeObject(datasetId, SeObjectType.Requirement);
 		return getRequirement(datasetId, requirementUri);
+	}
+
+	public Performance getPerformance(int datasetId, String functionUri) throws URISyntaxException, IOException {
+		return (Performance) getSeObject(datasetId, functionUri, SeObjectType.Performance);
 	}
 
 	public Requirement getRequirement(int datasetId, String functionUri) throws URISyntaxException, IOException {
@@ -296,6 +317,30 @@ public class SeService {
 		return outputUri;
 	}
 
+	private List<URI> getPerformances(int datasetId, String ownerUri) throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("owner", ownerUri);
+		queryStr.append("SELECT ?performance ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?owner se:hasPerformance ?performance . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		List<URI> performanceUris = new ArrayList<>();
+		for (JsonNode node : responseNodes) {
+			JsonNode performanceNode = node.get("performance");
+			String performanceUri = performanceNode != null ? performanceNode.get("value").asText() : null;
+			if (performanceUri != null) {
+				performanceUris.add(new URI(performanceUri));
+			}
+		}
+		return performanceUris;
+	}
+
 	private List<URI> getRequirements(int datasetId, String ownerUri) throws URISyntaxException, IOException {
 		String datasetUri = getDatasetUri(datasetId);
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
@@ -320,6 +365,22 @@ public class SeService {
 		return requirementUris;
 	}
 
+	public List<Performance> getAllPerformances(int datasetId) throws IOException, URISyntaxException {
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.Performance);
+
+		List<Performance> performances = new ArrayList<>();
+		for (SeObject seObject : seObjects) {
+			Performance performance = (Performance) seObject;
+			performances.add(performance);
+		}
+		return performances;
+	}
+
+	public Performance createPerformance(int datasetId) throws URISyntaxException, IOException {
+		String performanceUri = createSeObject(datasetId, SeObjectType.Performance);
+		return getPerformance(datasetId, performanceUri);
+	}
+
 	public List<Requirement> getAllRequirements(int datasetId) throws IOException, URISyntaxException {
 		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.Requirement);
 
@@ -336,9 +397,40 @@ public class SeService {
 
 		List<NetworkConnection> networkConnections = new ArrayList<>();
 		for (SeObject seObject : seObjects) {
-			networkConnections.add((NetworkConnection) seObject);
+			NetworkConnection networkConnection = (NetworkConnection) seObject;
+			List<URI> systemSlots = getSystemSlotsOfNetworkConnection(datasetId, networkConnection.getUri().toString());
+			if (systemSlots.size() > 0) {
+				networkConnection.setSystemSlot0(systemSlots.get(0));
+				if (systemSlots.size() > 1) {
+					networkConnection.setSystemSlot1(systemSlots.get(1));
+				}
+			}
+			networkConnections.add(networkConnection);
 		}
 		return networkConnections;
+	}
+
+	private List<URI> getSystemSlotsOfNetworkConnection(int datasetId, String networkConnectionUri)
+			throws IOException, URISyntaxException {
+		String datasetUri = getDatasetUri(datasetId);
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("network_connection", networkConnectionUri);
+		queryStr.append("SELECT ?system_slot ");
+		queryStr.append("WHERE {");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("    ?system_slot se:hasInterfaces ?network_connection . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		List<URI> systemSlotUris = new ArrayList<>();
+
+		for (JsonNode node : responseNodes) {
+			String system_slotUri = node.get("system_slot").get("value").asText();
+			systemSlotUris.add(new URI(system_slotUri));
+		}
+		return systemSlotUris;
 	}
 
 	public List<RealisationModule> getAllRealisationModules(int datasetId) throws IOException, URISyntaxException {
@@ -346,7 +438,9 @@ public class SeService {
 
 		List<RealisationModule> realisationModules = new ArrayList<>();
 		for (SeObject seObject : seObjects) {
-			realisationModules.add((RealisationModule) seObject);
+			RealisationModule realisationModule = (RealisationModule) seObject;
+			realisationModule.setPerformances(getPerformances(datasetId, realisationModule.getUri().toString()));
+			realisationModules.add(realisationModule);
 		}
 		return realisationModules;
 	}
@@ -387,6 +481,47 @@ public class SeService {
 			String technicalSolutionUri = hamburgerMap.get(hamburgerUri);
 			if (technicalSolutionUri != null)
 				hamburger.setTechnicalSolution(new URI(technicalSolutionUri));
+			hamburgers.add(hamburger);
+		}
+
+		return hamburgers;
+	}
+
+	public List<Hamburger> getHamburgersForRealisationModule(int datasetId, String realisationModuleLocalName)
+			throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String ontologyUri = getOntologyUri(datasetId);
+		String realisationModuleUri = ontologyUri + "#" + realisationModuleLocalName;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("realisation_module", realisationModuleUri);
+		queryStr.append("SELECT ?hamburger ?functional_unit ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("    ?hamburger se:technicalSolution ?realisation_module . ");
+		queryStr.append("    OPTIONAL { ");
+		queryStr.append("      ?hamburger se:functionalUnit ?functional_unit . ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		Map<String, String> hamburgerMap = new HashMap<>();
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			String hamburgerUri = node.get("hamburger").get("value").asText();
+			JsonNode functionalUnitNode = node.get("functional_unit");
+			String functionalUnitUri = functionalUnitNode != null ? functionalUnitNode.get("value").asText() : null;
+			hamburgerMap.put(hamburgerUri, functionalUnitUri);
+		}
+
+		List<Hamburger> hamburgers = new ArrayList<>();
+		for (String hamburgerUri : hamburgerMap.keySet()) {
+			String hamburgerLocalName = getLocalName(hamburgerUri);
+			Hamburger hamburger = (Hamburger) getSeObject(datasetId, hamburgerLocalName, SeObjectType.Hamburger);
+			hamburger.setTechnicalSolution(new URI(realisationModuleUri));
+			String functionalUnitUri = hamburgerMap.get(hamburgerUri);
+			if (functionalUnitUri != null)
+				hamburger.setFunctionalUnit(new URI(functionalUnitUri));
 			hamburgers.add(hamburger);
 		}
 

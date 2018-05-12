@@ -8,6 +8,7 @@ import {Observable} from 'rxjs/Observable';
 import {FunctionModel} from './models/function.model';
 import {DatasetService} from './dataset.service';
 import {HamburgerModel} from './models/hamburger.model';
+import {SeObjectType} from './se-object-type';
 
 @Injectable()
 export class SystemSlotService extends SeObjectService {
@@ -16,43 +17,27 @@ export class SystemSlotService extends SeObjectService {
   systemSlots: SystemSlotModel[];
   selectedSystemSlot: SystemSlotModel;
 
-  constructor(private _httpClient: HttpClient, private _datasetService: DatasetService) {
-    super();
+  constructor(protected _httpClient: HttpClient, private _datasetService: DatasetService) {
+    super(_httpClient);
     this.apiAddress = 'http://localhost:8080/se';
     this._datasetService.selectedDatasetUpdated.subscribe(value => {
       this.dataset = value;
       console.log('SystemSlotService: new dataset: ' + this.dataset.filepath);
-      this.loadSystemSlots(this.dataset);
+      this.selectedSystemSlot = null;
+      this.loadObjects(this.dataset);
     });
   }
 
-  loadSystemSlots(dataset: Dataset): void {
-    this.selectSystemSlot(null);
-    this.dataset = dataset;
-    console.log('loadSystemSlots: ' + this.dataset.id);
-    let systemSlots: Array<SystemSlotModel> = [];
-    const request = this.apiAddress + '/datasets/' + dataset.id + '/system-slots';
-    const systemSlots$ = this._httpClient.get<Array<SystemSlotModel>>(request);
-    systemSlots$.subscribe(value => {
-      systemSlots = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.systemSlots = systemSlots;
-      this.seObjectsUpdated.emit(systemSlots);
+  loadObjects(dataset: Dataset): void {
+    this.load(this.selectedSystemSlot, this.dataset, SeObjectType.SystemSlotModel).subscribe(value => {
+      this.systemSlots = value;
+      this.seObjectsUpdated.emit(this.systemSlots);
     });
   }
 
-  createSeObject(): void {
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots';
-    let systemSlot = <SystemSlotModel>{uri: 'xxx', label: '', assembly: ''};
-    const systemSlot$ = this._httpClient.post<SystemSlotModel>(request, systemSlot);
-    systemSlot$.subscribe(value => {
-      systemSlot = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.systemSlots.push(systemSlot);
+  createObject(): void {
+    this.create(this.selectedSystemSlot, this.dataset, SeObjectType.SystemSlotModel).subscribe(value => {
+      this.systemSlots.push(value);
       this.seObjectsUpdated.emit(this.systemSlots);
     });
   }
@@ -68,15 +53,17 @@ export class SystemSlotService extends SeObjectService {
     });
   }
 
-  getSeObject(uri: string): SystemSlotModel {
-    for (let index = 0; index < this.systemSlots.length; index++) {
-      if (this.systemSlots[index].uri === uri) {
-        return this.systemSlots[index];
+  getSeObject(systemSlotUri: string): SystemSlotModel {
+    if (this.systemSlots) {
+      for (let index = 0; index < this.systemSlots.length; index++) {
+        if (this.systemSlots[index].uri === systemSlotUri) {
+          return this.systemSlots[index];
+        }
       }
     }
+    console.log('getSeObject5 ' + systemSlotUri + ' / ' + this.systemSlots);
     return null;
   }
-
   selectSystemSlot(selectedSystemSlot: SystemSlotModel) {
     this.selectedSystemSlot = selectedSystemSlot;
   }
@@ -96,4 +83,5 @@ export class SystemSlotService extends SeObjectService {
     const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots/' + localName + '/hamburgers';
     return this._httpClient.get<Array<HamburgerModel>>(request);
   }
+
 }

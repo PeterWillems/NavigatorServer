@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import nl.tno.willemsph.coins_navigator.se.model.Function;
 import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
 import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
+import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
 import nl.tno.willemsph.coins_navigator.se.model.Requirement;
 import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
@@ -58,6 +59,13 @@ public class SeController {
 	}
 
 	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}/hamburgers")
+	public List<Hamburger> getHamburgersForRealisationModule(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getHamburgersForRealisationModule(id, localName);
+	}
+
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-slots/{localName}")
 	public SystemSlot updateSystemSlot(@PathVariable int id, @PathVariable String localName,
 			@RequestBody SystemSlot systemSlot) throws URISyntaxException, IOException {
@@ -84,6 +92,18 @@ public class SeController {
 	}
 
 	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/performances")
+	public List<Performance> getAllPerformances(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllPerformances(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/performances")
+	public Performance createPerformance(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createPerformance(id);
+	}
+	
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/requirements")
 	public List<Requirement> getAllRequirements(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.getAllRequirements(id);
@@ -107,6 +127,20 @@ public class SeController {
 	public List<RealisationModule> getAllRealisationModules(@PathVariable int id)
 			throws IOException, URISyntaxException {
 		return _seService.getAllRealisationModules(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}")
+	public RealisationModule getRealisationModule(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getRealisationModule(id, localName);
+	}
+
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/realisation-modules")
+	public RealisationModule createRealisationModule(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createRealisationModule(id);
 	}
 
 }

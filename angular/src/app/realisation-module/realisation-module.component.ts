@@ -25,7 +25,7 @@ export class RealisationModuleComponent implements OnInit, OnChanges {
   ngOnInit() {
     this._datasetService.selectedDatasetUpdated.subscribe((dataset) => {
         this.selectedDataset = dataset;
-        this._realisationModuleService.loadRealisationModules(this.selectedDataset);
+        this._realisationModuleService.loadObjects(this.selectedDataset);
       }
     );
     this.selectedDataset = this._datasetService.selectedDataset;
@@ -35,7 +35,7 @@ export class RealisationModuleComponent implements OnInit, OnChanges {
     });
 
     if (this.selectedDataset) {
-      this._realisationModuleService.loadRealisationModules(this.selectedDataset);
+      this._realisationModuleService.loadObjects(this.selectedDataset);
     }
 
     this.selectedRealisationModule = this._realisationModuleService.selectedRealisationModule;
@@ -44,7 +44,7 @@ export class RealisationModuleComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const dataset = changes.selectedDataset.currentValue;
     console.log('dataset: ' + dataset ? dataset.toString() : '');
-    this._realisationModuleService.loadRealisationModules(dataset);
+    this._realisationModuleService.loadObjects(dataset);
   }
 
   getSystemSlotLabel(uri: string): string {
@@ -55,9 +55,9 @@ export class RealisationModuleComponent implements OnInit, OnChanges {
     }
   }
 
-  onSelectedSystemSlotChanged(seObject: SeObjectModel): void {
+  onSelectedRealisationModuleChanged(seObject: SeObjectModel): void {
     this.selectedRealisationModule = <RealisationModuleModel>seObject;
-    this._realisationModuleService.selectSystemSlot(this.selectedRealisationModule);
+    this._realisationModuleService.selectRealisationModule(this.selectedRealisationModule);
     console.log(this.selectedRealisationModule.uri);
   }
 }

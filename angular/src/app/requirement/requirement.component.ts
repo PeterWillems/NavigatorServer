@@ -26,7 +26,7 @@ export class RequirementComponent implements OnInit {
   ngOnInit() {
     this._datasetService.selectedDatasetUpdated.subscribe((dataset) => {
         this.selectedDataset = dataset;
-        this._requirementService.loadRequirements(this.selectedDataset);
+        this._requirementService.loadObjects(this.selectedDataset);
       }
     );
     this.selectedDataset = this._datasetService.selectedDataset;
@@ -55,7 +55,7 @@ export class RequirementComponent implements OnInit {
   }
 
   createRequirement(): void {
-    this._requirementService.createSeObject();
+    this._requirementService.createObject();
   }
 
   getRequirementLabel(uri: string): string {

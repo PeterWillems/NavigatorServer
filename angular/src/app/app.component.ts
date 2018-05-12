@@ -6,6 +6,7 @@ import {Dataset} from './dataset/dataset.model';
 import {NetworkConnectionService} from './network-connection.service';
 import {RealisationModuleService} from './realisation-module.service';
 import {RequirementService} from './requirement.service';
+import {PerformanceService} from './performance.service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ import {RequirementService} from './requirement.service';
     SystemSlotService,
     RealisationModuleService,
     FunctionService,
+    PerformanceService,
     RequirementService,
     NetworkConnectionService
   ]
@@ -29,6 +31,7 @@ export class AppComponent implements OnInit {
               private _systemSlotService: SystemSlotService,
               private _realisationModuleService: RealisationModuleService,
               private _functionService: FunctionService,
+              private _performanceService: PerformanceService,
               private _requirementService: RequirementService,
               private _networkConnectionService: NetworkConnectionService) {
   }
@@ -45,11 +48,12 @@ export class AppComponent implements OnInit {
     if (this.datasets && this.datasets.length > 0) {
       this.selectedDataset = this.datasets[0];
       this._datasetService.selectDataset(this.selectedDataset);
-      this._systemSlotService.loadSystemSlots(this.selectedDataset);
-      this._realisationModuleService.loadRealisationModules(this.selectedDataset);
-      this._functionService.loadFunctions(this.selectedDataset);
-      this._requirementService.loadRequirements(this.selectedDataset);
-      this._networkConnectionService.loadNetworkConnections(this.selectedDataset);
+      this._systemSlotService.loadObjects(this.selectedDataset);
+      this._realisationModuleService.loadObjects(this.selectedDataset);
+      this._functionService.loadObjects(this.selectedDataset);
+      this._performanceService.loadObjects(this.selectedDataset);
+      this._requirementService.loadObjects(this.selectedDataset);
+      this._networkConnectionService.loadObjects(this.selectedDataset);
     }
   }
 }

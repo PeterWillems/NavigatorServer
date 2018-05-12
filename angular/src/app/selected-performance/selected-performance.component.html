@@ -1,0 +1,20 @@
+<div *ngIf="selectedPerformance" class="card border-primary">
+  <div class="card-header">
+    <span class="label">Selected Performance:</span> {{selectedPerformance.label}}
+  </div>
+  <div class="card-body">
+    <app-literal-property name="uri" [value]="selectedPerformance.uri" valueType="url"
+                          [disabled]="true"></app-literal-property>
+    <app-literal-property name="label" [value]="selectedPerformance.label" valueType="text" [disabled]="false"
+                          (valueChanged)="onLabelChanged($event)"></app-literal-property>
+    <app-iri-property name="assembly" [seObjectType]="performanceType" [seObject]="assembly"
+                      (valueChanged)="onAssemblyChanged($event)"
+                      [disabled]="false"></app-iri-property>
+    <app-iri-property-list name="parts" [items]="parts"
+                           (editModeChanged)="onPartsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="performanceType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+  </div>
+</div>

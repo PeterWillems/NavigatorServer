@@ -7,6 +7,7 @@ import {SeObjectModel} from './models/se-object.model';
 import {SystemSlotModel} from './models/system-slot.model';
 import {Observable} from 'rxjs/Observable';
 import {DatasetService} from './dataset.service';
+import {SeObjectType} from './se-object-type';
 
 @Injectable()
 export class FunctionService extends SeObjectService {
@@ -15,43 +16,27 @@ export class FunctionService extends SeObjectService {
   functions: FunctionModel[];
   selectedFunction: FunctionModel;
 
-  constructor(private _httpClient: HttpClient, private _datasetService: DatasetService) {
-    super();
+  constructor(protected _httpClient: HttpClient, private _datasetService: DatasetService) {
+    super(_httpClient);
     this.apiAddress = 'http://localhost:8080/se';
     this._datasetService.selectedDatasetUpdated.subscribe(value => {
       this.dataset = value;
       console.log('FunctionService: new dataset: ' + this.dataset.filepath);
-      this.loadFunctions(this.dataset);
+      this.selectedFunction = null;
+      this.loadObjects(this.dataset);
     });
   }
 
-  loadFunctions(dataset: Dataset): void {
-    this.selectedFunction = null;
-    this.dataset = dataset;
-    console.log('loadFunctions: ' + this.dataset.id);
-    let functions: Array<FunctionModel> = [];
-    const request = this.apiAddress + '/datasets/' + dataset.id + '/functions';
-    const functions$ = this._httpClient.get<Array<FunctionModel>>(request);
-    functions$.subscribe(value => {
-      functions = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.functions = functions;
-      this.seObjectsUpdated.emit(functions);
+  loadObjects(dataset: Dataset): void {
+    this.load(this.selectedFunction, dataset, SeObjectType.FunctionModel).subscribe(value => {
+      this.functions = value;
+      this.seObjectsUpdated.emit(this.functions);
     });
   }
 
-  createSeObject(): void {
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/functions';
-    let functionModel = <FunctionModel>{uri: 'xxx', label: '', assembly: ''};
-    const function$ = this._httpClient.post<FunctionModel>(request, functionModel);
-    function$.subscribe(value => {
-      functionModel = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.functions.push(functionModel);
+  createObject(): void {
+    this.create(this.selectedFunction, this.dataset, SeObjectType.FunctionModel).subscribe(value => {
+      this.functions.push(value);
       this.seObjectsUpdated.emit(this.functions);
     });
   }

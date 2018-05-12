@@ -3,6 +3,7 @@ export enum SeObjectType {
   NetworkConnectionModel,
   SystemSlotModel,
   HamburgerModel,
+  PerformanceModel,
   RealisationModuleModel,
   RequirementModel
 }

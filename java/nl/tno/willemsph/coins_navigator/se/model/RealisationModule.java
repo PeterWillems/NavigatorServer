@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class RealisationModule extends SeObject {
-	List<URI> perfomances;
+	List<URI> performances;
 	List<URI> ports;
 
 	public RealisationModule() {
@@ -16,12 +16,12 @@ public class RealisationModule extends SeObject {
 		super(uri, label, assemblyUri, partUris);
 	}
 
-	public List<URI> getPerfomances() {
-		return perfomances;
+	public List<URI> getPerformances() {
+		return performances;
 	}
 
-	public void setPerfomances(List<URI> perfomances) {
-		this.perfomances = perfomances;
+	public void setPerformances(List<URI> performances) {
+		this.performances = performances;
 	}
 
 	public List<URI> getPorts() {

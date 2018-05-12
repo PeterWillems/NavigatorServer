@@ -1,0 +1,38 @@
+<div *ngIf="selectedRealisationModule" class="card border-primary">
+  <div class="card-header">
+    <span class="label">Selected Realisation Module:</span> {{selectedRealisationModule.label}}
+  </div>
+  <div class="card-body">
+    <app-literal-property name="uri" [value]="selectedRealisationModule.uri" valueType="url"
+                          [disabled]="true"></app-literal-property>
+    <app-literal-property name="label" [value]="selectedRealisationModule.label" valueType="text" [disabled]="false"
+                          (valueChanged)="onLabelChanged($event)"></app-literal-property>
+    <app-iri-property name="assembly" [seObjectType]="realisationModuleType" [seObject]="getAssembly()"
+                      (valueChanged)="onAssemblyChanged($event)"
+                      [disabled]="false"></app-iri-property>
+
+    <app-iri-property-list name="parts" [items]="parts"
+                           (editModeChanged)="onPartsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="realisationModuleType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
+    <app-iri-property-list name="performances" [items]="performances"
+                           (editModeChanged)="onPerformancesEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="performancesEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of performances" name="performance" [seObject]="item"
+                        [seObjectType]="performanceType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
+    <app-iri-property-list name="system slots" [items]="systemSlots"
+                           (editModeChanged)="onSystemSlotsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="systemSlotsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of systemSlots" name="system slot" [seObject]="item"
+                        [seObjectType]="systemSlotType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
+  </div>
+</div>

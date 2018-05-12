@@ -24,12 +24,14 @@ export class IriPropertyListComponent implements OnInit, OnChanges {
 
   private _getLabels(): string[] {
     const labels = [];
+    console.log('_getLabels 1 ')
     if (this.items) {
+      console.log('_getLabels 2 ' + this.items)
       for (let index = 0; index < this.items.length; index++) {
-        console.log('label: ' + (this.items[index] ? this.items[index].label : ''));
+        console.log('_getLabels 3 ' + 'label: ' + (this.items[index] ? this.items[index].label : ''));
         labels.push(this.items[index] ? this.items[index].label : '');
       }
-    }
+  }
     return labels;
   }
 

@@ -5,6 +5,7 @@ import {SeObjectService} from './se-object.service';
 import {Observable} from 'rxjs/Observable';
 import {NetworkConnectionModel} from './models/network-connection.model';
 import {DatasetService} from './dataset.service';
+import {SeObjectType} from './se-object-type';
 
 @Injectable()
 export class NetworkConnectionService extends SeObjectService {
@@ -13,43 +14,27 @@ export class NetworkConnectionService extends SeObjectService {
   networkConnections: NetworkConnectionModel[];
   selectedNetworkConnection: NetworkConnectionModel;
 
-  constructor(private _httpClient: HttpClient, private _datasetService: DatasetService) {
-    super();
+  constructor(protected _httpClient: HttpClient, private _datasetService: DatasetService) {
+    super(_httpClient);
     this.apiAddress = 'http://localhost:8080/se';
     this._datasetService.selectedDatasetUpdated.subscribe(value => {
       this.dataset = value;
       console.log('NetworkConnectionService: new dataset: ' + this.dataset.filepath);
-      this.loadNetworkConnections(this.dataset);
+      this.selectedNetworkConnection = null;
+      this.loadObjects(this.dataset);
     });
   }
 
-  loadNetworkConnections(dataset: Dataset): void {
-    this.selectedNetworkConnection = null;
-    this.dataset = dataset;
-    console.log('loadNetworkConnections: ' + this.dataset.id);
-    let networkConnections: Array<NetworkConnectionModel> = [];
-    const request = this.apiAddress + '/datasets/' + dataset.id + '/network-connections';
-    const networkConnections$ = this._httpClient.get<Array<NetworkConnectionModel>>(request);
-    networkConnections$.subscribe(value => {
-      networkConnections = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.networkConnections = networkConnections;
-      this.seObjectsUpdated.emit(networkConnections);
+  loadObjects(dataset: Dataset): void {
+    this.load(this.selectedNetworkConnection, dataset, SeObjectType.NetworkConnectionModel).subscribe(value => {
+      this.networkConnections = value;
+      this.seObjectsUpdated.emit(this.networkConnections);
     });
   }
 
-  createSeObject(): void {
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/network-connections';
-    let networkConnection = <NetworkConnectionModel>{uri: 'xxx', label: '', assembly: ''};
-    const networkConnection$ = this._httpClient.post<NetworkConnectionModel>(request, networkConnection);
-    networkConnection$.subscribe(value => {
-      networkConnection = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.networkConnections.push(networkConnection);
+  createObject(): void {
+    this.create(this.selectedNetworkConnection, this.dataset, SeObjectType.NetworkConnectionModel).subscribe(value => {
+      this.networkConnections.push(value);
       this.seObjectsUpdated.emit(this.networkConnections);
     });
   }

@@ -2,7 +2,8 @@
   <div class="input-group-prepend">
     <span class="input-group-text label" id="basic-addon1">{{name}}</span>
   </div>
-  <input *ngIf="!editMode" id="input" class="form-control" type="text" [value]="seObject?seObject.label:''" disabled>
+  <!--<input *ngIf="!editMode" id="input" class="form-control" type="text" [value]="seObject?seObject.label:''" disabled>-->
+  <input *ngIf="!editMode" id="input" class="form-control" type="text" [value]="label" disabled>
   <select *ngIf="editMode" class="form-control" [(ngModel)]="seObject" (ngModelChange)="onChange($event)">
     <option [ngValue]="null"></option>
     <option *ngFor="let option of options" [ngValue]="option">{{option.label}}</option>

@@ -1,7 +1,7 @@
 import {SeObjectModel} from './se-object.model';
 
-export class RequirementModel extends SeObjectModel {
+export class PerformanceModel extends SeObjectModel {
   getQueryTag(): string {
-    return '/requirements';
+    return '/performances';
   }
 }

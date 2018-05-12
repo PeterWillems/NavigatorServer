@@ -22,7 +22,7 @@ export class SystemSlotComponent implements OnInit, OnChanges {
   ngOnInit() {
     this._datasetService.selectedDatasetUpdated.subscribe((dataset) => {
         this.selectedDataset = dataset;
-        this._systemSlotService.loadSystemSlots(this.selectedDataset);
+        this._systemSlotService.loadObjects(this.selectedDataset);
       }
     );
     this.selectedDataset = this._datasetService.selectedDataset;
@@ -32,7 +32,7 @@ export class SystemSlotComponent implements OnInit, OnChanges {
     });
 
     if (this.selectedDataset) {
-      this._systemSlotService.loadSystemSlots(this.selectedDataset);
+      this._systemSlotService.loadObjects(this.selectedDataset);
     }
 
     this.selectedSystemSlot = this._systemSlotService.selectedSystemSlot;
@@ -41,7 +41,7 @@ export class SystemSlotComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const dataset = changes.selectedDataset.currentValue;
     console.log('dataset: ' + dataset ? dataset.toString() : '');
-    this._systemSlotService.loadSystemSlots(dataset);
+    this._systemSlotService.loadObjects(dataset);
   }
 
   getSystemSlotLabel(uri: string): string {

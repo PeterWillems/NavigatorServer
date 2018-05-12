@@ -1,0 +1,19 @@
+<div class="container-fluid">
+  <div class="row ">
+    <div class="col-md-5 column-content left-column">
+      <div class="card border-primary">
+        <div class="card-header">
+          <span class="label">Performances</span>
+        </div>
+        <div *ngIf="selectedDataset" class="card-body">
+          <app-se-objectslist seObjectType="Performance" [seObjectService]="_performanceService"
+                              [seObjects]="performances" [selectedSeObject]="selectedPerformance"
+                              (selectedSeObjectChanged)="onSelectedPerformanceChanged($event)"></app-se-objectslist>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7 column-content">
+      <app-selected-performance *ngIf="selectedPerformance" [selectedPerformance]="selectedPerformance"></app-selected-performance>
+    </div>
+  </div>
+</div>

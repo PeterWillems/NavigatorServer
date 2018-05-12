@@ -5,6 +5,7 @@ import {SeObjectService} from './se-object.service';
 import {SeObjectModel} from './models/se-object.model';
 import {DatasetService} from './dataset.service';
 import {RequirementModel} from './models/requirement.model';
+import {SeObjectType} from './se-object-type';
 
 @Injectable()
 export class RequirementService extends SeObjectService {
@@ -13,43 +14,27 @@ export class RequirementService extends SeObjectService {
   requirements: RequirementModel[];
   selectedRequirement: RequirementModel;
 
-  constructor(private _httpClient: HttpClient, private _datasetService: DatasetService) {
-    super();
+  constructor(protected _httpClient: HttpClient, private _datasetService: DatasetService) {
+    super(_httpClient);
     this.apiAddress = 'http://localhost:8080/se';
     this._datasetService.selectedDatasetUpdated.subscribe(value => {
       this.dataset = value;
       console.log('RequirementService: new dataset: ' + this.dataset.filepath);
-      this.loadRequirements(this.dataset);
+      this.selectedRequirement = null;
+      this.loadObjects(this.dataset);
     });
   }
 
-  loadRequirements(dataset: Dataset): void {
-    this.selectedRequirement = null;
-    this.dataset = dataset;
-    console.log('loadRequirements: ' + this.dataset.id);
-    let requirements: Array<RequirementModel> = [];
-    const request = this.apiAddress + '/datasets/' + dataset.id + '/requirements';
-    const requirements$ = this._httpClient.get<Array<RequirementModel>>(request);
-    requirements$.subscribe(value => {
-      requirements = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.requirements = requirements;
-      this.seObjectsUpdated.emit(requirements);
+  loadObjects(dataset: Dataset): void {
+    this.load(this.selectedRequirement, dataset, SeObjectType.RequirementModel).subscribe(value => {
+      this.requirements = value;
+      this.seObjectsUpdated.emit(this.requirements);
     });
   }
 
-  createSeObject(): void {
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/requirements';
-    let requirement = <RequirementModel>{uri: 'xxx', label: '', assembly: ''};
-    const requirement$ = this._httpClient.post<RequirementModel>(request, requirement);
-    requirement$.subscribe(value => {
-      requirement = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.requirements.push(requirement);
+  createObject(): void {
+    this.create(this.selectedRequirement, this.dataset, SeObjectType.RequirementModel).subscribe(value => {
+      this.requirements.push(value);
       this.seObjectsUpdated.emit(this.requirements);
     });
   }
@@ -57,7 +42,7 @@ export class RequirementService extends SeObjectService {
   updateSeObject(requirement: RequirementModel): void {
     const hashMark = requirement.uri.indexOf('#') + 1;
     const localName = requirement.uri.substring(hashMark);
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/requirements/' + localName;
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/performances/' + localName;
     this._httpClient.put(request, requirement).subscribe(value => {
       console.log('Assembly: ' + (<RequirementModel>value).assembly);
     }, error => {

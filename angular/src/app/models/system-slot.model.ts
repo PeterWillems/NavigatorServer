@@ -4,4 +4,8 @@ export class SystemSlotModel extends SeObjectModel {
   requirements: string[];
   functions: string[];
   interfaces: string[];
+
+  getQueryTag(): string {
+    return '/system-slots';
+  }
 }

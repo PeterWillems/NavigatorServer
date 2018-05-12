@@ -24,7 +24,7 @@ export class FunctionComponent implements OnInit {
   ngOnInit() {
     this._datasetService.selectedDatasetUpdated.subscribe((dataset) => {
         this.selectedDataset = dataset;
-        this._functionService.loadFunctions(this.selectedDataset);
+        this._functionService.loadObjects(this.selectedDataset);
       }
     );
     this.selectedDataset = this._datasetService.selectedDataset;
@@ -53,7 +53,7 @@ export class FunctionComponent implements OnInit {
   }
 
   createFunction(): void {
-    this._functionService.createSeObject();
+    this._functionService.createObject();
   }
 
   getFunctionLabel(uri: string): string {

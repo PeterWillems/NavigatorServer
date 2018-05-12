@@ -32,8 +32,8 @@ export class SeObjectslistComponent implements OnInit {
     return this.seObjectService.getSeObjectLabel(seObjectUri);
   }
 
-  createSeObject(): void {
-    this.seObjectService.createSeObject();
+  createObject(): void {
+    this.seObjectService.createObject();
   }
 
 }

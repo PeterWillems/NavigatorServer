@@ -8,6 +8,9 @@ import {Observable} from 'rxjs/Observable';
 import {FunctionModel} from './models/function.model';
 import {DatasetService} from './dataset.service';
 import {RealisationModuleModel} from './models/realisation-module.model';
+import {SeObjectType} from './se-object-type';
+import {HamburgerModel} from './models/hamburger.model';
+import {PerformanceModel} from './models/performance.model';
 
 @Injectable()
 export class RealisationModuleService extends SeObjectService {
@@ -16,43 +19,27 @@ export class RealisationModuleService extends SeObjectService {
   realisationModules: RealisationModuleModel[];
   selectedRealisationModule: RealisationModuleModel;
 
-  constructor(private _httpClient: HttpClient, private _datasetService: DatasetService) {
-    super();
+  constructor(protected _httpClient: HttpClient, private _datasetService: DatasetService) {
+    super(_httpClient);
     this.apiAddress = 'http://localhost:8080/se';
     this._datasetService.selectedDatasetUpdated.subscribe(value => {
       this.dataset = value;
       console.log('RealisationModuleService: new dataset: ' + this.dataset.filepath);
-      this.loadRealisationModules(this.dataset);
+      this.selectedRealisationModule = null;
+      this.loadObjects(this.dataset);
     });
   }
 
-  loadRealisationModules(dataset: Dataset): void {
-    this.selectedRealisationModule = null;
-    this.dataset = dataset;
-    console.log('loadRealisationModules: ' + this.dataset.id);
-    let realisationModules: Array<RealisationModuleModel> = [];
-    const request = this.apiAddress + '/datasets/' + dataset.id + '/realisation-modules';
-    const realisationModules$ = this._httpClient.get<Array<RealisationModuleModel>>(request);
-    realisationModules$.subscribe(value => {
-      realisationModules = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.realisationModules = realisationModules;
-      this.seObjectsUpdated.emit(realisationModules);
+  loadObjects(dataset: Dataset): void {
+    this.load(this.selectedRealisationModule, this.dataset, SeObjectType.RealisationModuleModel).subscribe(value => {
+      this.realisationModules = value;
+      this.seObjectsUpdated.emit(this.realisationModules);
     });
   }
 
-  createSeObject(): void {
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/realisation-modules';
-    let realisationModule = <RealisationModuleModel>{uri: 'xxx', label: '', assembly: ''};
-    const realisationModule$ = this._httpClient.post<RealisationModuleModel>(request, realisationModule);
-    realisationModule$.subscribe(value => {
-      realisationModule = value;
-    }, error => {
-      console.log(error);
-    }, () => {
-      this.realisationModules.push(realisationModule);
+  createObject(): void {
+    this.create(this.selectedRealisationModule, this.dataset, SeObjectType.RealisationModuleModel).subscribe(value => {
+      this.realisationModules.push(value);
       this.seObjectsUpdated.emit(this.realisationModules);
     });
   }
@@ -77,7 +64,7 @@ export class RealisationModuleService extends SeObjectService {
     return null;
   }
 
-  selectSystemSlot(selectedRealisationModule: RealisationModuleModel) {
+  selectRealisationModule(selectedRealisationModule: RealisationModuleModel) {
     this.selectedRealisationModule = selectedRealisationModule;
   }
 
@@ -88,5 +75,12 @@ export class RealisationModuleService extends SeObjectService {
 
   getSeObjects(): RealisationModuleModel[] {
     return this.realisationModules;
+  }
+
+  getHamburgers(realisationModuleUri: string): Observable<Array<HamburgerModel>> {
+    const hashMark = realisationModuleUri.indexOf('#') + 1;
+    const localName = realisationModuleUri.substring(hashMark);
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/realisation-modules/' + localName + '/hamburgers';
+    return this._httpClient.get<Array<HamburgerModel>>(request);
   }
 }
