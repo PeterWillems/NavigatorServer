@@ -7,6 +7,7 @@ import {RealisationModuleModel} from '../models/realisation-module.model';
 import {SystemSlotService} from '../system-slot.service';
 import {PerformanceModel} from '../models/performance.model';
 import {PerformanceService} from '../performance.service';
+import {RealisationPortModel} from '../models/realisation-port.model';
 
 @Component({
   selector: 'app-selected-realisation-module',
@@ -16,6 +17,7 @@ import {PerformanceService} from '../performance.service';
 export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
   realisationModuleType = SeObjectType.RealisationModuleModel;
   performanceType = SeObjectType.PerformanceModel;
+  realisationPortType = SeObjectType.RealisationPortModel;
   isOpen = false;
   @Input() selectedRealisationModule: RealisationModuleModel;
   assembly: RealisationModuleModel;
@@ -23,6 +25,8 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
   partsEditMode = false;
   performances: PerformanceModel[];
   performancesEditMode = false;
+  ports: RealisationPortModel[];
+  portsEditMode = false;
   systemSlots: SystemSlotModel[];
   systemSlotsEditMode = false;
 
@@ -47,7 +51,7 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
     this.assembly = this.getAssembly();
     this.parts = this.getParts();
     this.performances = this.getPerformances();
-    console.log('_loadStateValues: ' + this.performances.toString());
+    this.getPorts();
     this.getSystemSlots();
   }
 
@@ -70,17 +74,22 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
 
   getPerformances(): PerformanceModel[] {
     const performances = [];
-    console.log('getPerformances 1');
     if (this.selectedRealisationModule.performances) {
-      console.log('getPerformances 2' + this.selectedRealisationModule.performances);
       for (let index = 0; index < this.selectedRealisationModule.performances.length; index++) {
-        console.log('getPerformances 3' + this.selectedRealisationModule.performances[index]);
         performances.push(this._performanceService.getSeObject(this.selectedRealisationModule.performances[index]));
-        console.log('getPerformances 4');
       }
     }
-    console.log('getPerformances 5');
     return performances;
+  }
+
+  getPorts(): void {
+    if (this.selectedRealisationModule.ports) {
+      this._realisationModuleService.getRealisationPorts(this.selectedRealisationModule.uri)
+        .subscribe(value => {
+          this.ports = value;
+          console.log('Ports: ' + value.toString());
+        });
+    }
   }
 
   getSystemSlots(): void {
@@ -112,6 +121,11 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
   onPerformancesEditModeChange(editMode: boolean): void {
     console.log('onPerformancesEditModeChange: ' + editMode);
     this.performancesEditMode = editMode;
+  }
+
+  onPortsEditModeChange(editMode: boolean): void {
+    console.log('onPortsEditModeChange: ' + editMode);
+    this.portsEditMode = editMode;
   }
 
   onSystemSlotsEditModeChange(editMode: boolean): void {

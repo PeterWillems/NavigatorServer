@@ -17,6 +17,7 @@ import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
 import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
 import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.RealisationPort;
 import nl.tno.willemsph.coins_navigator.se.model.Requirement;
 import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 
@@ -64,6 +65,14 @@ public class SeController {
 			throws URISyntaxException, IOException {
 		return _seService.getHamburgersForRealisationModule(id, localName);
 	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}/ports")
+	public List<RealisationPort> getPortsForRealisationModule(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getPortsForRealisationModule(id, localName);
+	}
+
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-slots/{localName}")

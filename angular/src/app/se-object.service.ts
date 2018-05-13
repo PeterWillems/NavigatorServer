@@ -51,6 +51,8 @@ export abstract class SeObjectService {
         return '/performances';
       case SeObjectType.RealisationModuleModel:
         return '/realisation-modules';
+      case SeObjectType.RealisationPortModel:
+        return '/realisation-ports';
       case SeObjectType.RequirementModel:
         return '/requirements';
       case SeObjectType.SystemSlotModel:

@@ -92,6 +92,11 @@ export class IriPropertyComponent implements OnInit, OnChanges {
         this.options = this._realisationModuleService.realisationModules;
         break;
 
+      case SeObjectType.RealisationPortModel:
+        console.log('realisation port options');
+        //  this.options = this._realisationModuleService.realisationModules;
+        break;
+
       case SeObjectType.RequirementModel:
         console.log('requirement options');
         this.options = this._requirementService.requirements;

@@ -5,5 +5,6 @@ export enum SeObjectType {
   HamburgerModel,
   PerformanceModel,
   RealisationModuleModel,
+  RealisationPortModel,
   RequirementModel
 }

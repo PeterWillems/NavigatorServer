@@ -21,6 +21,7 @@ import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
 import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
 import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.RealisationPort;
 import nl.tno.willemsph.coins_navigator.se.model.Requirement;
 import nl.tno.willemsph.coins_navigator.se.model.SeObject;
 import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
@@ -28,7 +29,7 @@ import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 @Service
 public class SeService {
 	private enum SeObjectType {
-		SystemSlot, RealisationModule, Function, Performance, Requirement, NetworkConnection, Hamburger;
+		SystemSlot, RealisationModule, Function, Performance, Requirement, NetworkConnection, Hamburger, RealisationPort;
 
 		SeObject create(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
 			switch (this) {
@@ -40,6 +41,8 @@ public class SeService {
 				return new NetworkConnection(uri, label, assemblyUri, partUris);
 			case RealisationModule:
 				return new RealisationModule(uri, label, assemblyUri, partUris);
+			case RealisationPort:
+				return new RealisationPort(uri, label, assemblyUri, partUris);
 			case Performance:
 				return new Performance(uri, label, assemblyUri, partUris);
 			case Requirement:
@@ -157,7 +160,7 @@ public class SeService {
 		RealisationModule realisationModule = (RealisationModule) getSeObject(datasetId, realisationModuleUri,
 				SeObjectType.RealisationModule);
 		realisationModule.setPerformances(getPerformances(datasetId, realisationModule.getUri().toString()));
-
+		realisationModule.setPorts(getRealisationPorts(datasetId, realisationModule.getUri().toString()));
 		return realisationModule;
 	}
 
@@ -341,6 +344,30 @@ public class SeService {
 		return performanceUris;
 	}
 
+	private List<URI> getRealisationPorts(int datasetId, String ownerUri) throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("owner", ownerUri);
+		queryStr.append("SELECT ?port ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?owner se:hasPort ?port . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		List<URI> realisationPortUris = new ArrayList<>();
+		for (JsonNode node : responseNodes) {
+			JsonNode realisationPortNode = node.get("port");
+			String realisationPortUri = realisationPortNode != null ? realisationPortNode.get("value").asText() : null;
+			if (realisationPortUri != null) {
+				realisationPortUris.add(new URI(realisationPortUri));
+			}
+		}
+		return realisationPortUris;
+	}
+
 	private List<URI> getRequirements(int datasetId, String ownerUri) throws URISyntaxException, IOException {
 		String datasetUri = getDatasetUri(datasetId);
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
@@ -440,6 +467,7 @@ public class SeService {
 		for (SeObject seObject : seObjects) {
 			RealisationModule realisationModule = (RealisationModule) seObject;
 			realisationModule.setPerformances(getPerformances(datasetId, realisationModule.getUri().toString()));
+			realisationModule.setPorts(getRealisationPorts(datasetId, realisationModule.getUri().toString()));
 			realisationModules.add(realisationModule);
 		}
 		return realisationModules;
@@ -526,6 +554,21 @@ public class SeService {
 		}
 
 		return hamburgers;
+	}
+
+	public List<RealisationPort> getPortsForRealisationModule(int datasetId, String realisationModuleLocalName)
+			throws URISyntaxException, IOException {
+		String ontologyUri = getOntologyUri(datasetId);
+		String realisationModuleUri = ontologyUri + "#" + realisationModuleLocalName;
+		List<URI> portUris = getRealisationPorts(datasetId, realisationModuleUri);
+		List<RealisationPort> ports = new ArrayList<>();
+		for (URI portUri : portUris) {
+			String localName = getLocalName(portUri.toString());
+			RealisationPort port = (RealisationPort) getSeObject(datasetId, localName, SeObjectType.RealisationPort);
+			port.setOwner(new URI(realisationModuleUri));
+			ports.add(port);
+		}
+		return ports;
 	}
 
 	private List<SeObject> getAllSeObjects(int datasetId, SeObjectType seObjectType)

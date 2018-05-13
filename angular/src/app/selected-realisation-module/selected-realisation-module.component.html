@@ -26,6 +26,14 @@
                         [disabled]="false"></app-iri-property>
     </div>
 
+    <app-iri-property-list name="ports" [items]="ports"
+                           (editModeChanged)="onPortsEditModeChange($event)"></app-iri-property-list>
+    <div *ngIf="portsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of ports" name="port" [seObject]="item"
+                        [seObjectType]="realisationPortType"
+                        [disabled]="false"></app-iri-property>
+    </div>
+
     <app-iri-property-list name="system slots" [items]="systemSlots"
                            (editModeChanged)="onSystemSlotsEditModeChange($event)"></app-iri-property-list>
     <div *ngIf="systemSlotsEditMode" class="card card-body border-info mb-3 pb-0">

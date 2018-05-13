@@ -11,6 +11,7 @@ import {RealisationModuleModel} from './models/realisation-module.model';
 import {SeObjectType} from './se-object-type';
 import {HamburgerModel} from './models/hamburger.model';
 import {PerformanceModel} from './models/performance.model';
+import {RealisationPortModel} from './models/realisation-port.model';
 
 @Injectable()
 export class RealisationModuleService extends SeObjectService {
@@ -75,6 +76,13 @@ export class RealisationModuleService extends SeObjectService {
 
   getSeObjects(): RealisationModuleModel[] {
     return this.realisationModules;
+  }
+
+  getRealisationPorts(realisationModuleUri: string): Observable<Array<RealisationPortModel>> {
+    const hashMark = realisationModuleUri.indexOf('#') + 1;
+    const localName = realisationModuleUri.substring(hashMark);
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/realisation-modules/' + localName + '/ports';
+    return this._httpClient.get<Array<RealisationPortModel>>(request);
   }
 
   getHamburgers(realisationModuleUri: string): Observable<Array<HamburgerModel>> {
