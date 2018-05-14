@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.model.Function;
 import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
-import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
+import nl.tno.willemsph.coins_navigator.se.model.SystemInterface;
 import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationPort;
@@ -29,7 +29,7 @@ import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 @Service
 public class SeService {
 	private enum SeObjectType {
-		SystemSlot, RealisationModule, Function, Performance, Requirement, NetworkConnection, Hamburger, RealisationPort;
+		SystemSlot, RealisationModule, Function, Performance, Requirement, SystemInterface, Hamburger, RealisationPort;
 
 		SeObject create(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
 			switch (this) {
@@ -37,8 +37,8 @@ public class SeService {
 				return new Function(uri, label, assemblyUri, partUris);
 			case Hamburger:
 				return new Hamburger(uri, label, assemblyUri, partUris);
-			case NetworkConnection:
-				return new NetworkConnection(uri, label, assemblyUri, partUris);
+			case SystemInterface:
+				return new SystemInterface(uri, label, assemblyUri, partUris);
 			case RealisationModule:
 				return new RealisationModule(uri, label, assemblyUri, partUris);
 			case RealisationPort:
@@ -419,34 +419,34 @@ public class SeService {
 		return requirements;
 	}
 
-	public List<NetworkConnection> getAllNetworkConnections(int datasetId) throws IOException, URISyntaxException {
-		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.NetworkConnection);
+	public List<SystemInterface> getAllSystemInterfaces(int datasetId) throws IOException, URISyntaxException {
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.SystemInterface);
 
-		List<NetworkConnection> networkConnections = new ArrayList<>();
+		List<SystemInterface> systemInterfaces = new ArrayList<>();
 		for (SeObject seObject : seObjects) {
-			NetworkConnection networkConnection = (NetworkConnection) seObject;
-			List<URI> systemSlots = getSystemSlotsOfNetworkConnection(datasetId, networkConnection.getUri().toString());
+			SystemInterface systemInterface = (SystemInterface) seObject;
+			List<URI> systemSlots = getSystemSlotsOfSystemInterface(datasetId, systemInterface.getUri().toString());
 			if (systemSlots.size() > 0) {
-				networkConnection.setSystemSlot0(systemSlots.get(0));
+				systemInterface.setSystemSlot0(systemSlots.get(0));
 				if (systemSlots.size() > 1) {
-					networkConnection.setSystemSlot1(systemSlots.get(1));
+					systemInterface.setSystemSlot1(systemSlots.get(1));
 				}
 			}
-			networkConnections.add(networkConnection);
+			systemInterfaces.add(systemInterface);
 		}
-		return networkConnections;
+		return systemInterfaces;
 	}
 
-	private List<URI> getSystemSlotsOfNetworkConnection(int datasetId, String networkConnectionUri)
+	private List<URI> getSystemSlotsOfSystemInterface(int datasetId, String systemInterfaceUri)
 			throws IOException, URISyntaxException {
 		String datasetUri = getDatasetUri(datasetId);
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri);
-		queryStr.setIri("network_connection", networkConnectionUri);
+		queryStr.setIri("system_interface", systemInterfaceUri);
 		queryStr.append("SELECT ?system_slot ");
 		queryStr.append("WHERE {");
 		queryStr.append("  GRAPH ?graph { ");
-		queryStr.append("    ?system_slot se:hasInterfaces ?network_connection . ");
+		queryStr.append("    ?system_slot se:hasInterfaces ?system_interface . ");
 		queryStr.append("  }");
 		queryStr.append("}");
 

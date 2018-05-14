@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import nl.tno.willemsph.coins_navigator.se.model.Function;
 import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
-import nl.tno.willemsph.coins_navigator.se.model.NetworkConnection;
+import nl.tno.willemsph.coins_navigator.se.model.SystemInterface;
 import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationPort;
@@ -125,10 +125,10 @@ public class SeController {
 	}
 
 	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/network-connections")
-	public List<NetworkConnection> getAllNetworkConnections(@PathVariable int id)
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-interfaces")
+	public List<SystemInterface> getAllSystemInterfaces(@PathVariable int id)
 			throws IOException, URISyntaxException {
-		return _seService.getAllNetworkConnections(id);
+		return _seService.getAllSystemInterfaces(id);
 	}
 	
 	@CrossOrigin
