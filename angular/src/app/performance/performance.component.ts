@@ -1,8 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {SeObjectModel} from '../models/se-object.model';
-import {RequirementService} from '../requirement.service';
 import {Dataset} from '../dataset/dataset.model';
-import {RequirementModel} from '../models/requirement.model';
 import {DatasetService} from '../dataset.service';
 import {PerformanceModel} from '../models/performance.model';
 import {PerformanceService} from '../performance.service';

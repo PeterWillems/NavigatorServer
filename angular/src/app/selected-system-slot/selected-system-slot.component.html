@@ -35,7 +35,7 @@
     <app-iri-property-list name="interfaces" [items]="interfaces"
                            (editModeChanged)="onInterfacesEditModeChange($event)"></app-iri-property-list>
     <div *ngIf="interfacesEditMode" class="card card-body border-info mb-3 pb-0">
-      <app-iri-property *ngFor="let item of interfaces" name="interface" [seObject]="item" [seObjectType]="networkConnectionType"
+      <app-iri-property *ngFor="let item of interfaces" name="interface" [seObject]="item" [seObjectType]="systemInterfaceType"
                         [disabled]="false"></app-iri-property>
     </div>
 

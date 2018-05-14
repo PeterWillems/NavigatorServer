@@ -3,8 +3,8 @@ import {FunctionService} from '../function.service';
 import {SeObjectType} from '../se-object-type';
 import {SeObjectModel} from '../models/se-object.model';
 import {FunctionModel} from '../models/function.model';
-import {NetworkConnectionModel} from '../models/network-connection.model';
-import {NetworkConnectionService} from '../network-connection.service';
+import {SystemInterfaceModel} from '../models/system-interface.model';
+import {SystemInterfaceService} from '../system-interface.service';
 import {RequirementModel} from '../models/requirement.model';
 import {RequirementService} from '../requirement.service';
 
@@ -16,20 +16,20 @@ import {RequirementService} from '../requirement.service';
 export class SelectedFunctionComponent implements OnInit, OnChanges {
   functionType = SeObjectType.FunctionModel;
   requirementType = SeObjectType.RequirementModel;
-  networkConnectionType = SeObjectType.NetworkConnectionModel;
+  systemInterfaceType = SeObjectType.SystemInterfaceModel;
   isOpen = false;
   @Input() selectedFunction: FunctionModel;
   assembly: FunctionModel;
   parts: FunctionModel[];
   partsEditMode = false;
-  input: NetworkConnectionModel;
-  output: NetworkConnectionModel;
+  input: SystemInterfaceModel;
+  output: SystemInterfaceModel;
   requirements: RequirementModel[];
   requirementsEditMode = false;
 
   constructor(private _functionService: FunctionService,
               private _requirementService: RequirementService,
-              private _networkConnectionService: NetworkConnectionService) {
+              private _systemIntefaceService: SystemInterfaceService) {
   }
 
   ngOnInit() {
@@ -68,16 +68,16 @@ export class SelectedFunctionComponent implements OnInit, OnChanges {
     return parts;
   }
 
-  getInput(): NetworkConnectionModel {
+  getInput(): SystemInterfaceModel {
     if (this.selectedFunction.input) {
-      return this._networkConnectionService.getSeObject(this.selectedFunction.input);
+      return this._systemIntefaceService.getSeObject(this.selectedFunction.input);
     }
     return null;
   }
 
-  getOutput(): NetworkConnectionModel {
+  getOutput(): SystemInterfaceModel {
     if (this.selectedFunction.output) {
-      return this._networkConnectionService.getSeObject(this.selectedFunction.output);
+      return this._systemIntefaceService.getSeObject(this.selectedFunction.output);
     }
     return null;
   }

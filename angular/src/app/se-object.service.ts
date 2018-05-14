@@ -45,8 +45,8 @@ export abstract class SeObjectService {
         return '/functions';
       case SeObjectType.HamburgerModel:
         return '/hamburgers';
-      case SeObjectType.NetworkConnectionModel:
-        return '/network-connections';
+      case SeObjectType.SystemInterfaceModel:
+        return '/system-interfaces';
       case SeObjectType.PerformanceModel:
         return '/performances';
       case SeObjectType.RealisationModuleModel:

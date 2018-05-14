@@ -3,9 +3,9 @@ import {SeObjectType} from '../se-object-type';
 import {SystemSlotService} from '../system-slot.service';
 import {FunctionService} from '../function.service';
 import {SeObjectModel} from '../models/se-object.model';
-import {NetworkConnectionService} from '../network-connection.service';
+import {SystemInterfaceService} from '../system-interface.service';
 import {RequirementService} from '../requirement.service';
-import {NetworkConnectionModel} from '../models/network-connection.model';
+import {SystemInterfaceModel} from '../models/system-interface.model';
 import {PerformanceService} from '../performance.service';
 import {RealisationModuleService} from '../realisation-module.service';
 
@@ -26,7 +26,7 @@ export class IriPropertyComponent implements OnInit, OnChanges {
   options: SeObjectModel[];
 
   constructor(private _functionService: FunctionService,
-              private _networkConnectionService: NetworkConnectionService,
+              private _systemInterfaceService: SystemInterfaceService,
               private _performanceService: PerformanceService,
               private _requirementService: RequirementService,
               private _systemSlotService: SystemSlotService,
@@ -65,15 +65,15 @@ export class IriPropertyComponent implements OnInit, OnChanges {
         this.options = this._functionService.functions;
         break;
 
-      case SeObjectType.NetworkConnectionModel:
-        console.log('network-connection options');
-        this.options = this._networkConnectionService.networkConnections;
-        const systemSlot0 = this.seObject ? (<NetworkConnectionModel>this.seObject).systemSlot0 : null;
+      case SeObjectType.SystemInterfaceModel:
+        console.log('system-interface options');
+        this.options = this._systemInterfaceService.systemInterfaces;
+        const systemSlot0 = this.seObject ? (<SystemInterfaceModel>this.seObject).systemSlot0 : null;
         const label0 = systemSlot0 ? this._systemSlotService.getSeObjectLabel(systemSlot0) : '<null>';
-        const systemSlot1 = this.seObject ? (<NetworkConnectionModel>this.seObject).systemSlot1 : null;
+        const systemSlot1 = this.seObject ? (<SystemInterfaceModel>this.seObject).systemSlot1 : null;
         const label1 = systemSlot1 ? this._systemSlotService.getSeObjectLabel(systemSlot1) : '<null>';
         this.label = (this.seObject ? this.seObject.label : '') + ' (' + label0 + ' | ' + label1 + ')';
-        console.log('NetworkConnection label: ' + this.label + ' ' + label0 + ' ' + label1);
+        console.log('SystemInterface label: ' + this.label + ' ' + label0 + ' ' + label1);
         break;
 
 

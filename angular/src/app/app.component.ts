@@ -3,7 +3,7 @@ import {SystemSlotService} from './system-slot.service';
 import {DatasetService} from './dataset.service';
 import {FunctionService} from './function.service';
 import {Dataset} from './dataset/dataset.model';
-import {NetworkConnectionService} from './network-connection.service';
+import {SystemInterfaceService} from './system-interface.service';
 import {RealisationModuleService} from './realisation-module.service';
 import {RequirementService} from './requirement.service';
 import {PerformanceService} from './performance.service';
@@ -19,7 +19,7 @@ import {PerformanceService} from './performance.service';
     FunctionService,
     PerformanceService,
     RequirementService,
-    NetworkConnectionService
+    SystemInterfaceService
   ]
 })
 export class AppComponent implements OnInit {
@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
               private _functionService: FunctionService,
               private _performanceService: PerformanceService,
               private _requirementService: RequirementService,
-              private _networkConnectionService: NetworkConnectionService) {
+              private _systemInterfaceService: SystemInterfaceService) {
   }
 
   ngOnInit(): void {
@@ -53,7 +53,7 @@ export class AppComponent implements OnInit {
       this._functionService.loadObjects(this.selectedDataset);
       this._performanceService.loadObjects(this.selectedDataset);
       this._requirementService.loadObjects(this.selectedDataset);
-      this._networkConnectionService.loadObjects(this.selectedDataset);
+      this._systemInterfaceService.loadObjects(this.selectedDataset);
     }
   }
 }

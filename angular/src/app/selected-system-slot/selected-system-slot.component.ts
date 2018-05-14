@@ -5,8 +5,8 @@ import {FunctionService} from '../function.service';
 import {SeObjectType} from '../se-object-type';
 import {SeObjectModel} from '../models/se-object.model';
 import {FunctionModel} from '../models/function.model';
-import {NetworkConnectionModel} from '../models/network-connection.model';
-import {NetworkConnectionService} from '../network-connection.service';
+import {SystemInterfaceModel} from '../models/system-interface.model';
+import {SystemInterfaceService} from '../system-interface.service';
 import {RealisationModuleModel} from '../models/realisation-module.model';
 import {RealisationModuleService} from '../realisation-module.service';
 import {RequirementService} from '../requirement.service';
@@ -21,7 +21,7 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   systemSlotType = SeObjectType.SystemSlotModel;
   requirementType = SeObjectType.RequirementModel;
   functionType = SeObjectType.FunctionModel;
-  networkConnectionType = SeObjectType.NetworkConnectionModel;
+  systemInterfaceType = SeObjectType.SystemInterfaceModel;
   realisationModuleType = SeObjectType.RealisationModuleModel;
   isOpen = false;
   @Input() selectedSystemSlot: SystemSlotModel;
@@ -32,7 +32,7 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   requirementsEditMode = false;
   functions: FunctionModel[];
   functionsEditMode = false;
-  interfaces: NetworkConnectionModel[];
+  interfaces: SystemInterfaceModel[];
   interfacesEditMode = false;
   realisations: RealisationModuleModel[];
   realisationsEditMode = false;
@@ -40,7 +40,7 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   constructor(private _systemSlotService: SystemSlotService,
               private _requirementService: RequirementService,
               private _functionService: FunctionService,
-              private _networkConnectionService: NetworkConnectionService,
+              private _systemInterfaceService: SystemInterfaceService,
               private _realisationModuleService: RealisationModuleService) {
   }
 
@@ -102,12 +102,12 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
     return functions;
   }
 
-  getInterfaces(): NetworkConnectionModel[] {
+  getInterfaces(): SystemInterfaceModel[] {
     const interfaces = [];
     if (this.selectedSystemSlot.interfaces) {
       for (let index = 0; index < this.selectedSystemSlot.interfaces.length; index++) {
-        const connection = this._networkConnectionService.getSeObject(this.selectedSystemSlot.interfaces[index]);
-        interfaces.push(connection);
+        const systemInterface = this._systemInterfaceService.getSeObject(this.selectedSystemSlot.interfaces[index]);
+        interfaces.push(systemInterface);
       }
     }
     return interfaces;

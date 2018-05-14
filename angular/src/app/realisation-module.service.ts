@@ -1,16 +1,12 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {SystemSlotModel} from './models/system-slot.model';
 import {Dataset} from './dataset/dataset.model';
 import {SeObjectService} from './se-object.service';
-import {SeObjectModel} from './models/se-object.model';
 import {Observable} from 'rxjs/Observable';
-import {FunctionModel} from './models/function.model';
 import {DatasetService} from './dataset.service';
 import {RealisationModuleModel} from './models/realisation-module.model';
 import {SeObjectType} from './se-object-type';
 import {HamburgerModel} from './models/hamburger.model';
-import {PerformanceModel} from './models/performance.model';
 import {RealisationPortModel} from './models/realisation-port.model';
 
 @Injectable()
