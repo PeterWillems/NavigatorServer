@@ -45,9 +45,12 @@ export class SystemSlotService extends SeObjectService {
   updateSeObject(systemSlot: SystemSlotModel): void {
     const hashMark = systemSlot.uri.indexOf('#') + 1;
     const localName = systemSlot.uri.substring(hashMark);
-    console.log('update: ' + this.dataset.id + ' system slot: ' + localName + ' assembly: ' + systemSlot.assembly);
+    console.log('update: ' + this.dataset.id + ' system slot: ' + localName
+      + ' assembly: ' + systemSlot.assembly + ' parts: ' + systemSlot.parts + ' functions: ' + systemSlot.functions);
     const request = this.apiAddress + '/datasets/' + this.dataset.id + '/system-slots/' + localName;
-    this._httpClient.put(request, systemSlot).subscribe(value => {
+    this._httpClient.put<SystemSlotModel>(request, systemSlot).subscribe(value => {
+      systemSlot = value;
+      this.seObjectsUpdated.emit(this.systemSlots);
     }, error => {
     }, () => {
     });
@@ -64,6 +67,7 @@ export class SystemSlotService extends SeObjectService {
     console.log('getSeObject5 ' + systemSlotUri + ' / ' + this.systemSlots);
     return null;
   }
+
   selectSystemSlot(selectedSystemSlot: SystemSlotModel) {
     this.selectedSystemSlot = selectedSystemSlot;
   }

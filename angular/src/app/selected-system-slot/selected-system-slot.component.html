@@ -12,37 +12,52 @@
                       [disabled]="false"></app-iri-property>
 
     <app-iri-property-list name="parts" [items]="parts"
-                           (editModeChanged)="onPartsEditModeChange($event)"></app-iri-property-list>
+                           (editModeChanged)="onPartsEditModeChange($event)"
+                           (itemAdded)="onPartAdded($event)">
+    </app-iri-property-list>
     <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
       <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="systemSlotType"
-                        [disabled]="false"></app-iri-property>
+                        [disabled]="true" (valueChanged)="onPartChanged($event,item)"></app-iri-property>
     </div>
 
     <app-iri-property-list name="requirements" [items]="requirements"
-                           (editModeChanged)="onRequirementsEditModeChange($event)"></app-iri-property-list>
+                           (editModeChanged)="onRequirementsEditModeChange($event)"
+                           (itemAdded)="onRequirementAdded($event)">
+    </app-iri-property-list>
     <div *ngIf="requirementsEditMode" class="card card-body border-info mb-3 pb-0">
-      <app-iri-property *ngFor="let item of requirements" name="requirement" [seObject]="item" [seObjectType]="requirementType"
-                        [disabled]="false"></app-iri-property>
+      <app-iri-property *ngFor="let item of requirements" name="requirement" [seObject]="item"
+                        [seObjectType]="requirementType"
+                        [disabled]="true" (valueChanged)="onRequirementChanged($event,item)">
+      </app-iri-property>
     </div>
 
     <app-iri-property-list name="functions" [items]="functions"
-                           (editModeChanged)="onFunctionsEditModeChange($event)"></app-iri-property-list>
+                           (editModeChanged)="onFunctionsEditModeChange($event)"
+                           (itemAdded)="onFunctionAdded($event)">
+    </app-iri-property-list>
     <div *ngIf="functionsEditMode" class="card card-body border-info mb-3 pb-0">
-      <app-iri-property *ngFor="let item of functions" name="function" [seObject]="item" [seObjectType]="functionType"
-                        [disabled]="false"></app-iri-property>
+      <app-iri-property *ngFor="let item of functions" name="function" [seObject]="item"
+                        [seObjectType]="functionType" [disabled]="true"
+                        (valueChanged)="onFunctionChanged($event,item)">
+      </app-iri-property>
     </div>
 
     <app-iri-property-list name="interfaces" [items]="interfaces"
-                           (editModeChanged)="onInterfacesEditModeChange($event)"></app-iri-property-list>
+                           (editModeChanged)="onInterfacesEditModeChange($event)"
+                           (itemAdded)="onInterfaceAdded($event)">
+    </app-iri-property-list>
     <div *ngIf="interfacesEditMode" class="card card-body border-info mb-3 pb-0">
-      <app-iri-property *ngFor="let item of interfaces" name="interface" [seObject]="item" [seObjectType]="systemInterfaceType"
-                        [disabled]="false"></app-iri-property>
+      <app-iri-property *ngFor="let item of interfaces" name="interface" [seObject]="item"
+                        [seObjectType]="systemInterfaceType" [disabled]="true"
+                        (valueChanged)="onInterfaceChanged($event,item)">
+      </app-iri-property>
     </div>
 
     <app-iri-property-list name="realisations" [items]="realisations"
                            (editModeChanged)="onRealisationsEditModeChange($event)"></app-iri-property-list>
     <div *ngIf="realisationsEditMode" class="card card-body border-info mb-3 pb-0">
-      <app-iri-property *ngFor="let item of realisations" name="realisation" [seObject]="item" [seObjectType]="realisationModuleType"
+      <app-iri-property *ngFor="let item of realisations" name="realisation" [seObject]="item"
+                        [seObjectType]="realisationModuleType"
                         [disabled]="false"></app-iri-property>
     </div>
 

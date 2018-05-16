@@ -50,7 +50,7 @@ export class SystemInterfaceService extends SeObjectService {
     });
   }
 
-  selectNetworkCollection(selectedSystemInterface: SystemInterfaceModel) {
+  selectSystemInterface(selectedSystemInterface: SystemInterfaceModel) {
     this.selectedSystemInterface = selectedSystemInterface;
   }
 

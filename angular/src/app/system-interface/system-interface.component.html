@@ -1,0 +1,20 @@
+<div class="container-fluid">
+  <div class="row ">
+    <div class="col-md-5 column-content left-column">
+      <div class="card border-primary">
+        <div class="card-header">
+          <span class="label">System interfaces</span>
+        </div>
+        <div *ngIf="selectedDataset" class="card-body">
+          <app-se-objectslist seObjectType="SystemInterface" [seObjectService]="_systemInterfaceService"
+                              [seObjects]="systemInterfaces" [selectedSeObject]="selectedSystemInterface"
+                              (selectedSeObjectChanged)="onSelectedSystemInterfaceChanged($event)"></app-se-objectslist>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7 column-content">
+      <app-selected-system-interface *ngIf="selectedSystemInterface" [selectedSystemInterface]="selectedSystemInterface">
+      </app-selected-system-interface>
+    </div>
+  </div>
+</div>

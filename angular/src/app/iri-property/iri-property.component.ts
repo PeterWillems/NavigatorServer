@@ -42,16 +42,20 @@ export class IriPropertyComponent implements OnInit, OnChanges {
   }
 
   onChange(seObject: SeObjectModel): void {
-    console.log('onChange seObject: ' + seObject);
+    console.log('onChange seObject: ' + (seObject ? seObject.label : 'null'));
     this.valueChanged.emit(seObject);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     const seObjectChanged = changes['seObject'];
     if (seObjectChanged) {
-      console.log('ngOnChanges: this.seObject: ' + this.seObject);
+      console.log('ngOnChanges: this.seObject: ' + (this.seObject ? this.seObject.label : 'null'));
       this._reset();
     }
+  }
+
+  delete(): void {
+    this.valueChanged.emit(null);
   }
 
   private _reset(): void {
@@ -72,7 +76,11 @@ export class IriPropertyComponent implements OnInit, OnChanges {
         const label0 = systemSlot0 ? this._systemSlotService.getSeObjectLabel(systemSlot0) : '<null>';
         const systemSlot1 = this.seObject ? (<SystemInterfaceModel>this.seObject).systemSlot1 : null;
         const label1 = systemSlot1 ? this._systemSlotService.getSeObjectLabel(systemSlot1) : '<null>';
-        this.label = (this.seObject ? this.seObject.label : '') + ' (' + label0 + ' | ' + label1 + ')';
+        if (this.seObject && this.seObject.label === '***') {
+          this.label = this.seObject.label;
+        } else {
+          this.label = (this.seObject ? this.seObject.label + ' (' + label0 + ' | ' + label1 + ')' : '');
+        }
         console.log('SystemInterface label: ' + this.label + ' ' + label0 + ' ' + label1);
         break;
 

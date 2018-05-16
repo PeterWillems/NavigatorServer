@@ -6,7 +6,7 @@
           <span class="label">System slots</span>
         </div>
         <div *ngIf="selectedDataset" class="card-body">
-          <app-se-objectslist [seObjectType]="'SystemSlot'" [seObjectService]="_systemSlotService"
+          <app-se-objectslist seObjectType="SystemSlot" [seObjectService]="_systemSlotService"
                               [seObjects]="systemSlots" [selectedSeObject]="selectedSystemSlot"
                               (selectedSeObjectChanged)="onSelectedSystemSlotChanged($event)"></app-se-objectslist>
         </div>

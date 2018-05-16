@@ -1,0 +1,11 @@
+.label {
+  font-weight: bold;
+}
+
+.table-record {
+  cursor: pointer;
+}
+
+.table-record-selected {
+  background-color: lightpink;
+}

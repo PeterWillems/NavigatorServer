@@ -8,6 +8,7 @@ public class SystemInterface extends SeObject {
 	
 	private URI systemSlot0;
 	private URI systemSlot1;
+	private List<URI> requirements;
 
 	public SystemInterface() {
 	}
@@ -31,6 +32,14 @@ public class SystemInterface extends SeObject {
 
 	public void setSystemSlot1(URI systemSlot1) {
 		this.systemSlot1 = systemSlot1;
+	}
+
+	public List<URI> getRequirements() {
+		return requirements;
+	}
+
+	public void setRequirements(List<URI> requirements) {
+		this.requirements = requirements;
 	}
 
 }

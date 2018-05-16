@@ -1,0 +1,21 @@
+.component {
+  border: #aaa solid thin;
+  margin-top: 5px;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.left-column {
+  height: 850px;
+  overflow-y: auto;
+}
+
+.table-record {
+  cursor: pointer;
+}
+
+.table-record-selected {
+  background-color: lightpink;
+}

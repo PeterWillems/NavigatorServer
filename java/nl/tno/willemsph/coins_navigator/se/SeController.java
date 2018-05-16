@@ -53,6 +53,13 @@ public class SeController {
 	}
 
 	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-slots/{localName}")
+	public SystemSlot updateSystemSlot(@PathVariable int id, @PathVariable String localName,
+			@RequestBody SystemSlot systemSlot) throws URISyntaxException, IOException {
+		return _seService.updateSystemSlot(id, localName, systemSlot);
+	}
+
+	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-slots/{localName}/hamburgers")
 	public List<Hamburger> getHamburgersForSystemSlot(@PathVariable int id, @PathVariable String localName)
 			throws URISyntaxException, IOException {
@@ -65,20 +72,12 @@ public class SeController {
 			throws URISyntaxException, IOException {
 		return _seService.getHamburgersForRealisationModule(id, localName);
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}/ports")
 	public List<RealisationPort> getPortsForRealisationModule(@PathVariable int id, @PathVariable String localName)
 			throws URISyntaxException, IOException {
 		return _seService.getPortsForRealisationModule(id, localName);
-	}
-
-
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-slots/{localName}")
-	public SystemSlot updateSystemSlot(@PathVariable int id, @PathVariable String localName,
-			@RequestBody SystemSlot systemSlot) throws URISyntaxException, IOException {
-		return _seService.updateSystemSlot(id, localName, systemSlot);
 	}
 
 	@CrossOrigin
@@ -111,7 +110,7 @@ public class SeController {
 	public Performance createPerformance(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.createPerformance(id);
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/requirements")
 	public List<Requirement> getAllRequirements(@PathVariable int id) throws IOException, URISyntaxException {
@@ -126,18 +125,37 @@ public class SeController {
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-interfaces")
-	public List<SystemInterface> getAllSystemInterfaces(@PathVariable int id)
-			throws IOException, URISyntaxException {
+	public List<SystemInterface> getAllSystemInterfaces(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.getAllSystemInterfaces(id);
 	}
-	
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/system-interfaces")
+	public SystemInterface createSystemInterface(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createSystemInterface(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-interfaces/{localName}")
+	public SystemInterface getSystemInterface(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getSystemInterface(id, localName);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-interfaces/{localName}")
+	public SystemInterface updateSystemInterface(@PathVariable int id, @PathVariable String localName,
+			@RequestBody SystemInterface systemInterface) throws URISyntaxException, IOException {
+		return _seService.updateSystemInterface(id, localName, systemInterface);
+	}
+
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules")
 	public List<RealisationModule> getAllRealisationModules(@PathVariable int id)
 			throws IOException, URISyntaxException {
 		return _seService.getAllRealisationModules(id);
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}")
 	public RealisationModule getRealisationModule(@PathVariable int id, @PathVariable String localName)
@@ -145,7 +163,6 @@ public class SeController {
 		return _seService.getRealisationModule(id, localName);
 	}
 
-	
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/realisation-modules")
 	public RealisationModule createRealisationModule(@PathVariable int id) throws IOException, URISyntaxException {

@@ -1,0 +1,43 @@
+<div *ngIf="selectedSystemInterface" class="card border-primary">
+  <div class="card-header">
+    <span class="label">Selected System Interface:</span> {{selectedSystemInterface.label}}
+  </div>
+  <div class="card-body">
+    <app-literal-property name="uri" [value]="selectedSystemInterface.uri" valueType="url" [disabled]="true">
+    </app-literal-property>
+    <app-literal-property name="label" [value]="selectedSystemInterface.label" valueType="text" [disabled]="false"
+                          (valueChanged)="onLabelChanged($event)">
+    </app-literal-property>
+    <app-iri-property name="assembly" [seObjectType]="systemInterfaceType" [seObject]="getAssembly()"
+                      (valueChanged)="onAssemblyChanged($event)" [disabled]="false">
+    </app-iri-property>
+
+    <app-iri-property-list name="parts" [items]="parts"
+                           (editModeChanged)="onPartsEditModeChange($event)"
+                           (itemAdded)="onPartAdded($event)">
+    </app-iri-property-list>
+    <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="systemInterfaceType"
+                        [disabled]="true" (valueChanged)="onPartChanged($event,item)"></app-iri-property>
+    </div>
+
+    <app-iri-property name="system slot 0" [seObjectType]="systemSlotType" [seObject]="getSystemSlot(0)"
+                      (valueChanged)="onSystemSlotChanged($event, 0)" [disabled]="false">
+    </app-iri-property>
+    <app-iri-property name="system slot 1" [seObjectType]="systemSlotType" [seObject]="getSystemSlot(1)"
+                      (valueChanged)="onSystemSlotChanged($event, 1)" [disabled]="false">
+    </app-iri-property>
+
+    <app-iri-property-list name="requirements" [items]="requirements"
+                           (editModeChanged)="onRequirementsEditModeChange($event)"
+                           (itemAdded)="onRequirementAdded($event)">
+    </app-iri-property-list>
+    <div *ngIf="requirementsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-iri-property *ngFor="let item of requirements" name="requirement" [seObject]="item"
+                        [seObjectType]="requirementType"
+                        [disabled]="true" (valueChanged)="onRequirementChanged($event,item)">
+      </app-iri-property>
+    </div>
+
+  </div>
+</div>

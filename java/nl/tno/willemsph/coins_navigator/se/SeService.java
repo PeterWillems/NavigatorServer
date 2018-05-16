@@ -79,7 +79,7 @@ public class SeService {
 
 	private List<URI> getFunctionsOfSystemSlot(String datasetUri, String systemSlotUri)
 			throws IOException, URISyntaxException {
-		List<URI> functionUris = null;
+		List<URI> functionUris = new ArrayList<>();
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri);
 		queryStr.setIri("system_slot", systemSlotUri);
@@ -91,9 +91,6 @@ public class SeService {
 		queryStr.append("}");
 
 		JsonNode responseNodes = _embeddedServer.query(queryStr);
-		if (responseNodes.size() > 0) {
-			functionUris = new ArrayList<>();
-		}
 		for (JsonNode node : responseNodes) {
 			String uri = node.get("function").get("value").asText();
 			functionUris.add(new URI(uri));
@@ -103,7 +100,7 @@ public class SeService {
 
 	private List<URI> getInterfacesOfSystemSlot(String datasetUri, String systemSlotUri)
 			throws IOException, URISyntaxException {
-		List<URI> interfaceUris = null;
+		List<URI> interfaceUris = new ArrayList<>();
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri);
 		queryStr.setIri("system_slot", systemSlotUri);
@@ -115,9 +112,6 @@ public class SeService {
 		queryStr.append("}");
 
 		JsonNode responseNodes = _embeddedServer.query(queryStr);
-		if (responseNodes.size() > 0) {
-			interfaceUris = new ArrayList<>();
-		}
 		for (JsonNode node : responseNodes) {
 			String uri = node.get("interface").get("value").asText();
 			interfaceUris.add(new URI(uri));
@@ -130,7 +124,22 @@ public class SeService {
 	}
 
 	public SystemSlot getSystemSlot(int datasetId, String localName) throws URISyntaxException, IOException {
-		return (SystemSlot) getSeObject(datasetId, localName, SeObjectType.SystemSlot);
+		String datasetUri = getDatasetUri(datasetId);
+		SystemSlot systemSlot = (SystemSlot) getSeObject(datasetId, localName, SeObjectType.SystemSlot);
+		systemSlot.setRequirements(getRequirements(datasetId, systemSlot.getUri().toString()));
+		systemSlot.setFunctions(getFunctionsOfSystemSlot(datasetUri, systemSlot.getUri().toString()));
+		systemSlot.setInterfaces(getInterfacesOfSystemSlot(datasetUri, systemSlot.getUri().toString()));
+		return systemSlot;
+	}
+
+	public SystemInterface getSystemInterface(int datasetId, String localName) throws URISyntaxException, IOException {
+		SystemInterface systemInterface = (SystemInterface) getSeObject(datasetId, localName,
+				SeObjectType.SystemInterface);
+		List<URI> systemSlots = getSystemSlotsOfSystemInterface(datasetId, systemInterface.getUri().toString());
+		systemInterface.setSystemSlot0(systemSlots.size() > 0 ? systemSlots.get(0) : null);
+		systemInterface.setSystemSlot1(systemSlots.size() > 1 ? systemSlots.get(1) : null);
+		systemInterface.setRequirements(getRequirements(datasetId, systemInterface.getUri().toString()));
+		return systemInterface;
 	}
 
 	public List<Dataset> getAllDatasets() throws URISyntaxException {
@@ -187,7 +196,44 @@ public class SeService {
 		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
 		updateLabel(datasetUri, systemSlot.getUri(), systemSlot.getLabel());
 		updateAssembly(datasetUri, systemSlot.getUri(), systemSlot.getAssembly());
-		return getSystemSlot(datasetId, systemSlot.getUri().toString());
+		for (URI partUri : systemSlot.getParts()) {
+			updatePart(datasetUri, systemSlot.getUri(), partUri);
+		}
+		deleteRequirements(datasetUri, systemSlot.getUri());
+		for (URI requirementUri : systemSlot.getRequirements()) {
+			insertRequirement(datasetUri, systemSlot.getUri(), requirementUri);
+		}
+		deleteFunctions(datasetUri, systemSlot.getUri());
+		for (URI functionUri : systemSlot.getFunctions()) {
+			insertFunction(datasetUri, systemSlot.getUri(), functionUri);
+		}
+		deleteInterfaces(datasetUri, systemSlot.getUri());
+		for (URI interfaceUri : systemSlot.getInterfaces()) {
+			insertInterface(datasetUri, systemSlot.getUri(), interfaceUri);
+		}
+		return getSystemSlot(datasetId, localName);
+	}
+
+	public SystemInterface updateSystemInterface(int datasetId, String localName, SystemInterface systemInterface)
+			throws URISyntaxException, IOException {
+		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
+		updateLabel(datasetUri, systemInterface.getUri(), systemInterface.getLabel());
+		updateAssembly(datasetUri, systemInterface.getUri(), systemInterface.getAssembly());
+		for (URI partUri : systemInterface.getParts()) {
+			updatePart(datasetUri, systemInterface.getUri(), partUri);
+		}
+		deleteSystemSlots(datasetUri, systemInterface.getUri());
+		if (systemInterface.getSystemSlot0() != null) {
+			insertSystemSlot(datasetUri, systemInterface.getUri(), systemInterface.getSystemSlot0());
+		}
+		if (systemInterface.getSystemSlot1() != null) {
+			insertSystemSlot(datasetUri, systemInterface.getUri(), systemInterface.getSystemSlot1());
+		}
+		deleteRequirements(datasetUri, systemInterface.getUri());
+		for (URI requirementUri : systemInterface.getRequirements()) {
+			insertRequirement(datasetUri, systemInterface.getUri(), requirementUri);
+		}
+		return getSystemInterface(datasetId, localName);
 	}
 
 	private void updateLabel(URI datasetUri, URI subjectUri, String newLabel) throws IOException {
@@ -261,6 +307,209 @@ public class SeService {
 
 			_embeddedServer.update(queryStr);
 		}
+	}
+
+	private void updatePart(URI datasetUri, URI subjectUri, URI partUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?c ?p1 ?o1 . ");
+		queryStr.append("      ?o2 ?p2 ?c . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?c ?p1 ?o1 . ");
+		queryStr.append("        OPTIONAL { ?o2 ?p2 ?c . } ");
+		queryStr.append("        ?c coins2:hasPart ?part . ");
+		queryStr.append("        ?c coins2:hasAssembly ?subject . ");
+		queryStr.append("      } UNION { ");
+		queryStr.append("        ?c ?p1 ?o1 . ");
+		queryStr.append("        ?o2 ?p2 ?c . ");
+		queryStr.append("        ?part coins2:partOf ?c . ");
+		queryStr.append("        ?c coins2:hasAssembly ?subject . ");
+		queryStr.append("      } UNION { ");
+		queryStr.append("        ?c ?p1 ?o1 . ");
+		queryStr.append("        ?o2 ?p2 ?c . ");
+		queryStr.append("        ?c coins2:hasPart ?part . ");
+		queryStr.append("        ?subject coins2:hasContainsRelation ?c . ");
+		queryStr.append("      } UNION { ");
+		queryStr.append("        ?c ?p1 ?o1 . ");
+		queryStr.append("        ?o2 ?p2 ?c . ");
+		queryStr.append("        ?part coins2:partOf ?c . ");
+		queryStr.append("        ?subject coins2:hasContainsRelation ?c . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+
+		if (partUri != null) {
+			String containsRelationUri = datasetUri + "#ContainsRelation_" + UUID.randomUUID().toString();
+			queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+			queryStr.setIri("graph", datasetUri.toString());
+			queryStr.setIri("subject", subjectUri.toString());
+			queryStr.setIri("contains_relation", containsRelationUri);
+			queryStr.setIri("part", partUri.toString());
+			queryStr.append("  INSERT { ");
+			queryStr.append("    GRAPH ?graph { ");
+			queryStr.append("      ?contains_relation rdf:type coins2:ContainsRelation . ");
+			queryStr.append("      ?contains_relation rdf:type coins2:CoinsContainerObject . ");
+			queryStr.append("      ?contains_relation coins2:hasAssembly ?subject . ");
+			queryStr.append("      ?contains_relation coins2:hasPart ?part . ");
+			queryStr.append("    } ");
+			queryStr.append("  }");
+			queryStr.append("WHERE { } ");
+
+			_embeddedServer.update(queryStr);
+		}
+	}
+
+	private void deleteRequirements(URI datasetUri, URI subjectUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasRequirement ?requirement . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?subject se:hasRequirement ?requirement . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void insertRequirement(URI datasetUri, URI subjectUri, URI requirementUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.setIri("requirement", requirementUri.toString());
+		queryStr.append("  INSERT { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasRequirement ?requirement . ");
+		queryStr.append("    } ");
+		queryStr.append("  }");
+		queryStr.append("WHERE { } ");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void deleteFunctions(URI datasetUri, URI subjectUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasFunction ?function . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?subject se:hasFunction ?function . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void insertFunction(URI datasetUri, URI subjectUri, URI functionUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.setIri("function", functionUri.toString());
+		queryStr.append("  INSERT { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasFunction ?function . ");
+		queryStr.append("    } ");
+		queryStr.append("  }");
+		queryStr.append("WHERE { } ");
+
+		_embeddedServer.update(queryStr);
+	}
+	private void deleteSystemSlots(URI datasetUri, URI subjectUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?system_slot se:hasInterfaces ?subject . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?system_slot se:hasInterfaces ?subject . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void deleteInterfaces(URI datasetUri, URI subjectUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasInterfaces ?interface . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?subject se:hasInterfaces ?interface . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void insertInterface(URI datasetUri, URI subjectUri, URI interfaceUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.setIri("interface", interfaceUri.toString());
+		queryStr.append("  INSERT { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasInterfaces ?interface . ");
+		queryStr.append("    } ");
+		queryStr.append("  }");
+		queryStr.append("WHERE { } ");
+
+		_embeddedServer.update(queryStr);
+	}
+	
+	private void insertSystemSlot(URI datasetUri, URI subjectUri, URI systemSlotUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.setIri("system_slot", systemSlotUri.toString());
+		queryStr.append("  INSERT { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?system_slot se:hasInterfaces ?subject . ");
+		queryStr.append("    } ");
+		queryStr.append("  }");
+		queryStr.append("WHERE { } ");
+
+		_embeddedServer.update(queryStr);
 	}
 
 	public List<Function> getAllFunctions(int datasetId) throws IOException, URISyntaxException {
@@ -435,6 +684,11 @@ public class SeService {
 			systemInterfaces.add(systemInterface);
 		}
 		return systemInterfaces;
+	}
+
+	public SystemInterface createSystemInterface(int datasetId) throws URISyntaxException, IOException {
+		String systemInterfaceUri = createSeObject(datasetId, SeObjectType.SystemInterface);
+		return getSystemInterface(datasetId, systemInterfaceUri);
 	}
 
 	private List<URI> getSystemSlotsOfSystemInterface(int datasetId, String systemInterfaceUri)

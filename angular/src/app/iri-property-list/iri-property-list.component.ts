@@ -10,8 +10,8 @@ import {SeObjectType} from '../se-object-type';
 export class IriPropertyListComponent implements OnInit, OnChanges {
   @Input() name: string;
   @Input() items: SeObjectModel[];
-//  @Input() seObjectType: SeObjectType;
   @Output() editModeChanged = new EventEmitter();
+  @Output() itemAdded = new EventEmitter();
   editMode = false;
   labels: string[];
 
@@ -24,14 +24,11 @@ export class IriPropertyListComponent implements OnInit, OnChanges {
 
   private _getLabels(): string[] {
     const labels = [];
-    console.log('_getLabels 1 ')
     if (this.items) {
-      console.log('_getLabels 2 ' + this.items)
       for (let index = 0; index < this.items.length; index++) {
-        console.log('_getLabels 3 ' + 'label: ' + (this.items[index] ? this.items[index].label : ''));
         labels.push(this.items[index] ? this.items[index].label : '');
       }
-  }
+    }
     return labels;
   }
 
@@ -40,15 +37,17 @@ export class IriPropertyListComponent implements OnInit, OnChanges {
     if (itemsChanged) {
       this.labels = this._getLabels();
     }
-    // const seObjectTypeChanged = changes['seObjectType'];
-    // if (seObjectTypeChanged) {
-    //   console.log('seObjectTypeChanged: ' + this.seObjectType);
-    // }
   }
 
   toggleEditMode(): void {
     this.editMode = !this.editMode;
     this.editModeChanged.emit(this.editMode);
+  }
+
+  addItem(): void {
+    this.editMode = true;
+    this.editModeChanged.emit(this.editMode);
+    this.itemAdded.emit();
   }
 
 }

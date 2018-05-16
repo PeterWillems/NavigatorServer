@@ -29,6 +29,7 @@ export class SystemSlotComponent implements OnInit, OnChanges {
 
     this._systemSlotService.seObjectsUpdated.subscribe((systemSlots) => {
       this.systemSlots = systemSlots;
+      this.selectedSystemSlot = this._systemSlotService.selectedSystemSlot;
     });
 
     if (this.selectedDataset) {
@@ -55,7 +56,7 @@ export class SystemSlotComponent implements OnInit, OnChanges {
   onSelectedSystemSlotChanged(seObject: SeObjectModel): void {
     this.selectedSystemSlot = <SystemSlotModel>seObject;
     this._systemSlotService.selectSystemSlot(this.selectedSystemSlot);
-    console.log(this.selectedSystemSlot.uri);
+    console.log('onSelectedSystemSlotChanged: ' + this.selectedSystemSlot.uri);
   }
 
 
