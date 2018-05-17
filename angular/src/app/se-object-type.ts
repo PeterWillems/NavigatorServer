@@ -4,6 +4,7 @@ export enum SeObjectType {
   SystemSlotModel,
   HamburgerModel,
   PerformanceModel,
+  PortRealisationModel,
   RealisationModuleModel,
   RealisationPortModel,
   RequirementModel

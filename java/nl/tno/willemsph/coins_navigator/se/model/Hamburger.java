@@ -7,6 +7,7 @@ import java.util.List;
 public class Hamburger extends SeObject {
 	private URI functionalUnit;
 	private URI technicalSolution;
+	private List<URI> portRealisations;
 
 	public Hamburger() {
 	}
@@ -29,6 +30,14 @@ public class Hamburger extends SeObject {
 
 	public void setTechnicalSolution(URI technicalSolution) {
 		this.technicalSolution = technicalSolution;
+	}
+
+	public List<URI> getPortRealisations() {
+		return portRealisations;
+	}
+
+	public void setPortRealisations(List<URI> portRealisations) {
+		this.portRealisations = portRealisations;
 	}
 
 }

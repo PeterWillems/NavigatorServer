@@ -23,6 +23,8 @@ import { PerformanceComponent } from './performance/performance.component';
 import { SelectedPerformanceComponent } from './selected-performance/selected-performance.component';
 import { SystemInterfaceComponent } from './system-interface/system-interface.component';
 import { SelectedSystemInterfaceComponent } from './selected-system-interface/selected-system-interface.component';
+import { HamburgerComponent } from './hamburger/hamburger.component';
+import { SelectedHamburgerComponent } from './selected-hamburger/selected-hamburger.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
@@ -32,6 +34,7 @@ const appRoutes: Routes = [
   {path: 'realisationmodules', component: RealisationModuleComponent},
   {path: 'performances', component: PerformanceComponent},
   {path: 'systeminterfaces', component: SystemInterfaceComponent},
+  {path: 'hamburgers', component: HamburgerComponent},
   {path: '', redirectTo: '/datasets', pathMatch: 'full'}
 ];
 
@@ -55,7 +58,9 @@ const appRoutes: Routes = [
     PerformanceComponent,
     SelectedPerformanceComponent,
     SystemInterfaceComponent,
-    SelectedSystemInterfaceComponent
+    SelectedSystemInterfaceComponent,
+    HamburgerComponent,
+    SelectedHamburgerComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,19 @@
+<div class="container-fluid">
+  <div class="row ">
+    <div class="col-md-5 column-content left-column">
+      <div class="card border-primary">
+        <div class="card-header">
+          <span class="label">Hamburgers</span>
+        </div>
+        <div *ngIf="selectedDataset" class="card-body">
+          <app-se-objectslist seObjectType="Hamburger" [seObjectService]="_hamburgerService"
+                              [seObjects]="hamburgers" [selectedSeObject]="selectedHamburger"
+                              (selectedSeObjectChanged)="onSelectedHamburgerChanged($event)"></app-se-objectslist>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7 column-content">
+      <app-selected-hamburger *ngIf="selectedHamburger" [selectedHamburger]="selectedHamburger"></app-selected-hamburger>
+    </div>
+  </div>
+</div>

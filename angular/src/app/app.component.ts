@@ -7,6 +7,7 @@ import {SystemInterfaceService} from './system-interface.service';
 import {RealisationModuleService} from './realisation-module.service';
 import {RequirementService} from './requirement.service';
 import {PerformanceService} from './performance.service';
+import {HamburgerService} from './hamburger.service';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,8 @@ import {PerformanceService} from './performance.service';
     FunctionService,
     PerformanceService,
     RequirementService,
-    SystemInterfaceService
+    SystemInterfaceService,
+    HamburgerService
   ]
 })
 export class AppComponent implements OnInit {
@@ -33,7 +35,8 @@ export class AppComponent implements OnInit {
               private _functionService: FunctionService,
               private _performanceService: PerformanceService,
               private _requirementService: RequirementService,
-              private _systemInterfaceService: SystemInterfaceService) {
+              private _systemInterfaceService: SystemInterfaceService,
+              private _hamburgerService: HamburgerService) {
   }
 
   ngOnInit(): void {
@@ -54,6 +57,7 @@ export class AppComponent implements OnInit {
       this._performanceService.loadObjects(this.selectedDataset);
       this._requirementService.loadObjects(this.selectedDataset);
       this._systemInterfaceService.loadObjects(this.selectedDataset);
+      this._hamburgerService.loadObjects(this.selectedDataset);
     }
   }
 }

@@ -16,6 +16,7 @@ import nl.tno.willemsph.coins_navigator.se.model.Function;
 import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
 import nl.tno.willemsph.coins_navigator.se.model.SystemInterface;
 import nl.tno.willemsph.coins_navigator.se.model.Performance;
+import nl.tno.willemsph.coins_navigator.se.model.PortRealisation;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationPort;
 import nl.tno.willemsph.coins_navigator.se.model.Requirement;
@@ -168,5 +169,42 @@ public class SeController {
 	public RealisationModule createRealisationModule(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.createRealisationModule(id);
 	}
+
+	//
+	// H A M B U R G E R S
+	//
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/hamburgers")
+	public List<Hamburger> getAllHamburgers(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllHamburgers(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/hamburgers")
+	public Hamburger createHamburger(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createHamburger(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/hamburgers/{localName}")
+	public Hamburger getHamburger(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getHamburger(id, localName);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/hamburgers/{localName}")
+	public Hamburger updateHamburger(@PathVariable int id, @PathVariable String localName,
+			@RequestBody Hamburger hamburger) throws URISyntaxException, IOException {
+		return _seService.updateHamburger(id, localName, hamburger);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/hamburgers/{localName}/port-realisations")
+	public List<PortRealisation> getPortRealisationsOfHamburger(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getPortRealisationsOfHamburger(id, localName);
+	}
+
 
 }
