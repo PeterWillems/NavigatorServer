@@ -8,6 +8,8 @@ import {RealisationModuleService} from './realisation-module.service';
 import {RequirementService} from './requirement.service';
 import {PerformanceService} from './performance.service';
 import {HamburgerService} from './hamburger.service';
+import {RealisationPortService} from './realisation-port.service';
+import {NumericPropertyService} from './numeric-property.service';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +23,9 @@ import {HamburgerService} from './hamburger.service';
     PerformanceService,
     RequirementService,
     SystemInterfaceService,
-    HamburgerService
+    HamburgerService,
+    RealisationPortService,
+    NumericPropertyService
   ]
 })
 export class AppComponent implements OnInit {
@@ -36,7 +40,9 @@ export class AppComponent implements OnInit {
               private _performanceService: PerformanceService,
               private _requirementService: RequirementService,
               private _systemInterfaceService: SystemInterfaceService,
-              private _hamburgerService: HamburgerService) {
+              private _hamburgerService: HamburgerService,
+              private _realisationPortService: RealisationPortService,
+              private _numericPropertyService: NumericPropertyService) {
   }
 
   ngOnInit(): void {
@@ -58,6 +64,8 @@ export class AppComponent implements OnInit {
       this._requirementService.loadObjects(this.selectedDataset);
       this._systemInterfaceService.loadObjects(this.selectedDataset);
       this._hamburgerService.loadObjects(this.selectedDataset);
+      this._realisationPortService.loadObjects(this.selectedDataset);
+      this._numericPropertyService.loadObjects(this.selectedDataset);
     }
   }
 }

@@ -6,6 +6,8 @@ import {SeObjectModel} from './models/se-object.model';
 import {DatasetService} from './dataset.service';
 import {RequirementModel} from './models/requirement.model';
 import {SeObjectType} from './se-object-type';
+import {Observable} from 'rxjs/Observable';
+import {NumericPropertyModel} from './models/numeric-property.model';
 
 @Injectable()
 export class RequirementService extends SeObjectService {
@@ -32,6 +34,13 @@ export class RequirementService extends SeObjectService {
     });
   }
 
+  getMinValue(requirement: RequirementModel): Observable<NumericPropertyModel> {
+    const hashMark = requirement.uri.indexOf('#') + 1;
+    const localName = requirement.uri.substring(hashMark);
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/requirements/' + localName + '/min-value';
+    return this._httpClient.get <NumericPropertyModel>(request);
+  }
+
   createObject(): void {
     this.create(this.selectedRequirement, this.dataset, SeObjectType.RequirementModel).subscribe(value => {
       this.requirements.push(value);
@@ -42,7 +51,7 @@ export class RequirementService extends SeObjectService {
   updateSeObject(requirement: RequirementModel): void {
     const hashMark = requirement.uri.indexOf('#') + 1;
     const localName = requirement.uri.substring(hashMark);
-    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/performances/' + localName;
+    const request = this.apiAddress + '/datasets/' + this.dataset.id + '/requirements/' + localName;
     this._httpClient.put(request, requirement).subscribe(value => {
       console.log('Assembly: ' + (<RequirementModel>value).assembly);
     }, error => {

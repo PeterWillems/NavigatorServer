@@ -38,11 +38,11 @@ public class EmbeddedServer {
 	public static final String QUERY_URL = "http://localhost:3330/rdf/query";
 	public static final String UPDATE_URL = "http://localhost:3330/rdf/update";
 	public static final String SE_EXAMPLE_URI = "http://www.coinsweb.nl/coins2/reffrm/se/";
-	private static final String COINS2 = "http://www.coinsweb.nl/cbim-2.0.rdf#";
+	public static final String COINS2 = "http://www.coinsweb.nl/cbim-2.0.rdf#";
 	private static final String CBIM2_RESOURCE = "cbim-2.0.rdf";
 	public static final String SE = "http://www.coinsweb.nl/coins2/reffrm/se#";
 	private static final String SE_RESOURCE = "se.ttl";
-	private static final String[] EXAMPLES = { "parkbank2", "wegjunctie", "wissel" };
+	private static final String[] EXAMPLES = { "new", "parkbank2", "wegjunctie", "wissel" };
 	private static Dataset ds;
 	private static FusekiServer fuseki;
 	private PrefixMapping prefixMapping;

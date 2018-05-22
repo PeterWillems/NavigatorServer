@@ -7,20 +7,25 @@
                           [disabled]="true"></app-literal-property>
     <app-literal-property name="label" [value]="selectedHamburger.label" valueType="text" [disabled]="false"
                           (valueChanged)="onLabelChanged($event)"></app-literal-property>
-    <app-iri-property name="assembly" [seObjectType]="hamburgerType" [seObject]="assembly"
+    <app-iri-property name="assembly" [seObjectType]="hamburgerType" [seObject]="getAssembly()"
                       (valueChanged)="onAssemblyChanged($event)"
                       [disabled]="false"></app-iri-property>
     <app-iri-property-list name="parts" [items]="parts"
-                           (editModeChanged)="onPartsEditModeChange($event)"></app-iri-property-list>
+                           (editModeChanged)="onPartsEditModeChange($event)"
+                           (itemAdded)="onPartAdded($event)">
+    </app-iri-property-list>
     <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
       <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="hamburgerType"
-                        [disabled]="false"></app-iri-property>
+                        [disabled]="true" (valueChanged)="onPartChanged($event,item)">
+      </app-iri-property>
     </div>
 
     <app-iri-property name="functional unit" [seObjectType]="systemSlotType" [seObject]="functionalUnit"
-                      [disabled]="false"></app-iri-property>
+                      (valueChanged)="onFunctionalUnitChanged($event)" [disabled]="false">
+    </app-iri-property>
     <app-iri-property name="technical solution" [seObjectType]="realisationModuleType" [seObject]="technicalSolution"
-                      [disabled]="false"></app-iri-property>
+                      (valueChanged)="onTechnicalSolutionChanged($event)" [disabled]="false">
+    </app-iri-property>
 
     <app-iri-property-list name="port realisations" [items]="portRealisations"
                            (editModeChanged)="onPortRealisationsEditModeChange($event)"></app-iri-property-list>

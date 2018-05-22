@@ -44,9 +44,11 @@ export class RealisationModuleService extends SeObjectService {
   updateSeObject(realisationModule: RealisationModuleModel): void {
     const hashMark = realisationModule.uri.indexOf('#') + 1;
     const localName = realisationModule.uri.substring(hashMark);
-    console.log('update: ' + this.dataset.id + ' system slot: ' + localName + ' assembly: ' + realisationModule.assembly);
+    console.log('update: ' + this.dataset.id + ' system slot: ' + localName + ' assembly: ' + realisationModule.assembly
+      + ' parts: ' + realisationModule.parts + ' performances: ' + realisationModule.performances + ' ports: ' + realisationModule.ports);
     const request = this.apiAddress + '/datasets/' + this.dataset.id + '/realisation-modules/' + localName;
     this._httpClient.put(request, realisationModule).subscribe(value => {
+      console.log('httpClient.put: ' + value);
     }, error => {
     }, () => {
     });

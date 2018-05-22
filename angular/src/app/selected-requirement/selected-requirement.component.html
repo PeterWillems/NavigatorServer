@@ -3,18 +3,38 @@
     <span class="label">Selected Requirement:</span> {{selectedRequirement.label}}
   </div>
   <div class="card-body">
-    <app-literal-property name="uri" [value]="selectedRequirement.uri" valueType="url"
-                          [disabled]="true"></app-literal-property>
+    <app-literal-property name="uri" [value]="selectedRequirement.uri" valueType="url" [disabled]="true">
+    </app-literal-property>
     <app-literal-property name="label" [value]="selectedRequirement.label" valueType="text" [disabled]="false"
-                          (valueChanged)="onLabelChanged($event)"></app-literal-property>
+                          (valueChanged)="onLabelChanged($event)">
+    </app-literal-property>
     <app-iri-property name="assembly" [seObjectType]="requirementType" [seObject]="assembly"
                       (valueChanged)="onAssemblyChanged($event)"
-                      [disabled]="false"></app-iri-property>
+                      [disabled]="false">
+    </app-iri-property>
     <app-iri-property-list name="parts" [items]="parts"
-                           (editModeChanged)="onPartsEditModeChange($event)"></app-iri-property-list>
+                           (editModeChanged)="onPartsEditModeChange($event)">
+    </app-iri-property-list>
     <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
       <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="requirementType"
-                        [disabled]="false"></app-iri-property>
+                        [disabled]="false">
+      </app-iri-property>
     </div>
+    <app-iri-property name="min. value type" [seObjectType]="numericPropertyType" [seObject]="minValue"
+                      (valueChanged)="onMinValueChanged($event)"
+                      [disabled]="false">
+    </app-iri-property>
+    <app-literal-property name="min. value" [value]="minValue?minValue.datatypeValue:''" valueType="number"
+                          [disabled]="false">
+    </app-literal-property>
+
+    <app-iri-property name="max. value type" [seObjectType]="numericPropertyType" [seObject]="maxValue"
+                      (valueChanged)="onMaxValueChanged($event)"
+                      [disabled]="false">
+    </app-iri-property>
+    <app-literal-property name="max. value" [value]="maxValue?maxValue.datatypeValue:''" valueType="number"
+                          [disabled]="false">
+    </app-literal-property>
+
   </div>
 </div>

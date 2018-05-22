@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import nl.tno.willemsph.coins_navigator.se.model.Function;
 import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
+import nl.tno.willemsph.coins_navigator.se.model.NumericProperty;
 import nl.tno.willemsph.coins_navigator.se.model.SystemInterface;
 import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.PortRealisation;
@@ -33,6 +34,78 @@ public class SeController {
 	public List<Dataset> getAllDatasets() throws URISyntaxException {
 		return _seService.getAllDatasets();
 	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/performances")
+	public List<Performance> getAllPerformances(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllPerformances(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/performances")
+	public Performance createPerformance(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createPerformance(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-interfaces")
+	public List<SystemInterface> getAllSystemInterfaces(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllSystemInterfaces(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/system-interfaces")
+	public SystemInterface createSystemInterface(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createSystemInterface(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-interfaces/{localName}")
+	public SystemInterface getSystemInterface(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getSystemInterface(id, localName);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-interfaces/{localName}")
+	public SystemInterface updateSystemInterface(@PathVariable int id, @PathVariable String localName,
+			@RequestBody SystemInterface systemInterface) throws URISyntaxException, IOException {
+		return _seService.updateSystemInterface(id, localName, systemInterface);
+	}
+
+	//
+	// F U N C T I O N S
+	//
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/functions")
+	public List<Function> getAllFunctions(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllFunctions(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/functions")
+	public Function createFunction(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createFunction(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/functions/{localName}")
+	public Function getFunction(@PathVariable int id, @PathVariable String localName)
+			throws IOException, URISyntaxException {
+		return _seService.getFunction(id, localName);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/functions/{localName}")
+	public Function updateFunction(@PathVariable int id, @PathVariable String localName, @RequestBody Function function)
+			throws URISyntaxException, IOException {
+		return _seService.updateFunction(id, localName, function);
+	}
+
+	//
+	// S Y S T E M - S L O T S
+	//
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-slots")
@@ -67,6 +140,37 @@ public class SeController {
 		return _seService.getHamburgersForSystemSlot(id, localName);
 	}
 
+	//
+	// R E A L I S A T I O N - M O D U L E S
+	//
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules")
+	public List<RealisationModule> getAllRealisationModules(@PathVariable int id)
+			throws IOException, URISyntaxException {
+		return _seService.getAllRealisationModules(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/realisation-modules")
+	public RealisationModule createRealisationModule(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createRealisationModule(id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}")
+	public RealisationModule getRealisationModule(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getRealisationModule(id, localName);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/realisation-modules/{localName}")
+	public RealisationModule updateRealisationModule(@PathVariable int id, @PathVariable String localName,
+			@RequestBody RealisationModule realisationModule) throws URISyntaxException, IOException {
+		return _seService.updateRealisationModule(id, localName, realisationModule);
+	}
+
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}/hamburgers")
 	public List<Hamburger> getHamburgersForRealisationModule(@PathVariable int id, @PathVariable String localName)
@@ -81,36 +185,19 @@ public class SeController {
 		return _seService.getPortsForRealisationModule(id, localName);
 	}
 
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/functions")
-	public List<Function> getAllFunctions(@PathVariable int id) throws IOException, URISyntaxException {
-		return _seService.getAllFunctions(id);
-	}
+	//
+	// R E A L I S A T I O N - P O R T S
+	//
 
 	@CrossOrigin
-	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/functions")
-	public Function createFunction(@PathVariable int id) throws IOException, URISyntaxException {
-		return _seService.createFunction(id);
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-ports")
+	public List<RealisationPort> getAllRealisationPorts(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllRealisationPorts(id);
 	}
 
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/functions/{localName}")
-	public Function updateFunction(@PathVariable int id, @PathVariable String localName, @RequestBody Function function)
-			throws URISyntaxException, IOException {
-		return _seService.updateFunction(id, localName, function);
-	}
-
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/performances")
-	public List<Performance> getAllPerformances(@PathVariable int id) throws IOException, URISyntaxException {
-		return _seService.getAllPerformances(id);
-	}
-
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/performances")
-	public Performance createPerformance(@PathVariable int id) throws IOException, URISyntaxException {
-		return _seService.createPerformance(id);
-	}
+	//
+	// R E Q U I R E M E N T S
+	//
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/requirements")
@@ -125,54 +212,37 @@ public class SeController {
 	}
 
 	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-interfaces")
-	public List<SystemInterface> getAllSystemInterfaces(@PathVariable int id) throws IOException, URISyntaxException {
-		return _seService.getAllSystemInterfaces(id);
-	}
-
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/system-interfaces")
-	public SystemInterface createSystemInterface(@PathVariable int id) throws IOException, URISyntaxException {
-		return _seService.createSystemInterface(id);
-	}
-
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/system-interfaces/{localName}")
-	public SystemInterface getSystemInterface(@PathVariable int id, @PathVariable String localName)
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/requirements/{localName}")
+	public Requirement getRequirement(@PathVariable int id, @PathVariable String localName)
 			throws URISyntaxException, IOException {
-		return _seService.getSystemInterface(id, localName);
+		return _seService.getRequirement(id, localName);
 	}
 
 	@CrossOrigin
-	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/system-interfaces/{localName}")
-	public SystemInterface updateSystemInterface(@PathVariable int id, @PathVariable String localName,
-			@RequestBody SystemInterface systemInterface) throws URISyntaxException, IOException {
-		return _seService.updateSystemInterface(id, localName, systemInterface);
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/requirements/{localName}")
+	public Requirement updateRequirement(@PathVariable int id, @PathVariable String localName,
+			@RequestBody Requirement requirement) throws URISyntaxException, IOException {
+		return _seService.updateRequirement(id, localName, requirement);
 	}
 
 	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules")
-	public List<RealisationModule> getAllRealisationModules(@PathVariable int id)
-			throws IOException, URISyntaxException {
-		return _seService.getAllRealisationModules(id);
-	}
-
-	@CrossOrigin
-	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}")
-	public RealisationModule getRealisationModule(@PathVariable int id, @PathVariable String localName)
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/requirements/{localName}/min-value")
+	public NumericProperty getMinValueOfRequirement(@PathVariable int id, @PathVariable String localName)
 			throws URISyntaxException, IOException {
-		return _seService.getRealisationModule(id, localName);
+		return _seService.getMinValueOfRequirement(id, localName);
 	}
 
 	@CrossOrigin
-	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/realisation-modules")
-	public RealisationModule createRealisationModule(@PathVariable int id) throws IOException, URISyntaxException {
-		return _seService.createRealisationModule(id);
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/requirements/{localName}/max-value")
+	public NumericProperty getMaxValueOfRequirement(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getMaxValueOfRequirement(id, localName);
 	}
 
 	//
 	// H A M B U R G E R S
 	//
+
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/hamburgers")
 	public List<Hamburger> getAllHamburgers(@PathVariable int id) throws IOException, URISyntaxException {
@@ -198,12 +268,22 @@ public class SeController {
 			@RequestBody Hamburger hamburger) throws URISyntaxException, IOException {
 		return _seService.updateHamburger(id, localName, hamburger);
 	}
-	
+
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/hamburgers/{localName}/port-realisations")
 	public List<PortRealisation> getPortRealisationsOfHamburger(@PathVariable int id, @PathVariable String localName)
 			throws URISyntaxException, IOException {
 		return _seService.getPortRealisationsOfHamburger(id, localName);
+	}
+	
+	//
+	// N U M E R I C - P R O P E R T I E S
+	//
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/numeric-properties")
+	public List<NumericProperty> getAllNumericProperties(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllNumericProperties(id);
 	}
 
 

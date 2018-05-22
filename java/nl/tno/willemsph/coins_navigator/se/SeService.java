@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.model.Function;
 import nl.tno.willemsph.coins_navigator.se.model.Hamburger;
+import nl.tno.willemsph.coins_navigator.se.model.NumericProperty;
 import nl.tno.willemsph.coins_navigator.se.model.Performance;
 import nl.tno.willemsph.coins_navigator.se.model.PortRealisation;
 import nl.tno.willemsph.coins_navigator.se.model.RealisationModule;
@@ -30,7 +31,7 @@ import nl.tno.willemsph.coins_navigator.se.model.SystemSlot;
 @Service
 public class SeService {
 	private enum SeObjectType {
-		SystemSlot, RealisationModule, Function, Performance, Requirement, SystemInterface, Hamburger, PortRealisation, RealisationPort;
+		SystemSlot, RealisationModule, Function, Performance, Requirement, SystemInterface, Hamburger, PortRealisation, RealisationPort, NumericProperty;
 
 		SeObject create(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
 			switch (this) {
@@ -52,13 +53,20 @@ public class SeService {
 				return new Requirement(uri, label, assemblyUri, partUris);
 			case SystemSlot:
 				return new SystemSlot(uri, label, assemblyUri, partUris);
+			case NumericProperty:
+				return new NumericProperty();
 			default:
 				return null;
 			}
 		}
 
 		String getUri() {
-			return EmbeddedServer.SE + this.name();
+			switch (this) {
+			case NumericProperty:
+				return EmbeddedServer.COINS2 + this.name();
+			default:
+				return EmbeddedServer.SE + this.name();
+			}
 		}
 	}
 
@@ -122,8 +130,13 @@ public class SeService {
 		return interfaceUris;
 	}
 
-	public Function getFunction(int datasetId, String functionUri) throws URISyntaxException, IOException {
-		return (Function) getSeObject(datasetId, functionUri, SeObjectType.Function);
+	public Function getFunction(int datasetId, String localName) throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		Function function = (Function) getSeObject(datasetId, localName, SeObjectType.Function);
+		function.setInput(getInputOfFunction(datasetUri, function.getUri().toString()));
+		function.setOutput(getOutputOfFunction(datasetUri, function.getUri().toString()));
+		function.setRequirements(getRequirements(datasetId, function.getUri().toString()));
+		return function;
 	}
 
 	public Hamburger getHamburger(int datasetId, String hamburgerLocalName) throws URISyntaxException, IOException {
@@ -173,7 +186,29 @@ public class SeService {
 		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
 		updateLabel(datasetUri, function.getUri(), function.getLabel());
 		updateAssembly(datasetUri, function.getUri(), function.getAssembly());
-		return getFunction(datasetId, function.getUri().toString());
+		deleteInputOfFunction(datasetUri, function.getUri());
+		insertInputOfFunction(datasetUri, function.getUri(), function.getInput());
+		deleteOutputOfFunction(datasetUri, function.getUri());
+		insertOutputOfFunction(datasetUri, function.getUri(), function.getOutput());
+		deleteRequirements(datasetUri, function.getUri());
+		for (URI requirementUri : function.getRequirements()) {
+			insertRequirement(datasetUri, function.getUri(), requirementUri);
+		}
+		return getFunction(datasetId, localName);
+	}
+
+	public Requirement updateRequirement(int datasetId, String localName, Requirement requirement)
+			throws URISyntaxException, IOException {
+		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
+		updateLabel(datasetUri, requirement.getUri(), requirement.getLabel());
+		updateAssembly(datasetUri, requirement.getUri(), requirement.getAssembly());
+		deleteParts(datasetUri, requirement.getUri());
+		for (URI partUri : requirement.getParts()) {
+			insertPart(datasetUri, requirement.getUri(), partUri);
+		}
+		updateMinValue(datasetUri, requirement.getUri(), requirement.getMinValue());
+		updateMaxValue(datasetUri, requirement.getUri(), requirement.getMaxValue());
+		return getRequirement(datasetId, localName);
 	}
 
 	public Hamburger updateHamburger(int datasetId, String localName, Hamburger hamburger)
@@ -181,6 +216,10 @@ public class SeService {
 		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
 		updateLabel(datasetUri, hamburger.getUri(), hamburger.getLabel());
 		updateAssembly(datasetUri, hamburger.getUri(), hamburger.getAssembly());
+		deleteParts(datasetUri, hamburger.getUri());
+		for (URI partUri : hamburger.getParts()) {
+			insertPart(datasetUri, hamburger.getUri(), partUri);
+		}
 		deleteFunctionalUnit(datasetUri, hamburger.getUri());
 		insertFunctionalUnit(datasetUri, hamburger.getUri(), hamburger.getFunctionalUnit());
 		deleteTechnicalSolution(datasetUri, hamburger.getUri());
@@ -189,12 +228,37 @@ public class SeService {
 		for (URI portRealisationUri : hamburger.getPortRealisations()) {
 			insertPortRealisation(datasetUri, hamburger.getUri(), portRealisationUri);
 		}
-		return getHamburger(datasetId, hamburger.getUri().toString());
+		return getHamburger(datasetId, localName);
 	}
 
 	public RealisationModule createRealisationModule(int datasetId) throws URISyntaxException, IOException {
 		String realisationModuleUri = createSeObject(datasetId, SeObjectType.RealisationModule);
 		return getRealisationModule(datasetId, realisationModuleUri);
+	}
+
+	public RealisationModule updateRealisationModule(int datasetId, String localName,
+			RealisationModule realisationModule) throws URISyntaxException, IOException {
+		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
+		// update label
+		updateLabel(datasetUri, realisationModule.getUri(), realisationModule.getLabel());
+		// update assembly
+		updateAssembly(datasetUri, realisationModule.getUri(), realisationModule.getAssembly());
+		// update parts
+		deleteParts(datasetUri, realisationModule.getUri());
+		for (URI partUri : realisationModule.getParts()) {
+			insertPart(datasetUri, realisationModule.getUri(), partUri);
+		}
+		// update performances
+		deletePerformances(datasetUri, realisationModule.getUri());
+		for (URI performanceUri : realisationModule.getPerformances()) {
+			insertPerformance(datasetUri, realisationModule.getUri(), performanceUri);
+		}
+		// update realisation ports
+		deleteRealisationPorts(datasetUri, realisationModule.getUri());
+		for (URI realisationPortUri : realisationModule.getPorts()) {
+			insertRealisationPort(datasetUri, realisationModule.getUri(), realisationPortUri);
+		}
+		return getRealisationModule(datasetId, localName);
 	}
 
 	public RealisationModule getRealisationModule(int datasetId, String realisationModuleUri)
@@ -216,7 +280,11 @@ public class SeService {
 	}
 
 	public Requirement getRequirement(int datasetId, String functionUri) throws URISyntaxException, IOException {
-		return (Requirement) getSeObject(datasetId, functionUri, SeObjectType.Requirement);
+		String datasetUri = getDatasetUri(datasetId);
+		Requirement requirement = (Requirement) getSeObject(datasetId, functionUri, SeObjectType.Requirement);
+		requirement.setMinValue(getMinValue(datasetUri, requirement.getUri().toString()));
+		requirement.setMaxValue(getMaxValue(datasetUri, requirement.getUri().toString()));
+		return requirement;
 	}
 
 	public SystemSlot createSystemSlot(int datasetId) throws URISyntaxException, IOException {
@@ -229,8 +297,9 @@ public class SeService {
 		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
 		updateLabel(datasetUri, systemSlot.getUri(), systemSlot.getLabel());
 		updateAssembly(datasetUri, systemSlot.getUri(), systemSlot.getAssembly());
+		deleteParts(datasetUri, systemSlot.getUri());
 		for (URI partUri : systemSlot.getParts()) {
-			updatePart(datasetUri, systemSlot.getUri(), partUri);
+			insertPart(datasetUri, systemSlot.getUri(), partUri);
 		}
 		deleteRequirements(datasetUri, systemSlot.getUri());
 		for (URI requirementUri : systemSlot.getRequirements()) {
@@ -252,8 +321,9 @@ public class SeService {
 		URI datasetUri = _embeddedServer.getDatasets().get(datasetId).getUri();
 		updateLabel(datasetUri, systemInterface.getUri(), systemInterface.getLabel());
 		updateAssembly(datasetUri, systemInterface.getUri(), systemInterface.getAssembly());
+		deleteParts(datasetUri, systemInterface.getUri());
 		for (URI partUri : systemInterface.getParts()) {
-			updatePart(datasetUri, systemInterface.getUri(), partUri);
+			insertPart(datasetUri, systemInterface.getUri(), partUri);
 		}
 		deleteSystemSlots(datasetUri, systemInterface.getUri());
 		if (systemInterface.getSystemSlot0() != null) {
@@ -267,6 +337,36 @@ public class SeService {
 			insertRequirement(datasetUri, systemInterface.getUri(), requirementUri);
 		}
 		return getSystemInterface(datasetId, localName);
+	}
+
+	private void updateMinValue(URI datasetUri, URI subjectUri, URI minValue) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.append("  DELETE { GRAPH ?graph { ?subject se:minValue ?value . }} ");
+		if (minValue != null) {
+			queryStr.setIri("min_value", minValue.toString());
+			queryStr.append("  INSERT { GRAPH ?graph { ?subject se:minValue ?min_value . }} ");
+		}
+		queryStr.append("WHERE { GRAPH ?graph { OPTIONAL { ?subject se:minValue ?value . }} ");
+		queryStr.append("}");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void updateMaxValue(URI datasetUri, URI subjectUri, URI maxValue) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.append("  DELETE { GRAPH ?graph { ?subject se:maxValue ?value . }} ");
+		if (maxValue != null) {
+			queryStr.setIri("max_value", maxValue.toString());
+			queryStr.append("  INSERT { GRAPH ?graph { ?subject se:maxValue ?max_value . }} ");
+		}
+		queryStr.append("WHERE { GRAPH ?graph { OPTIONAL { ?subject se:maxValue ?value . }} ");
+		queryStr.append("}");
+
+		_embeddedServer.update(queryStr);
 	}
 
 	private void updateLabel(URI datasetUri, URI subjectUri, String newLabel) throws IOException {
@@ -342,7 +442,7 @@ public class SeService {
 		}
 	}
 
-	private void updatePart(URI datasetUri, URI subjectUri, URI partUri) throws IOException {
+	private void deleteParts(URI datasetUri, URI subjectUri) throws IOException {
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri.toString());
 		queryStr.setIri("subject", subjectUri.toString());
@@ -380,7 +480,10 @@ public class SeService {
 		queryStr.append("  }");
 
 		_embeddedServer.update(queryStr);
+	}
 
+	private void insertPart(URI datasetUri, URI subjectUri, URI partUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		if (partUri != null) {
 			String containsRelationUri = datasetUri + "#ContainsRelation_" + UUID.randomUUID().toString();
 			queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
@@ -401,6 +504,70 @@ public class SeService {
 			_embeddedServer.update(queryStr);
 		}
 	}
+
+	// private void updatePart(URI datasetUri, URI subjectUri, URI partUri) throws
+	// IOException {
+	// ParameterizedSparqlString queryStr = new
+	// ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+	// queryStr.setIri("graph", datasetUri.toString());
+	// queryStr.setIri("subject", subjectUri.toString());
+	//
+	// queryStr.append(" DELETE { ");
+	// queryStr.append(" GRAPH ?graph { ");
+	// queryStr.append(" ?c ?p1 ?o1 . ");
+	// queryStr.append(" ?o2 ?p2 ?c . ");
+	// queryStr.append(" } ");
+	// queryStr.append(" } ");
+	// queryStr.append(" WHERE { ");
+	// queryStr.append(" GRAPH ?graph { ");
+	// queryStr.append(" { ");
+	// queryStr.append(" ?c ?p1 ?o1 . ");
+	// queryStr.append(" OPTIONAL { ?o2 ?p2 ?c . } ");
+	// queryStr.append(" ?c coins2:hasPart ?part . ");
+	// queryStr.append(" ?c coins2:hasAssembly ?subject . ");
+	// queryStr.append(" } UNION { ");
+	// queryStr.append(" ?c ?p1 ?o1 . ");
+	// queryStr.append(" ?o2 ?p2 ?c . ");
+	// queryStr.append(" ?part coins2:partOf ?c . ");
+	// queryStr.append(" ?c coins2:hasAssembly ?subject . ");
+	// queryStr.append(" } UNION { ");
+	// queryStr.append(" ?c ?p1 ?o1 . ");
+	// queryStr.append(" ?o2 ?p2 ?c . ");
+	// queryStr.append(" ?c coins2:hasPart ?part . ");
+	// queryStr.append(" ?subject coins2:hasContainsRelation ?c . ");
+	// queryStr.append(" } UNION { ");
+	// queryStr.append(" ?c ?p1 ?o1 . ");
+	// queryStr.append(" ?o2 ?p2 ?c . ");
+	// queryStr.append(" ?part coins2:partOf ?c . ");
+	// queryStr.append(" ?subject coins2:hasContainsRelation ?c . ");
+	// queryStr.append(" } ");
+	// queryStr.append(" }");
+	// queryStr.append(" }");
+	//
+	// _embeddedServer.update(queryStr);
+	//
+	// if (partUri != null) {
+	// String containsRelationUri = datasetUri + "#ContainsRelation_" +
+	// UUID.randomUUID().toString();
+	// queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+	// queryStr.setIri("graph", datasetUri.toString());
+	// queryStr.setIri("subject", subjectUri.toString());
+	// queryStr.setIri("contains_relation", containsRelationUri);
+	// queryStr.setIri("part", partUri.toString());
+	// queryStr.append(" INSERT { ");
+	// queryStr.append(" GRAPH ?graph { ");
+	// queryStr.append(" ?contains_relation rdf:type coins2:ContainsRelation . ");
+	// queryStr.append(" ?contains_relation rdf:type coins2:CoinsContainerObject .
+	// ");
+	// queryStr.append(" ?contains_relation coins2:hasAssembly ?subject . ");
+	// queryStr.append(" ?contains_relation coins2:hasPart ?part . ");
+	// queryStr.append(" } ");
+	// queryStr.append(" }");
+	// queryStr.append("WHERE { } ");
+	//
+	// _embeddedServer.update(queryStr);
+	// }
+	// }
 
 	private void deleteRequirements(URI datasetUri, URI subjectUri) throws IOException {
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
@@ -431,6 +598,78 @@ public class SeService {
 		queryStr.append("  INSERT { ");
 		queryStr.append("    GRAPH ?graph { ");
 		queryStr.append("      ?subject se:hasRequirement ?requirement . ");
+		queryStr.append("    } ");
+		queryStr.append("  }");
+		queryStr.append("WHERE { } ");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void deletePerformances(URI datasetUri, URI subjectUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasPerformance ?performance . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?subject se:hasPerformance ?performance . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void insertPerformance(URI datasetUri, URI subjectUri, URI performanceUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.setIri("performance", performanceUri.toString());
+		queryStr.append("  INSERT { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasPerformance ?performance . ");
+		queryStr.append("    } ");
+		queryStr.append("  }");
+		queryStr.append("WHERE { } ");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void deleteRealisationPorts(URI datasetUri, URI subjectUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasPort ?realisation_port . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?subject se:hasPort ?realisation_port . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void insertRealisationPort(URI datasetUri, URI subjectUri, URI realisationPortUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("subject", subjectUri.toString());
+		queryStr.setIri("realisation_port", realisationPortUri.toString());
+		queryStr.append("  INSERT { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?subject se:hasPort ?realisation_port . ");
 		queryStr.append("    } ");
 		queryStr.append("  }");
 		queryStr.append("WHERE { } ");
@@ -474,6 +713,82 @@ public class SeService {
 		_embeddedServer.update(queryStr);
 	}
 
+	private void deleteInputOfFunction(URI datasetUri, URI functionUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("function", functionUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?function se:hasInput ?system_interface . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?function se:hasInput ?system_interface . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void insertInputOfFunction(URI datasetUri, URI functionUri, URI systemInterfaceUri) throws IOException {
+		if (systemInterfaceUri != null) {
+			ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+			queryStr.setIri("graph", datasetUri.toString());
+			queryStr.setIri("function", functionUri.toString());
+			queryStr.setIri("system_interface", systemInterfaceUri.toString());
+			queryStr.append("  INSERT { ");
+			queryStr.append("    GRAPH ?graph { ");
+			queryStr.append("      ?function se:hasInput ?system_interface . ");
+			queryStr.append("    } ");
+			queryStr.append("  }");
+			queryStr.append("WHERE { } ");
+
+			_embeddedServer.update(queryStr);
+		}
+	}
+
+	private void deleteOutputOfFunction(URI datasetUri, URI functionUri) throws IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri.toString());
+		queryStr.setIri("function", functionUri.toString());
+
+		queryStr.append("  DELETE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      ?function se:hasOutput ?system_interface . ");
+		queryStr.append("    } ");
+		queryStr.append("  } ");
+		queryStr.append("  WHERE { ");
+		queryStr.append("    GRAPH ?graph { ");
+		queryStr.append("      { ");
+		queryStr.append("        ?function se:hasOutput ?system_interface . ");
+		queryStr.append("      } ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+
+		_embeddedServer.update(queryStr);
+	}
+
+	private void insertOutputOfFunction(URI datasetUri, URI functionUri, URI systemInterfaceUri) throws IOException {
+		if (systemInterfaceUri != null) {
+			ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+			queryStr.setIri("graph", datasetUri.toString());
+			queryStr.setIri("function", functionUri.toString());
+			queryStr.setIri("system_interface", systemInterfaceUri.toString());
+			queryStr.append("  INSERT { ");
+			queryStr.append("    GRAPH ?graph { ");
+			queryStr.append("      ?function se:hasOutput ?system_interface . ");
+			queryStr.append("    } ");
+			queryStr.append("  }");
+			queryStr.append("WHERE { } ");
+
+			_embeddedServer.update(queryStr);
+		}
+	}
+
 	private void deleteFunctionalUnit(URI datasetUri, URI subjectUri) throws IOException {
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri.toString());
@@ -481,13 +796,13 @@ public class SeService {
 
 		queryStr.append("  DELETE { ");
 		queryStr.append("    GRAPH ?graph { ");
-		queryStr.append("      ?subject se:hasFunctionalUnit ?functional_unit . ");
+		queryStr.append("      ?subject se:functionalUnit ?functional_unit . ");
 		queryStr.append("    } ");
 		queryStr.append("  } ");
 		queryStr.append("  WHERE { ");
 		queryStr.append("    GRAPH ?graph { ");
 		queryStr.append("      { ");
-		queryStr.append("        ?subject se:hasFunctionalUnit ?functional_unit . ");
+		queryStr.append("        ?subject se:functionalUnit ?functional_unit . ");
 		queryStr.append("      } ");
 		queryStr.append("    }");
 		queryStr.append("  }");
@@ -496,18 +811,20 @@ public class SeService {
 	}
 
 	private void insertFunctionalUnit(URI datasetUri, URI subjectUri, URI functionalUnitUri) throws IOException {
-		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
-		queryStr.setIri("graph", datasetUri.toString());
-		queryStr.setIri("subject", subjectUri.toString());
-		queryStr.setIri("functional_unit", functionalUnitUri.toString());
-		queryStr.append("  INSERT { ");
-		queryStr.append("    GRAPH ?graph { ");
-		queryStr.append("      ?subject se:hasFunctionalUnit ?functional_unit . ");
-		queryStr.append("    } ");
-		queryStr.append("  }");
-		queryStr.append("WHERE { } ");
+		if (functionalUnitUri != null) {
+			ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+			queryStr.setIri("graph", datasetUri.toString());
+			queryStr.setIri("subject", subjectUri.toString());
+			queryStr.setIri("functional_unit", functionalUnitUri.toString());
+			queryStr.append("  INSERT { ");
+			queryStr.append("    GRAPH ?graph { ");
+			queryStr.append("      ?subject se:functionalUnit ?functional_unit . ");
+			queryStr.append("    } ");
+			queryStr.append("  }");
+			queryStr.append("WHERE { } ");
 
-		_embeddedServer.update(queryStr);
+			_embeddedServer.update(queryStr);
+		}
 	}
 
 	private void deleteTechnicalSolution(URI datasetUri, URI subjectUri) throws IOException {
@@ -517,13 +834,13 @@ public class SeService {
 
 		queryStr.append("  DELETE { ");
 		queryStr.append("    GRAPH ?graph { ");
-		queryStr.append("      ?subject se:hasTechnicalSolution ?technical_solution . ");
+		queryStr.append("      ?subject se:technicalSolution ?technical_solution . ");
 		queryStr.append("    } ");
 		queryStr.append("  } ");
 		queryStr.append("  WHERE { ");
 		queryStr.append("    GRAPH ?graph { ");
 		queryStr.append("      { ");
-		queryStr.append("        ?subject se:hasTechnicalSolution ?technical_solution  . ");
+		queryStr.append("        ?subject se:technicalSolution ?technical_solution  . ");
 		queryStr.append("      } ");
 		queryStr.append("    }");
 		queryStr.append("  }");
@@ -532,18 +849,20 @@ public class SeService {
 	}
 
 	private void insertTechnicalSolution(URI datasetUri, URI subjectUri, URI technicalSolutionUri) throws IOException {
-		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
-		queryStr.setIri("graph", datasetUri.toString());
-		queryStr.setIri("subject", subjectUri.toString());
-		queryStr.setIri("technical_solution", technicalSolutionUri.toString());
-		queryStr.append("  INSERT { ");
-		queryStr.append("    GRAPH ?graph { ");
-		queryStr.append("      ?subject se:hasTechnicalSolution ?technical_solution . ");
-		queryStr.append("    } ");
-		queryStr.append("  }");
-		queryStr.append("WHERE { } ");
+		if (technicalSolutionUri != null) {
+			ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+			queryStr.setIri("graph", datasetUri.toString());
+			queryStr.setIri("subject", subjectUri.toString());
+			queryStr.setIri("technical_solution", technicalSolutionUri.toString());
+			queryStr.append("  INSERT { ");
+			queryStr.append("    GRAPH ?graph { ");
+			queryStr.append("      ?subject se:technicalSolution ?technical_solution . ");
+			queryStr.append("    } ");
+			queryStr.append("  }");
+			queryStr.append("WHERE { } ");
 
-		_embeddedServer.update(queryStr);
+			_embeddedServer.update(queryStr);
+		}
 	}
 
 	private void deletePortRealisations(URI datasetUri, URI subjectUri) throws IOException {
@@ -684,6 +1003,170 @@ public class SeService {
 		return hamburgers;
 	}
 
+	public NumericProperty getMinValueOfRequirement(int datasetId, String localName)
+			throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String requirementUri = getOntologyUri(datasetId) + "#" + localName;
+		NumericProperty numericProperty = null;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("requirement", requirementUri);
+		queryStr.append("SELECT ?min_value ?label ?value ?unit ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?requirement se:minValue ?min_value . ");
+		queryStr.append("      OPTIONAL { ?min_value rdfs:label ?label . } ");
+		queryStr.append("      OPTIONAL { ?min_value coins2:datatypeValue ?value . } ");
+		queryStr.append("      OPTIONAL { ?min_value coins2:unit ?unit_rsrc . } ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			JsonNode minValueNode = node.get("min_value");
+			String minValue = minValueNode != null ? minValueNode.get("value").asText() : null;
+			URI minValueUri = minValue != null ? new URI(minValue) : null;
+			JsonNode labelNode = node.get("label");
+			String label = labelNode != null ? labelNode.asText() : null;
+			JsonNode valueNode = node.get("value");
+			Double datatypeValue = valueNode != null ? valueNode.get("value").asDouble() : null;
+			JsonNode unitNode = node.get("unit");
+			String unit = unitNode != null ? unitNode.asText() : null;
+			// numericProperty = new NumericProperty(minValueUri.toString(), label,
+			// datatypeValue, unit);
+		}
+		return numericProperty;
+	}
+
+	public NumericProperty getMaxValueOfRequirement(int datasetId, String localName)
+			throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		String requirementUri = getOntologyUri(datasetId) + "#" + localName;
+		NumericProperty numericProperty = null;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("requirement", requirementUri);
+		queryStr.append("SELECT ?max_value ?label ?value ?unit ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?requirement se:maxValue ?max_value . ");
+		queryStr.append("      OPTIONAL { ?max_value rdfs:label ?label . } ");
+		queryStr.append("      OPTIONAL { ?max_value coins2:datatypeValue ?value . } ");
+		queryStr.append("      OPTIONAL { ?max_value coins2:unit ?unit_rsrc . ");
+		queryStr.append("      			  ?unit_rsrc rdfs:label ?unit . } ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			JsonNode maxValueNode = node.get("max_value");
+			String maxValue = maxValueNode != null ? maxValueNode.get("value").asText() : null;
+			URI maxValueUri = maxValue != null ? new URI(maxValue) : null;
+			JsonNode labelNode = node.get("label");
+			String label = labelNode != null ? labelNode.asText() : null;
+			JsonNode valueNode = node.get("value");
+			Double datatypeValue = valueNode != null ? valueNode.get("value").asDouble() : null;
+			JsonNode unitNode = node.get("unit");
+			String unit = unitNode != null ? unitNode.asText() : null;
+			// numericProperty = new NumericProperty(maxValueUri.toString(), label,
+			// datatypeValue, unit);
+		}
+		return numericProperty;
+	}
+
+	private Double getDatatypeValue(String datasetUri, String numericPropertyUri) throws IOException {
+		Double datatypeValue = null;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("numeric_property", numericPropertyUri);
+		queryStr.append("SELECT ?datatype_value ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?numeric_property coins2:datatypeValue ?datatype_value . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			JsonNode datatypeValueNode = node.get("datatype_value");
+			datatypeValue = datatypeValueNode != null ? datatypeValueNode.get("value").asDouble() : null;
+		}
+
+		return datatypeValue;
+	}
+
+	private String getUnit(String datasetUri, String numericPropertyUri) throws IOException {
+		String unit = null;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("numeric_property", numericPropertyUri);
+		queryStr.append("SELECT ?unit ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?numeric_property coins2:unit ?unit_value . ");
+		queryStr.append("      ?unit_value rdfs:label ?unit . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			JsonNode unitNode = node.get("unit");
+			unit = unitNode != null ? unitNode.get("value").asText() : null;
+		}
+
+		return unit;
+	}
+
+	private URI getMinValue(String datasetUri, String requirementUri) throws IOException, URISyntaxException {
+		URI minValueUri = null;
+		// Double value = null;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("requirement", requirementUri);
+		queryStr.append("SELECT ?min_value ?value ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?requirement se:minValue ?min_value . ");
+		queryStr.append("      ?min_value coins2:datatypeValue ?value . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			JsonNode minValueNode = node.get("min_value");
+			String minValue = minValueNode != null ? minValueNode.get("value").asText() : null;
+			minValueUri = minValue != null ? new URI(minValue) : null;
+			// JsonNode valueNode = node.get("value");
+			// value = valueNode != null ? valueNode.get("value").asDouble() : null;
+		}
+		return minValueUri;
+	}
+
+	private URI getMaxValue(String datasetUri, String requirementUri) throws IOException, URISyntaxException {
+		URI maxValueUri = null;
+		// Double value = null;
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("requirement", requirementUri);
+		queryStr.append("SELECT ?max_value ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?requirement se:maxValue ?max_value . ");
+		queryStr.append("      ?max_value coins2:datatypeValue ?value . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		for (JsonNode node : responseNodes) {
+			JsonNode maxValueNode = node.get("max_value");
+			String maxValue = maxValueNode != null ? maxValueNode.get("value").asText() : null;
+			maxValueUri = maxValue != null ? new URI(maxValue) : null;
+			// JsonNode valueNode = node.get("value");
+			// value = valueNode != null ? valueNode.get("value").asDouble() : null;
+		}
+		return maxValueUri;
+	}
+
 	private URI getFunctionalUnit(String datasetUri, String hamburgerUri) throws IOException, URISyntaxException {
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
 		queryStr.setIri("graph", datasetUri);
@@ -748,7 +1231,7 @@ public class SeService {
 		}
 		return systemInterfaceUri;
 	}
-	
+
 	private URI getRealisationPortOfPortRealisation(String datasetUri, String portRealisationUri)
 			throws IOException, URISyntaxException {
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
@@ -861,6 +1344,27 @@ public class SeService {
 		return performanceUris;
 	}
 
+	private URI getPortOwner(int datasetId, String portUri) throws URISyntaxException, IOException {
+		String datasetUri = getDatasetUri(datasetId);
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.setIri("port", portUri);
+		queryStr.append("SELECT ?owner ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?owner se:hasPort ?port . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		URI ownerUri = null;
+		for (JsonNode node : responseNodes) {
+			JsonNode ownerNode = node.get("owner");
+			ownerUri = ownerNode != null ? new URI(ownerNode.get("value").asText()) : null;
+		}
+		return ownerUri;
+	}
+
 	private List<URI> getRealisationPorts(int datasetId, String ownerUri) throws URISyntaxException, IOException {
 		String datasetUri = getDatasetUri(datasetId);
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
@@ -929,11 +1433,60 @@ public class SeService {
 		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.Requirement);
 
 		List<Requirement> requirements = new ArrayList<>();
+		String datasetUri = getDatasetUri(datasetId);
 		for (SeObject seObject : seObjects) {
 			Requirement requirement = (Requirement) seObject;
+			requirement.setMinValue(getMinValue(datasetUri, requirement.getUri().toString()));
+			requirement.setMaxValue(getMaxValue(datasetUri, requirement.getUri().toString()));
 			requirements.add(requirement);
 		}
 		return requirements;
+	}
+
+	public List<NumericProperty> getAllNumericProperties(int datasetId) throws IOException, URISyntaxException {
+		String datasetUri = getDatasetUri(datasetId);
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(_embeddedServer.getPrefixMapping());
+		queryStr.setIri("graph", datasetUri);
+		queryStr.append("SELECT ?type ?se_object ?label ?datatype_value ?unit ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?type rdfs:subClassOf coins2:FloatProperty . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?type rdfs:subClassOf coins2:IntegerProperty . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?se_object rdf:type ?type . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?se_object rdfs:label ?label . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?se_object coins2:datatypeValue ?datatype_value . ");
+		queryStr.append("    }");
+		queryStr.append("    OPTIONAL {");
+		queryStr.append("      ?se_object coins2:unit ?unit . ");
+		queryStr.append("    }");
+		queryStr.append("  }");
+		queryStr.append("}");
+		queryStr.append("ORDER BY ?label");
+
+		JsonNode responseNodes = _embeddedServer.query(queryStr);
+		List<NumericProperty> numericProperties = new ArrayList<>();
+		for (JsonNode node : responseNodes) {
+			String seObjectUri = node.get("se_object").get("value").asText();
+			JsonNode labelNode = node.get("label");
+			String label = labelNode != null ? labelNode.get("value").asText() : null;
+			JsonNode typeNode = node.get("type");
+			String typeUri = typeNode != null ? typeNode.get("value").asText() : null;
+			JsonNode datatypeValueNode = node.get("datatype_value");
+			Double datatypeValue = datatypeValueNode != null ? datatypeValueNode.get("value").asDouble() : null;
+			JsonNode unitNode = node.get("unit");
+			String unitUri = unitNode != null ? unitNode.get("value").asText() : null;
+			numericProperties.add(new NumericProperty(seObjectUri, label, typeUri, datatypeValue, unitUri));
+		}
+		return numericProperties;
 	}
 
 	public List<SystemInterface> getAllSystemInterfaces(int datasetId) throws IOException, URISyntaxException {
@@ -993,6 +1546,18 @@ public class SeService {
 			realisationModules.add(realisationModule);
 		}
 		return realisationModules;
+	}
+
+	public List<RealisationPort> getAllRealisationPorts(int datasetId) throws IOException, URISyntaxException {
+		List<SeObject> seObjects = getAllSeObjects(datasetId, SeObjectType.RealisationPort);
+
+		List<RealisationPort> realisationPorts = new ArrayList<>();
+		for (SeObject seObject : seObjects) {
+			RealisationPort realisationPort = (RealisationPort) seObject;
+			realisationPort.setOwner(getPortOwner(datasetId, realisationPort.getUri().toString()));
+			realisationPorts.add(realisationPort);
+		}
+		return realisationPorts;
 	}
 
 	public List<Hamburger> getHamburgersForSystemSlot(int datasetId, String systemSlotLocalName)
@@ -1284,8 +1849,10 @@ public class SeService {
 		for (URI portRealisationUri : portRealisationUris) {
 			PortRealisation portRealisation = (PortRealisation) getSeObject(datasetId,
 					getLocalName(portRealisationUri.toString()), SeObjectType.PortRealisation);
-			portRealisation.setSystemInterface(getSystemInterfaceOfPortRealisation(datasetUri, portRealisationUri.toString()));
-			portRealisation.setRealisationPort(getRealisationPortOfPortRealisation(datasetUri, portRealisationUri.toString()));
+			portRealisation
+					.setSystemInterface(getSystemInterfaceOfPortRealisation(datasetUri, portRealisationUri.toString()));
+			portRealisation
+					.setRealisationPort(getRealisationPortOfPortRealisation(datasetUri, portRealisationUri.toString()));
 			portRealisations.add(portRealisation);
 		}
 		return portRealisations;

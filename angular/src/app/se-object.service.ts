@@ -57,6 +57,8 @@ export abstract class SeObjectService {
         return '/requirements';
       case SeObjectType.SystemSlotModel:
         return '/system-slots';
+      case SeObjectType.NumericPropertyModel:
+        return '/numeric-properties';
       default:
         return null;
     }

@@ -8,6 +8,9 @@ import {RequirementService} from '../requirement.service';
 import {SystemInterfaceModel} from '../models/system-interface.model';
 import {PerformanceService} from '../performance.service';
 import {RealisationModuleService} from '../realisation-module.service';
+import {RealisationPortService} from '../realisation-port.service';
+import {HamburgerService} from '../hamburger.service';
+import {NumericPropertyService} from '../numeric-property.service';
 
 @Component({
   selector: 'app-iri-property',
@@ -30,7 +33,10 @@ export class IriPropertyComponent implements OnInit, OnChanges {
               private _performanceService: PerformanceService,
               private _requirementService: RequirementService,
               private _systemSlotService: SystemSlotService,
-              private _realisationModuleService: RealisationModuleService) {
+              private _realisationModuleService: RealisationModuleService,
+              private _realisationPortService: RealisationPortService,
+              private _hamburgerService: HamburgerService,
+              private _numericPropertyService: NumericPropertyService) {
     console.log('IriPropertyComponent created ', this.seObjectType);
   }
 
@@ -84,10 +90,14 @@ export class IriPropertyComponent implements OnInit, OnChanges {
         console.log('SystemInterface label: ' + this.label + ' ' + label0 + ' ' + label1);
         break;
 
-
       case SeObjectType.SystemSlotModel:
         console.log('system-slot options');
         this.options = this._systemSlotService.systemSlots;
+        break;
+
+      case SeObjectType.HamburgerModel:
+        console.log('hamburger options');
+        this.options = this._hamburgerService.hamburgers;
         break;
 
       case SeObjectType.PerformanceModel:
@@ -97,7 +107,7 @@ export class IriPropertyComponent implements OnInit, OnChanges {
 
       case SeObjectType.PortRealisationModel:
         console.log('port realisation options');
-//        this.options = this._performanceService.performances;
+        // this.options = this._portRealisationService.portRealisations;
         break;
 
       case SeObjectType.RealisationModuleModel:
@@ -107,12 +117,17 @@ export class IriPropertyComponent implements OnInit, OnChanges {
 
       case SeObjectType.RealisationPortModel:
         console.log('realisation port options');
-        //  this.options = this._realisationModuleService.realisationModules;
+        this.options = this._realisationPortService.realisationPorts;
         break;
 
       case SeObjectType.RequirementModel:
         console.log('requirement options');
         this.options = this._requirementService.requirements;
+        break;
+
+      case SeObjectType.NumericPropertyModel:
+        console.log('numeric property options');
+        this.options = this._numericPropertyService.numericProperties;
         break;
 
       default:
