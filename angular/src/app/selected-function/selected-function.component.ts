@@ -151,6 +151,18 @@ export class SelectedFunctionComponent implements OnInit, OnChanges {
     }
   }
 
+  onInputChanged(input: SystemInterfaceModel): void {
+    this.selectedFunction.input = input ? input.uri : null;
+    this._functionService.updateSeObject(this.selectedFunction);
+    this.input = this.getInput();
+  }
+
+  onOutputChanged(output: SystemInterfaceModel): void {
+    this.selectedFunction.output = output ? output.uri : null;
+    this._functionService.updateSeObject(this.selectedFunction);
+    this.output = this.getOutput();
+  }
+
   onRequirementsEditModeChange(editMode: boolean): void {
     this.requirementsEditMode = editMode;
   }

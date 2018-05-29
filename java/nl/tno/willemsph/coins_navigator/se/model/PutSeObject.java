@@ -1,29 +1,16 @@
 package nl.tno.willemsph.coins_navigator.se.model;
 
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
-public class SeObject {
+public class PutSeObject {
 	private URI uri;
 	private String label;
 	private URI assembly;
 	private List<URI> parts;
+	private String localName;
 
-	public SeObject() {
-	}
-
-	public SeObject(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
-		this.uri = new URI(uri);
-		this.label = label;
-		this.assembly = assemblyUri != null ? new URI(assemblyUri) : null;
-		if (partUris != null) {
-			parts = new ArrayList<>();
-			for (String partUri : partUris) {
-				parts.add(new URI(partUri));
-			}
-		}
+	public PutSeObject() {
 	}
 
 	public URI getUri() {
@@ -56,6 +43,14 @@ public class SeObject {
 
 	public void setParts(List<URI> parts) {
 		this.parts = parts;
+	}
+
+	public String getLocalName() {
+		return localName;
+	}
+
+	public void setLocalName(String localName) {
+		this.localName = localName;
 	}
 
 }

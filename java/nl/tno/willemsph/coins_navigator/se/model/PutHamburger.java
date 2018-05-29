@@ -4,16 +4,18 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-public class Hamburger extends SeObject {
+import nl.tno.willemsph.coins_navigator.se.SeService;
+
+public class PutHamburger extends PutSeObject {
 	private URI functionalUnit;
 	private URI technicalSolution;
 	private List<URI> portRealisations;
 
-	public Hamburger() {
+	public PutHamburger() {
 	}
 
-	public Hamburger(String uri, String label, String assemblyUri, List<String> partUris) throws URISyntaxException {
-		super(uri, label, assemblyUri, partUris);
+	public PutHamburger(SeService seService, int datasetId, String uri) throws URISyntaxException {
+		super();
 	}
 
 	public URI getFunctionalUnit() {

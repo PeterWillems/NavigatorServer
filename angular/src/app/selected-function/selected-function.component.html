@@ -24,9 +24,9 @@
     </div>
 
     <app-iri-property name="input" [seObjectType]="systemInterfaceType" [seObject]="input"
-                      [disabled]="false"></app-iri-property>
+                      [disabled]="false" (valueChanged)="onInputChanged($event,item)"></app-iri-property>
     <app-iri-property name="output" [seObjectType]="systemInterfaceType" [seObject]="output"
-                      [disabled]="false"></app-iri-property>
+                      [disabled]="false" (valueChanged)="onOutputChanged($event,item)"></app-iri-property>
 
     <app-iri-property-list name="requirements" [items]="requirements"
                            (editModeChanged)="onRequirementsEditModeChange($event)"

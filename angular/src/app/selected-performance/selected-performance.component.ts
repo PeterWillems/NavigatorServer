@@ -3,6 +3,8 @@ import {SeObjectType} from '../se-object-type';
 import {SeObjectModel} from '../models/se-object.model';
 import {PerformanceModel} from '../models/performance.model';
 import {PerformanceService} from '../performance.service';
+import {NumericPropertyModel} from '../models/numeric-property.model';
+import {NumericPropertyService} from '../numeric-property.service';
 
 @Component({
   selector: 'app-selected-performance',
@@ -11,13 +13,16 @@ import {PerformanceService} from '../performance.service';
 })
 export class SelectedPerformanceComponent implements OnInit, OnChanges {
   performanceType = SeObjectType.PerformanceModel;
+  numericPropertyType = SeObjectType.NumericPropertyModel;
   isOpen = false;
   @Input() selectedPerformance: PerformanceModel;
   assembly: PerformanceModel;
   parts: PerformanceModel[];
   partsEditMode = false;
+  value: NumericPropertyModel;
 
-  constructor(private _performanceService: PerformanceService) {
+  constructor(private _performanceService: PerformanceService,
+              private _numericPropertyService: NumericPropertyService) {
   }
 
   ngOnInit() {
@@ -34,6 +39,8 @@ export class SelectedPerformanceComponent implements OnInit, OnChanges {
   private _loadStateValues(): void {
     this.assembly = this.getAssembly();
     this.parts = this.getParts();
+    this.value = this.getValue();
+    console.log('_loadStateValues: ' + this.value);
   }
 
   getAssembly(): PerformanceModel {
@@ -47,10 +54,17 @@ export class SelectedPerformanceComponent implements OnInit, OnChanges {
     const parts = [];
     if (this.selectedPerformance.parts) {
       for (let index = 0; index < this.selectedPerformance.parts.length; index++) {
-          parts.push(this._performanceService.getSeObject(this.selectedPerformance.parts[index]));
+        parts.push(this._performanceService.getSeObject(this.selectedPerformance.parts[index]));
       }
     }
     return parts;
+  }
+
+  getValue(): NumericPropertyModel {
+    if (this.selectedPerformance.value) {
+      return this._numericPropertyService.getSeObject(this.selectedPerformance.value);
+    }
+    return null;
   }
 
   onLabelChanged(label: string): void {
@@ -66,5 +80,12 @@ export class SelectedPerformanceComponent implements OnInit, OnChanges {
   onPartsEditModeChange(editMode: boolean): void {
     this.partsEditMode = editMode;
   }
+
+  onValueChanged(value: NumericPropertyModel): void {
+    this.selectedPerformance.value = value ? value.uri : null;
+    this._performanceService.updateSeObject(this.selectedPerformance);
+    this.value = this.getValue();
+  }
+
 
 }

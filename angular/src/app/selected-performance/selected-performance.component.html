@@ -16,5 +16,13 @@
       <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="performanceType"
                         [disabled]="false"></app-iri-property>
     </div>
+
+    <app-iri-property name="value type" [seObjectType]="numericPropertyType" [seObject]="value"
+                      (valueChanged)="onValueChanged($event)"
+                      [disabled]="false">
+    </app-iri-property>
+    <app-literal-property name="value" [value]="value?value.datatypeValue:''" valueType="number"
+                          [disabled]="false">
+    </app-literal-property>
   </div>
 </div>

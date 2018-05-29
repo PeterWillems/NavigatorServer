@@ -43,7 +43,7 @@ public class EmbeddedServer {
 	public static final String SE = "http://www.coinsweb.nl/coins2/reffrm/se#";
 	private static final String SE_RESOURCE = "se.ttl";
 	private static final String[] EXAMPLES = { "new", "parkbank2", "wegjunctie", "wissel" };
-	private static Dataset ds;
+	public static Dataset ds;
 	private static FusekiServer fuseki;
 	private PrefixMapping prefixMapping;
 

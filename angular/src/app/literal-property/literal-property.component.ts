@@ -1,11 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 
 @Component({
   selector: 'app-literal-property',
   templateUrl: './literal-property.component.html',
   styleUrls: ['./literal-property.component.css']
 })
-export class LiteralPropertyComponent implements OnInit {
+export class LiteralPropertyComponent implements OnInit, OnChanges {
   @Input() name: string;
   @Input() value: any;
   @Input() valueType: string;
@@ -25,5 +25,12 @@ export class LiteralPropertyComponent implements OnInit {
 
   onChange(): void {
     this.valueChanged.emit(this.value);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const seValueChanged = changes['value'];
+    if (seValueChanged) {
+      this.valueChanged.emit(this.value);
+    }
   }
 }

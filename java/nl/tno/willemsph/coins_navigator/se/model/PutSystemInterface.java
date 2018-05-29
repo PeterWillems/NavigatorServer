@@ -1,21 +1,16 @@
 package nl.tno.willemsph.coins_navigator.se.model;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
-public class SystemInterface extends SeObject {
+public class PutSystemInterface extends PutSeObject {
 	
 	private URI systemSlot0;
 	private URI systemSlot1;
 	private List<URI> requirements;
 
-	public SystemInterface() {
-	}
-
-	public SystemInterface(String uri, String label, String assemblyUri, List<String> partUris)
-			throws URISyntaxException {
-		super(uri, label, assemblyUri, partUris);
+	public PutSystemInterface() {
+		super();
 	}
 
 	public URI getSystemSlot0() {
