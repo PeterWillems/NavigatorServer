@@ -29,6 +29,7 @@ export class RealisationPortService extends SeObjectService {
   loadObjects(dataset: Dataset): void {
     this.load(this.selectedRealisationPort, dataset, SeObjectType.RealisationPortModel).subscribe(value => {
       this.realisationPorts = value;
+      console.log('RealisationPortService/loadObjects: ' + this.realisationPorts);
       this.seObjectsUpdated.emit(this.realisationPorts);
     });
   }

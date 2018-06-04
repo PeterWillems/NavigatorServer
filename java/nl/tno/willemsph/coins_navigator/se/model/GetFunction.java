@@ -10,6 +10,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.SeService;
 
 public class GetFunction extends GetSeObject {
@@ -233,5 +234,10 @@ public class GetFunction extends GetSeObject {
 		GetFunction function = new GetFunction(seService, datasetId, uri);
 		function.create();
 		return function;
+	}
+
+	@Override
+	public String containsRelation() {
+		return EmbeddedServer.SE + "ContainsFunction";
 	}
 }

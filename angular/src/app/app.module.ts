@@ -25,6 +25,8 @@ import { SystemInterfaceComponent } from './system-interface/system-interface.co
 import { SelectedSystemInterfaceComponent } from './selected-system-interface/selected-system-interface.component';
 import { HamburgerComponent } from './hamburger/hamburger.component';
 import { SelectedHamburgerComponent } from './selected-hamburger/selected-hamburger.component';
+import { NumericPropertyComponent } from './numeric-property/numeric-property.component';
+import { SelectedNumericPropertyComponent } from './selected-numeric-property/selected-numeric-property.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
@@ -35,6 +37,7 @@ const appRoutes: Routes = [
   {path: 'performances', component: PerformanceComponent},
   {path: 'systeminterfaces', component: SystemInterfaceComponent},
   {path: 'hamburgers', component: HamburgerComponent},
+  {path: 'numericproperties', component: NumericPropertyComponent},
   {path: '', redirectTo: '/datasets', pathMatch: 'full'}
 ];
 
@@ -60,7 +63,9 @@ const appRoutes: Routes = [
     SystemInterfaceComponent,
     SelectedSystemInterfaceComponent,
     HamburgerComponent,
-    SelectedHamburgerComponent
+    SelectedHamburgerComponent,
+    NumericPropertyComponent,
+    SelectedNumericPropertyComponent
   ],
   imports: [
     BrowserModule,

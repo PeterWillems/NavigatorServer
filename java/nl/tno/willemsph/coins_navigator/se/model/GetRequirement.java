@@ -8,6 +8,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.SeService;
 
 public class GetRequirement extends GetSeObject {
@@ -40,6 +41,21 @@ public class GetRequirement extends GetSeObject {
 		}
 		return minValueUri;
 	}
+	
+	public void updateMinValue(URI minValue) throws IOException, URISyntaxException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(getEmbeddedServer().getPrefixMapping());
+		queryStr.setIri("graph", getDatasetUri());
+		queryStr.setIri("requirement", getUri().toString());
+		queryStr.append("  DELETE { GRAPH ?graph { ?requirement se:minValue ?min_value . }} ");
+		if (minValue != null) {
+			queryStr.setIri("the_value", minValue.toString());
+			queryStr.append("  INSERT { GRAPH ?graph { ?requirement se:minValue ?the_value . }} ");
+		}
+		queryStr.append("WHERE { GRAPH ?graph { OPTIONAL { ?requirement se:minValue ?min_value . }} ");
+		queryStr.append("}");
+
+		getEmbeddedServer().update(queryStr);
+	}
 
 	public URI getMaxValue() throws IOException, URISyntaxException {
 		URI maxValueUri = null;
@@ -63,6 +79,21 @@ public class GetRequirement extends GetSeObject {
 		return maxValueUri;
 	}
 
+	public void updateMaxValue(URI maxValue) throws IOException, URISyntaxException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(getEmbeddedServer().getPrefixMapping());
+		queryStr.setIri("graph", getDatasetUri());
+		queryStr.setIri("requirement", getUri().toString());
+		queryStr.append("  DELETE { GRAPH ?graph { ?requirement se:maxValue ?max_value . }} ");
+		if (maxValue != null) {
+			queryStr.setIri("the_value", maxValue.toString());
+			queryStr.append("  INSERT { GRAPH ?graph { ?requirement se:maxValue ?the_value . }} ");
+		}
+		queryStr.append("WHERE { GRAPH ?graph { OPTIONAL { ?requirement se:maxValue ?max_value . }} ");
+		queryStr.append("}");
+
+		getEmbeddedServer().update(queryStr);
+	}
+
 	public static GetRequirement create(SeService seService, int datasetId, String uri)
 			throws URISyntaxException, IOException {
 		GetRequirement requirement = new GetRequirement(seService, datasetId, uri);
@@ -70,4 +101,14 @@ public class GetRequirement extends GetSeObject {
 		return requirement;
 	}
 
+	@Override
+	public String containsRelation() {
+		return EmbeddedServer.SE + "ContainsRequirement";
+	}
+
+	public void update(PutRequirement putRequirement) throws IOException, URISyntaxException {
+		super.update(putRequirement);
+		updateMaxValue(putRequirement.getMaxValue());
+		updateMinValue(putRequirement.getMinValue());
+	}
 }

@@ -118,6 +118,7 @@ export class IriPropertyComponent implements OnInit, OnChanges {
       case SeObjectType.RealisationPortModel:
         console.log('realisation port options');
         this.options = this._realisationPortService.realisationPorts;
+        console.log('IriPropertyComponent/_reset: ' + this.options);
         break;
 
       case SeObjectType.RequirementModel:

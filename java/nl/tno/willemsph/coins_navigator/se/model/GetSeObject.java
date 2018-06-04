@@ -152,10 +152,11 @@ public class GetSeObject {
 			queryStr.setIri("graph", getDatasetUri());
 			queryStr.setIri("subject", this.uri.toString());
 			queryStr.setIri("contains_relation", containsRelationUri);
+			queryStr.setIri("contains_relation_type", containsRelation());
 			queryStr.setIri("assembly", assembly.toString());
 			queryStr.append("  INSERT { ");
 			queryStr.append("    GRAPH ?graph { ");
-			queryStr.append("      ?contains_relation rdf:type coins2:ContainsRelation . ");
+			queryStr.append("      ?contains_relation rdf:type ?contains_relation_type . ");
 			queryStr.append("      ?contains_relation rdf:type coins2:CoinsContainerObject . ");
 			queryStr.append("      ?contains_relation coins2:hasAssembly ?assembly . ");
 			queryStr.append("      ?contains_relation coins2:hasPart ?subject . ");
@@ -281,7 +282,6 @@ public class GetSeObject {
 		updateAssembly(putSeObject.getAssembly());
 		deleteParts();
 		insertParts(putSeObject.getParts());
-
 	}
 
 	protected EmbeddedServer getEmbeddedServer() {
@@ -311,10 +311,10 @@ public class GetSeObject {
 	}
 
 	public void create() throws URISyntaxException, IOException {
-		String label = getLocalName().substring(0, getClass().getSimpleName().length() + 5);
+		String label = getLocalName().substring(0, getClass().getSimpleName().length() + 2);
 		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(getEmbeddedServer().getPrefixMapping());
 		queryStr.setIri("se_object", getUri().toString());
-		queryStr.setIri("SeObject", EmbeddedServer.SE + getClass().getSimpleName());
+		queryStr.setIri("SeObject", EmbeddedServer.SE + getClass().getSimpleName().substring(3));
 		queryStr.setIri("graph", getDatasetUri());
 		queryStr.setLiteral("label", label);
 		queryStr.append("INSERT {");
@@ -328,5 +328,9 @@ public class GetSeObject {
 		queryStr.append("}");
 
 		getEmbeddedServer().update(queryStr);
+	}
+
+	public String containsRelation() {
+		return EmbeddedServer.COINS2 + "ContainsRelation";
 	}
 }

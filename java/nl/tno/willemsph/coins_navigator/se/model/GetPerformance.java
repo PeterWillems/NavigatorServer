@@ -8,6 +8,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.SeService;
 
 public class GetPerformance extends GetSeObject {
@@ -67,5 +68,9 @@ public class GetPerformance extends GetSeObject {
 		performance.create();
 		return performance;
 	}
-
+	
+	@Override
+	public String containsRelation() {
+		return EmbeddedServer.SE + "ContainsPerformance";
+	}
 }

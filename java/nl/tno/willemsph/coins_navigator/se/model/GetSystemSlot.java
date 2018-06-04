@@ -10,6 +10,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.SeService;
 
 public class GetSystemSlot extends GetSeObject {
@@ -244,5 +245,9 @@ public class GetSystemSlot extends GetSeObject {
 		systemSlot.create();
 		return systemSlot;
 	}
-
+	
+	@Override
+	public String containsRelation() {
+		return EmbeddedServer.SE + "ContainsSystemSlot";
+	}
 }

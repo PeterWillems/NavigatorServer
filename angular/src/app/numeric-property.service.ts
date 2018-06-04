@@ -35,7 +35,7 @@ export class NumericPropertyService extends SeObjectService {
   }
 
   createObject(): void {
-    this.create(this.selectedNumericProperty, this.dataset, SeObjectType.RealisationPortModel).subscribe(value => {
+    this.create(this.selectedNumericProperty, this.dataset, SeObjectType.NumericPropertyModel).subscribe(value => {
       this.numericProperties.push(value);
       this.seObjectsUpdated.emit(this.numericProperties);
     });

@@ -10,7 +10,7 @@
   <tr class="table-record"
       *ngFor="let seObject of seObjects" (click)="onClick(seObject)"
       [class]="selectedSeObject ? (seObject.uri === selectedSeObject.uri?'table-record-selected':''):''">
-    <td>{{seObject.uri}}</td>
+    <td>{{seObject.localName}}</td>
     <td>{{seObject.label}}</td>
     <td>{{seObject.assembly ? getSeObjectLabel(seObject.assembly) : ''}}</td>
   </tr>

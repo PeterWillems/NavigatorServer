@@ -1,0 +1,17 @@
+<div *ngIf="selectedNumericProperty" class="card border-primary">
+  <div class="card-header">
+    <span class="label">Selected Numeric Property:</span> {{selectedNumericProperty.label}}
+  </div>
+  <div class="card-body">
+    <app-literal-property name="uri" [value]="selectedNumericProperty.uri" valueType="url"
+                          [disabled]="true"></app-literal-property>
+    <app-literal-property name="label" [value]="selectedNumericProperty.label" valueType="text" [disabled]="false"
+                          (valueChanged)="onLabelChanged($event)"></app-literal-property>
+    <app-literal-property name="type" [value]="selectedNumericProperty.type" valueType="text" [disabled]="false"
+                          (valueChanged)="onTypeChanged($event)"></app-literal-property>
+    <app-literal-property name="value" [value]="selectedNumericProperty.datatypeValue" valueType="number" [disabled]="false"
+                          (valueChanged)="onValueChanged($event)"></app-literal-property>
+    <app-literal-property name="unit" [value]="selectedNumericProperty.unit" valueType="text" [disabled]="false"
+                          (valueChanged)="onUnitChanged($event)"></app-literal-property>
+  </div>
+</div>

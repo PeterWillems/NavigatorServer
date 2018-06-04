@@ -10,6 +10,7 @@ import org.apache.jena.query.ParameterizedSparqlString;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import nl.tno.willemsph.coins_navigator.EmbeddedServer;
 import nl.tno.willemsph.coins_navigator.se.SeService;
 
 public class GetHamburger extends GetSeObject {
@@ -70,13 +71,18 @@ public class GetHamburger extends GetSeObject {
 			queryStr.setIri("functional_unit", functionalUnit.toString());
 			queryStr.append("  INSERT { ");
 			queryStr.append("    GRAPH ?graph { ");
-			queryStr.append("      ?subject se:functionalUnit ?functional_unit . ");
+			queryStr.append("      ?hamburger se:functionalUnit ?functional_unit . ");
 			queryStr.append("    } ");
 			queryStr.append("  }");
 			queryStr.append("WHERE { } ");
 
 			getEmbeddedServer().update(queryStr);
 		}
+	}
+
+	public void updateFunctionalUnit(URI functionalUnit) throws IOException, URISyntaxException {
+		deleteFunctionalUnit();
+		insertFunctionalUnit(functionalUnit);
 	}
 
 	public URI getTechnicalSolution() throws IOException, URISyntaxException {
@@ -138,6 +144,11 @@ public class GetHamburger extends GetSeObject {
 
 			getEmbeddedServer().update(queryStr);
 		}
+	}
+
+	public void updateTechnicalSolution(URI technicalSolution) throws IOException, URISyntaxException {
+		deleteTechnicalSolution();
+		insertTechnicalSolution(technicalSolution);
 	}
 
 	public List<URI> getPortRealisations() throws IOException, URISyntaxException {
@@ -207,14 +218,16 @@ public class GetHamburger extends GetSeObject {
 		getEmbeddedServer().update(queryStr);
 	}
 
+	public void updatePortRealisations(List<URI> portRealisations) throws IOException, URISyntaxException {
+		deletePortRealisations();
+		insertPortRealisations(portRealisations);
+	}
+
 	public void update(PutHamburger putHamburger) throws IOException, URISyntaxException {
 		super.update(putHamburger);
-		deleteFunctionalUnit();
-		insertFunctionalUnit(putHamburger.getFunctionalUnit());
-		deleteTechnicalSolution();
-		insertTechnicalSolution(putHamburger.getTechnicalSolution());
-		deletePortRealisations();
-		insertPortRealisations(putHamburger.getPortRealisations());
+		updateFunctionalUnit(putHamburger.getFunctionalUnit());
+		updateTechnicalSolution(putHamburger.getTechnicalSolution());
+		updatePortRealisations(putHamburger.getPortRealisations());
 	}
 
 	public static GetHamburger create(SeService seService, int datasetId, String uri)
@@ -223,5 +236,9 @@ public class GetHamburger extends GetSeObject {
 		hamburger.create();
 		return hamburger;
 	}
-
+	
+	@Override
+	public String containsRelation() {
+		return EmbeddedServer.SE + "ContainsHamburger";
+	}
 }

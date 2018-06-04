@@ -1,0 +1,21 @@
+<div class="container-fluid">
+  <div class="row ">
+    <div class="col-md-5 column-content left-column">
+      <div class="card border-primary">
+        <div class="card-header">
+          <span class="label">Numeric properties</span>
+        </div>
+        <div *ngIf="selectedDataset" class="card-body">
+          <app-se-objectslist seObjectType="NumericProperty" [seObjectService]="_numericPropertyService"
+                              [seObjects]="numericProperties" [selectedSeObject]="selectedNumericProperty"
+                              (selectedSeObjectChanged)="onSelectedNumericPropertyChanged($event)"></app-se-objectslist>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-7 column-content">
+      <app-selected-numeric-property *ngIf="selectedNumericProperty"
+                                [selectedNumericProperty]="selectedNumericProperty">
+      </app-selected-numeric-property>
+    </div>
+  </div>
+</div>

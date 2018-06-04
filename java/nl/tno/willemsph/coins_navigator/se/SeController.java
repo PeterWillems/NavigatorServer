@@ -16,21 +16,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import nl.tno.willemsph.coins_navigator.se.model.GetFunction;
 import nl.tno.willemsph.coins_navigator.se.model.GetHamburger;
-import nl.tno.willemsph.coins_navigator.se.model.NumericProperty;
-import nl.tno.willemsph.coins_navigator.se.model.GetSystemInterface;
+import nl.tno.willemsph.coins_navigator.se.model.GetNumericProperty;
 import nl.tno.willemsph.coins_navigator.se.model.GetPerformance;
-import nl.tno.willemsph.coins_navigator.se.model.PortRealisation;
+import nl.tno.willemsph.coins_navigator.se.model.GetPortRealisation;
+import nl.tno.willemsph.coins_navigator.se.model.GetRealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.GetRealisationPort;
+import nl.tno.willemsph.coins_navigator.se.model.GetRequirement;
+import nl.tno.willemsph.coins_navigator.se.model.GetSystemInterface;
+import nl.tno.willemsph.coins_navigator.se.model.GetSystemSlot;
 import nl.tno.willemsph.coins_navigator.se.model.PutFunction;
 import nl.tno.willemsph.coins_navigator.se.model.PutHamburger;
+import nl.tno.willemsph.coins_navigator.se.model.PutNumericProperty;
 import nl.tno.willemsph.coins_navigator.se.model.PutPerformance;
+import nl.tno.willemsph.coins_navigator.se.model.PutPortRealisation;
 import nl.tno.willemsph.coins_navigator.se.model.PutRealisationModule;
+import nl.tno.willemsph.coins_navigator.se.model.PutRealisationPort;
 import nl.tno.willemsph.coins_navigator.se.model.PutRequirement;
 import nl.tno.willemsph.coins_navigator.se.model.PutSystemInterface;
 import nl.tno.willemsph.coins_navigator.se.model.PutSystemSlot;
-import nl.tno.willemsph.coins_navigator.se.model.GetRealisationModule;
-import nl.tno.willemsph.coins_navigator.se.model.RealisationPort;
-import nl.tno.willemsph.coins_navigator.se.model.GetRequirement;
-import nl.tno.willemsph.coins_navigator.se.model.GetSystemSlot;
 
 @RestController
 public class SeController {
@@ -173,11 +176,11 @@ public class SeController {
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-modules/{localName}/ports")
-	public List<RealisationPort> getPortsForRealisationModule(@PathVariable int id, @PathVariable String localName)
+	public List<GetRealisationPort> getPortsForRealisationModule(@PathVariable int id, @PathVariable String localName)
 			throws URISyntaxException, IOException {
 		return _seService.getPortsForRealisationModule(id, localName);
 	}
-
+	
 	//
 	// S Y S T E M - I N T E R F A C E S
 	//
@@ -214,8 +217,28 @@ public class SeController {
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-ports")
-	public List<RealisationPort> getAllRealisationPorts(@PathVariable int id) throws IOException, URISyntaxException {
+	public List<GetRealisationPort> getAllRealisationPorts(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.getAllRealisationPorts(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/realisation-ports")
+	public GetRealisationPort createRealisationPort(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createRealisationPort(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/realisation-ports/{localName}")
+	public GetRealisationPort getRealisationPort(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getRealisationPort(id, localName);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/realisation-ports/{localName}")
+	public GetRealisationPort updateRealisationPort(@PathVariable int id, @PathVariable String localName,
+			@RequestBody PutRealisationPort putRealisationPort) throws URISyntaxException, IOException {
+		return _seService.updateRealisationPort(id, localName, putRealisationPort);
 	}
 
 	//
@@ -328,9 +351,39 @@ public class SeController {
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/hamburgers/{localName}/port-realisations")
-	public List<PortRealisation> getPortRealisationsOfHamburger(@PathVariable int id, @PathVariable String localName)
+	public List<GetPortRealisation> getPortRealisationsOfHamburger(@PathVariable int id, @PathVariable String localName)
 			throws URISyntaxException, IOException {
 		return _seService.getPortRealisationsOfHamburger(id, localName);
+	}
+	
+	//
+	// P O R T - R E A L I S A T I O N
+	//
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/port-realisations")
+	public List<GetPortRealisation> getAllPortRealisations(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.getAllPortRealisations(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/port-realisations")
+	public GetPortRealisation createPortRealisation(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createPortRealisation(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/port-realisations/{localName}")
+	public GetPortRealisation getPortRealisation(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getPortRealisation(id, localName);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/port-realisations/{localName}")
+	public GetPortRealisation updatePortRealisation(@PathVariable int id, @PathVariable String localName,
+			@RequestBody PutPortRealisation putPortRealisation) throws URISyntaxException, IOException {
+		return _seService.updatePortRealisation(id, localName, putPortRealisation);
 	}
 
 	//
@@ -339,8 +392,28 @@ public class SeController {
 
 	@CrossOrigin
 	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/numeric-properties")
-	public List<NumericProperty> getAllNumericProperties(@PathVariable int id) throws IOException, URISyntaxException {
+	public List<GetNumericProperty> getAllNumericProperties(@PathVariable int id) throws IOException, URISyntaxException {
 		return _seService.getAllNumericProperties(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.POST, value = "/se/datasets/{id}/numeric-properties")
+	public GetNumericProperty createNumericProperty(@PathVariable int id) throws IOException, URISyntaxException {
+		return _seService.createNumericProperty(id);
+	}
+	
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.GET, value = "/se/datasets/{id}/numeric-properties/{localName}")
+	public GetNumericProperty getNumericProperty(@PathVariable int id, @PathVariable String localName)
+			throws URISyntaxException, IOException {
+		return _seService.getNumericProperty(id, localName);
+	}
+
+	@CrossOrigin
+	@RequestMapping(method = RequestMethod.PUT, value = "/se/datasets/{id}/numeric-properties/{localName}")
+	public GetNumericProperty updateNumericProperty(@PathVariable int id, @PathVariable String localName,
+			@RequestBody PutNumericProperty putNumericProperty) throws URISyntaxException, IOException {
+		return _seService.updateNumericProperty(id, localName, putNumericProperty);
 	}
 
 }
