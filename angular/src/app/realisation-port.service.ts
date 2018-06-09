@@ -36,7 +36,9 @@ export class RealisationPortService extends SeObjectService {
 
   createObject(): void {
     this.create(this.selectedRealisationPort, this.dataset, SeObjectType.RealisationPortModel).subscribe(value => {
-      this.realisationPorts.push(value);
+      console.log('RealisationPortService/createObject: ' + value.localName);
+      this._createdObject = value;
+      this.realisationPorts.push(<RealisationPortModel>this._createdObject);
       this.seObjectsUpdated.emit(this.realisationPorts);
     });
   }

@@ -17,7 +17,8 @@
     </app-iri-property-list>
     <div *ngIf="partsEditMode" class="card card-body border-info mb-3 pb-0">
       <app-iri-property *ngFor="let item of parts" name="part" [seObject]="item" [seObjectType]="systemSlotType"
-                        [disabled]="true" (valueChanged)="onPartChanged($event,item)"></app-iri-property>
+                        [disabled]="true" (valueChanged)="onPartChanged($event,item)">
+      </app-iri-property>
     </div>
 
     <app-iri-property-list name="requirements" [items]="requirements"

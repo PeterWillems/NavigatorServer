@@ -13,13 +13,20 @@ export class SeObjectslistComponent implements OnInit {
   @Input() selectedSeObject: SeObjectModel;
   @Input() seObjectService: SeObjectService;
   @Output() selectedSeObjectChanged: EventEmitter<SeObjectModel> = new EventEmitter<SeObjectModel>();
+  @Input() global = true;
+  @Output() objectCreated: EventEmitter<SeObjectModel> = new EventEmitter<SeObjectModel>();
 
   constructor() {
   }
 
   ngOnInit() {
     this.seObjectService.seObjectsUpdated.subscribe((seObjects) => {
-      this.seObjects = seObjects;
+      if (this.global) {
+        this.seObjects = seObjects;
+      } else {
+        this.seObjects.push(this.seObjectService._createdObject);
+        this.objectCreated.emit(this.seObjectService._createdObject);
+      }
     });
   }
 

@@ -1,0 +1,24 @@
+<app-literal-property name="uri" [value]="selectedRealisationPort.uri" valueType="url"
+                      [disabled]="true">
+</app-literal-property>
+<app-literal-property name="label" [value]="selectedRealisationPort.label" valueType="text" [disabled]="false"
+                      (valueChanged)="onLabelChanged($event)">
+</app-literal-property>
+<app-iri-property name="assembly" [seObjectType]="realisationPortType" [seObject]="getAssembly()"
+                  (valueChanged)="onAssemblyChanged($event)"
+                  [disabled]="false">
+</app-iri-property>
+<app-iri-property-list name="parts" [items]="getParts()"
+                       (editModeChanged)="onPartsEditModeChange($event)"
+                       (itemAdded)="onPartAdded($event)">
+</app-iri-property-list>
+<app-iri-property-list name="performances" [items]="getPerformances()"
+                       (editModeChanged)="onPerformancesEditModeChange($event)"
+                       (itemAdded)="onPerformanceAdded($event)">
+</app-iri-property-list>
+<div *ngIf="performancesEditMode" class="card card-body border-info mb-3 pb-0">
+  <app-iri-property *ngFor="let item of performances" name="performance" [seObject]="item"
+                    [seObjectType]="performanceType"
+                    [disabled]="true" (valueChanged)="onPerformanceChanged($event,item)">
+  </app-iri-property>
+</div>

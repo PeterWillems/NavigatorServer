@@ -4,12 +4,15 @@ import {Dataset} from './dataset/dataset.model';
 import {SeObjectType} from './se-object-type';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
+import {RealisationPortModel} from './models/realisation-port.model';
 
 @Injectable()
 export abstract class SeObjectService {
   apiAddress: string;
   seObjectsUpdated = new EventEmitter();
   protected _httpClient: HttpClient;
+  _createdObject: SeObjectModel;
+
 
   constructor(_httpClient: HttpClient) {
     this.apiAddress = 'http://localhost:8080/se';

@@ -3,6 +3,7 @@ package nl.tno.willemsph.coins_navigator.se.model;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.jena.query.ParameterizedSparqlString;
@@ -47,13 +48,13 @@ public class GetRealisationPort extends GetSeObject {
 		queryStr1.setIri("port", getUri().toString());
 		queryStr1.append("  DELETE { ");
 		queryStr1.append("    GRAPH ?graph { ");
-		queryStr1.append("      ?realisation_module se:port ?port . ");
+		queryStr1.append("      ?realisation_module se:hasPort ?port . ");
 		queryStr1.append("    } ");
 		queryStr1.append("  } ");
 		queryStr1.append("  WHERE { ");
 		queryStr1.append("    GRAPH ?graph { ");
 		queryStr1.append("      { ");
-		queryStr1.append("        ?realisation_module se:port ?port . ");
+		queryStr1.append("        ?realisation_module se:hasPort ?port . ");
 		queryStr1.append("      } ");
 		queryStr1.append("    }");
 		queryStr1.append("  }");
@@ -75,6 +76,29 @@ public class GetRealisationPort extends GetSeObject {
 
 			getEmbeddedServer().update(queryStr2);
 		}
+	}
+	
+	public List<URI> getPerformances() throws URISyntaxException, IOException {
+		ParameterizedSparqlString queryStr = new ParameterizedSparqlString(getEmbeddedServer().getPrefixMapping());
+		queryStr.setIri("graph", getDatasetUri());
+		queryStr.setIri("realisation_port", getUri().toString());
+		queryStr.append("SELECT ?performance ");
+		queryStr.append("{");
+		queryStr.append("  GRAPH ?graph { ");
+		queryStr.append("      ?realisation_port se:hasPerformance ?performance . ");
+		queryStr.append("  }");
+		queryStr.append("}");
+
+		JsonNode responseNodes = getEmbeddedServer().query(queryStr);
+		List<URI> performanceUris = new ArrayList<>();
+		for (JsonNode node : responseNodes) {
+			JsonNode performanceNode = node.get("performance");
+			String performanceUri = performanceNode != null ? performanceNode.get("value").asText() : null;
+			if (performanceUri != null) {
+				performanceUris.add(new URI(performanceUri));
+			}
+		}
+		return performanceUris;
 	}
 	
 	public void updatePerformances(List<URI> performances) throws URISyntaxException, IOException {
@@ -128,7 +152,7 @@ public class GetRealisationPort extends GetSeObject {
 	
 	public void update(PutRealisationPort putRealisationPort) throws IOException, URISyntaxException {
 		super.update(putRealisationPort);
-		updateOwner(putRealisationPort.getOwner());
+		// updateOwner(putRealisationPort.getOwner());
 		updatePerformances(putRealisationPort.getPerformances());
 	}
 

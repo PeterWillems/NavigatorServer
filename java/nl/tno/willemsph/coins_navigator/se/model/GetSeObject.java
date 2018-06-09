@@ -262,10 +262,11 @@ public class GetSeObject {
 			queryStr.setIri("graph", getDatasetUri());
 			queryStr.setIri("subject", getUri().toString());
 			queryStr.setIri("contains_relation", containsRelationUri);
+			queryStr.setIri("contains_relation_type", containsRelation());
 			queryStr.setIri("part", partUri.toString());
 			queryStr.append("  INSERT { ");
 			queryStr.append("    GRAPH ?graph { ");
-			queryStr.append("      ?contains_relation rdf:type coins2:ContainsRelation . ");
+			queryStr.append("      ?contains_relation rdf:type ?contains_relation_type . ");
 			queryStr.append("      ?contains_relation rdf:type coins2:CoinsContainerObject . ");
 			queryStr.append("      ?contains_relation coins2:hasAssembly ?subject . ");
 			queryStr.append("      ?contains_relation coins2:hasPart ?part . ");

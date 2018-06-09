@@ -46,9 +46,6 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this._loadStateValues();
-    // this._systemInterfaceService.seObjectsUpdated.subscribe(value => {
-    //   this.selectedSystemInterface = this._systemInterfaceService.getSeObject(this.selectedSystemInterface.uri);
-    // });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -75,17 +72,12 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   }
 
   getParts(): SystemSlotModel[] {
-    console.log('getParts 1');
     const parts = [];
-    console.log('getParts 2 ' + this.selectedSystemSlot.parts);
     if (this.selectedSystemSlot.parts) {
-      console.log('getParts 3');
-      for (let index = 0; index < this.selectedSystemSlot.parts.length; index++) {
-        console.log('getParts 4 ' + this.selectedSystemSlot.parts[index]);
+       for (let index = 0; index < this.selectedSystemSlot.parts.length; index++) {
         parts.push(this._systemSlotService.getSeObject(this.selectedSystemSlot.parts[index]));
       }
     }
-    console.log('getParts 5 ' + parts);
     return parts;
   }
 
@@ -222,7 +214,6 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
   }
 
   onPartsEditModeChange(editMode: boolean): void {
-    console.log('onPartsEditModeChange: ' + editMode);
     this.partsEditMode = editMode;
   }
 
@@ -230,7 +221,6 @@ export class SelectedSystemSlotComponent implements OnInit, OnChanges {
     const newPart = new SystemSlotModel();
     newPart.label = '***';
     this.parts.push(newPart);
-    console.log('Parts: ' + this.parts.toString());
   }
 
   onPartChanged(part: SystemSlotModel, item: SystemSlotModel): void {

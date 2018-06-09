@@ -18,7 +18,6 @@ import {RealisationPortService} from '../realisation-port.service';
 export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
   realisationModuleType = SeObjectType.RealisationModuleModel;
   performanceType = SeObjectType.PerformanceModel;
-  realisationPortType = SeObjectType.RealisationPortModel;
   isOpen = false;
   @Input() selectedRealisationModule: RealisationModuleModel;
   assembly: RealisationModuleModel;
@@ -30,12 +29,13 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
   portsEditMode = false;
   systemSlots: SystemSlotModel[];
   systemSlotsEditMode = false;
+  selectedRealisationPort: RealisationPortModel;
 
   constructor(
     private _realisationModuleService: RealisationModuleService,
     private _performanceService: PerformanceService,
     private _systemSlotService: SystemSlotService,
-    private _realisationPortService: RealisationPortService) {
+    public _realisationPortService: RealisationPortService) {
   }
 
   ngOnInit() {
@@ -54,6 +54,7 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
     this.parts = this.getParts();
     this.performances = this.getPerformances();
     this.ports = this.getPorts();
+    this.selectedRealisationPort = null;
     this.getSystemSlots();
   }
 
@@ -111,12 +112,27 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
   }
 
   onAssemblyChanged(assembly: SeObjectModel): void {
+    // update the parts of the previous assembly
+    if (this.assembly) {
+      for (let index = 0; index < this.assembly.parts.length; index++) {
+        if (this.assembly.parts[index] === this.selectedRealisationModule.uri) {
+          this.assembly.parts.splice(index, 1);
+          break;
+        }
+      }
+      this._realisationModuleService.updateSeObject(this.assembly);
+    }
+    // update the assembly of the selected realisation module
     this.selectedRealisationModule.assembly = assembly ? assembly.uri : null;
     this._realisationModuleService.updateSeObject(this.selectedRealisationModule);
+    // update the parts of the new assembly if existing
+    if (assembly) {
+      assembly.parts.push(this.selectedRealisationModule.uri);
+      this._realisationModuleService.updateSeObject(<RealisationModuleModel>assembly);
+    }
   }
 
   onPartsEditModeChange(editMode: boolean): void {
-    console.log('onPartsEditModeChange: ' + editMode);
     this.partsEditMode = editMode;
   }
 
@@ -124,7 +140,6 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
     const newPart = new RealisationModuleModel();
     newPart.label = '***';
     this.parts.push(newPart);
-    console.log('Parts: ' + this.parts.toString());
   }
 
   onPartChanged(part: RealisationModuleModel, item: RealisationModuleModel): void {
@@ -148,10 +163,10 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
         this.parts = this.getParts();
       }
     }
+
   }
 
   onPerformancesEditModeChange(editMode: boolean): void {
-    console.log('onPerformancesEditModeChange: ' + editMode);
     this.performancesEditMode = editMode;
   }
 
@@ -159,12 +174,10 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
     const newPart = new PerformanceModel();
     newPart.label = '***';
     this.performances.push(newPart);
-    console.log('Performances: ' + this.performances.toString());
   }
 
   onPerformanceChanged(performance: PerformanceModel, item: PerformanceModel): void {
     if (item.label === '***') {
-      console.log('***!');
       this.selectedRealisationModule.performances.push(performance.uri);
       this._realisationModuleService.updateSeObject(this.selectedRealisationModule);
       this.performances = this.getPerformances();
@@ -180,10 +193,10 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
         this.performances = this.getPerformances();
       }
     }
+
   }
 
   onPortsEditModeChange(editMode: boolean): void {
-    console.log('onPortsEditModeChange: ' + editMode);
     this.portsEditMode = editMode;
   }
 
@@ -191,16 +204,18 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
     const newPart = new RealisationPortModel();
     newPart.label = '***';
     this.ports.push(newPart);
-    console.log('Ports: ' + this.ports.toString());
   }
 
   onPortChanged(port: RealisationPortModel, item: RealisationPortModel): void {
+
     if (item.label === '***') {
-      console.log('***!');
       this.selectedRealisationModule.ports.push(port.uri);
       this._realisationModuleService.updateSeObject(this.selectedRealisationModule);
       this.ports = this.getPorts();
+
     } else {
+
+
       if (port === null) {
         for (let index = 0; this.selectedRealisationModule.ports.length; index++) {
           if (this.selectedRealisationModule.ports[index] === item.uri) {
@@ -212,10 +227,24 @@ export class SelectedRealisationModuleComponent implements OnInit, OnChanges {
         this.ports = this.getPorts();
       }
     }
+
   }
 
   onSystemSlotsEditModeChange(editMode: boolean): void {
     this.systemSlotsEditMode = editMode;
+  }
+
+  onSelectedRealisationPortChanged(selectedRealisationPort: RealisationPortModel) {
+    this.selectedRealisationPort = selectedRealisationPort;
+  }
+
+  onRealisationPortCreated(createdPort: RealisationPortModel) {
+    if (createdPort) {
+      this.selectedRealisationModule.ports.push(createdPort.uri);
+      createdPort.owner = this.selectedRealisationModule.uri;
+      this._realisationModuleService.updateSeObject(this.selectedRealisationModule);
+      this.ports = this.getPorts();
+    }
   }
 
 }

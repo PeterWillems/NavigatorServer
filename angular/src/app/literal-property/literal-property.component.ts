@@ -5,7 +5,7 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
   templateUrl: './literal-property.component.html',
   styleUrls: ['./literal-property.component.css']
 })
-export class LiteralPropertyComponent implements OnInit, OnChanges {
+export class LiteralPropertyComponent implements OnInit {
   @Input() name: string;
   @Input() value: any;
   @Input() valueType: string;
@@ -27,10 +27,10 @@ export class LiteralPropertyComponent implements OnInit, OnChanges {
     this.valueChanged.emit(this.value);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const seValueChanged = changes['value'];
-    if (seValueChanged) {
-      this.valueChanged.emit(this.value);
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges): void {
+  //   const seValueChanged = changes['value'];
+  //   if (seValueChanged) {
+  //     this.valueChanged.emit(this.value);
+  //   }
+  // }
 }

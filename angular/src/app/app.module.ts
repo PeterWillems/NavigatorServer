@@ -27,6 +27,7 @@ import { HamburgerComponent } from './hamburger/hamburger.component';
 import { SelectedHamburgerComponent } from './selected-hamburger/selected-hamburger.component';
 import { NumericPropertyComponent } from './numeric-property/numeric-property.component';
 import { SelectedNumericPropertyComponent } from './selected-numeric-property/selected-numeric-property.component';
+import { SelectedRealisationPortComponent } from './selected-realisation-port/selected-realisation-port.component';
 
 const appRoutes: Routes = [
   {path: 'datasets', component: DatasetComponent},
@@ -65,7 +66,8 @@ const appRoutes: Routes = [
     HamburgerComponent,
     SelectedHamburgerComponent,
     NumericPropertyComponent,
-    SelectedNumericPropertyComponent
+    SelectedNumericPropertyComponent,
+    SelectedRealisationPortComponent
   ],
   imports: [
     BrowserModule,

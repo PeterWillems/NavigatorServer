@@ -21,7 +21,7 @@
       </app-iri-property>
     </div>
 
-    <app-iri-property-list name="performances" [items]="performances"
+    <app-iri-property-list name="performances" [items]="getPerformances()"
                            (editModeChanged)="onPerformancesEditModeChange($event)"
                            (itemAdded)="onPerformanceAdded($event)">
     </app-iri-property-list>
@@ -37,10 +37,19 @@
                            (itemAdded)="onPortAdded($event)">
     </app-iri-property-list>
     <div *ngIf="portsEditMode" class="card card-body border-info mb-3 pb-0">
-      <app-iri-property *ngFor="let item of ports" name="port" [seObject]="item"
-                        [seObjectType]="realisationPortType"
-                        [disabled]="true" (valueChanged)="onPortChanged($event,item)">
-      </app-iri-property>
+      <app-se-objectslist seObjectType="RealisationPort" [seObjects]="ports" [global]="false"
+                          [selectedSeObject]="selectedRealisationPort"
+                          [seObjectService]="_realisationPortService"
+                          (selectedSeObjectChanged)="onSelectedRealisationPortChanged($event)"
+                          (objectCreated)="onRealisationPortCreated($event)">
+      </app-se-objectslist>
+      <app-selected-realisation-port *ngIf="selectedRealisationPort"
+                                     [selectedRealisationPort]="selectedRealisationPort">
+      </app-selected-realisation-port>
+      <!--<app-iri-property *ngFor="let item of ports" name="port" [seObject]="item"-->
+      <!--[seObjectType]="realisationPortType"-->
+      <!--[disabled]="true" (valueChanged)="onPortChanged($event,item)">-->
+      <!--</app-iri-property>-->
     </div>
 
     <app-iri-property-list name="system slots" [items]="systemSlots"
