@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {RealisationPortModel} from '../models/realisation-port.model';
 import {RealisationPortService} from '../realisation-port.service';
 import {SeObjectType} from '../se-object-type';

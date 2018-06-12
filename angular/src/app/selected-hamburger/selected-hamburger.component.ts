@@ -7,6 +7,8 @@ import {SystemSlotModel} from '../models/system-slot.model';
 import {RealisationModuleModel} from '../models/realisation-module.model';
 import {RealisationModuleService} from '../realisation-module.service';
 import {PortRealisationModel} from '../models/port-realisation.model';
+import {PortRealisationService} from '../port-realisation.service';
+import {SeObjectModel} from '../models/se-object.model';
 
 @Component({
   selector: 'app-selected-hamburger',
@@ -26,10 +28,12 @@ export class SelectedHamburgerComponent implements OnInit, OnChanges {
   technicalSolution: RealisationModuleModel;
   portRealisations: PortRealisationModel[];
   portRealisationsEditMode = false;
+  selectedPortRealisation: PortRealisationModel;
 
   constructor(private _hamburgerService: HamburgerService,
               private _systemSlotService: SystemSlotService,
-              private _realisationModuleService: RealisationModuleService) {
+              private _realisationModuleService: RealisationModuleService,
+              public _portRealisationService: PortRealisationService) {
   }
 
   ngOnInit() {
@@ -48,7 +52,8 @@ export class SelectedHamburgerComponent implements OnInit, OnChanges {
     this.parts = this.getParts();
     this.functionalUnit = this.getFunctionalUnit();
     this.technicalSolution = this.getTechnicalSolution();
-    this.getPortRealisations();
+    this.selectedPortRealisation = null;
+    this.portRealisations = this.getPortRealisations();
   }
 
   getAssembly(): HamburgerModel {
@@ -82,10 +87,14 @@ export class SelectedHamburgerComponent implements OnInit, OnChanges {
     return null;
   }
 
-  getPortRealisations(): void {
+  getPortRealisations(): PortRealisationModel[] {
+    const ports = [];
     if (this.selectedHamburger.portRealisations) {
-      this._hamburgerService.getPortRealisations(this.selectedHamburger).subscribe(value => this.portRealisations = value);
+      for (let index = 0; index < this.selectedHamburger.portRealisations.length; index++) {
+        ports.push(this._portRealisationService.getSeObject(this.selectedHamburger.portRealisations[index]));
+      }
     }
+    return ports;
   }
 
   onLabelChanged(label: string): void {
@@ -164,4 +173,17 @@ export class SelectedHamburgerComponent implements OnInit, OnChanges {
     this.portRealisationsEditMode = editMode;
   }
 
+  onPortRealisationCreated(createdPortRealisation: PortRealisationModel) {
+    if (createdPortRealisation) {
+      this.selectedHamburger.portRealisations.push(createdPortRealisation.uri);
+      // createdPortRealisation.owner = this.selectedHamburger.uri;
+      this._hamburgerService.updateSeObject(this.selectedHamburger);
+      this.portRealisations = this.getPortRealisations();
+    }
+  }
+
+  onSelectedPortRealisationChanged(selectedPortRealisation: PortRealisationModel) {
+    console.log('SelectedHamburgerComponent/onSelectedPortRealisationChanged: ' + selectedPortRealisation);
+    this.selectedPortRealisation = selectedPortRealisation;
+  }
 }

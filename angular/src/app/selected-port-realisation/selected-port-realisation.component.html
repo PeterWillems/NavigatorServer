@@ -1,0 +1,22 @@
+<app-literal-property name="uri" [value]="selectedPortRealisation.uri" valueType="url"
+                      [disabled]="true">
+</app-literal-property>
+<app-literal-property name="label" [value]="selectedPortRealisation.label" valueType="text" [disabled]="false"
+                      (valueChanged)="onLabelChanged($event)">
+</app-literal-property>
+<app-iri-property name="assembly" [seObjectType]="portRealisationType" [seObject]="getAssembly()"
+                  (valueChanged)="onAssemblyChanged($event)"
+                  [disabled]="false">
+</app-iri-property>
+<app-iri-property-list name="parts" [items]="getParts()"
+                       (editModeChanged)="onPartsEditModeChange($event)"
+                       (itemAdded)="onPartAdded($event)">
+</app-iri-property-list>
+<app-iri-property name="system interface" [seObjectType]="systemInterfaceType" [seObject]="getSystemInterface()"
+                  (valueChanged)="onSystemInterfaceChanged($event)"
+                  [disabled]="false">
+</app-iri-property>
+<app-iri-property name="realisation port" [seObjectType]="realisationPortType" [seObject]="getRealisationPort()"
+                  (valueChanged)="onRealisationPortChanged($event)"
+                  [disabled]="false">
+</app-iri-property>

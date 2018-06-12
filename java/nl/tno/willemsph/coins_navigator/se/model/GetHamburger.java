@@ -210,7 +210,7 @@ public class GetHamburger extends GetSeObject {
 		queryStr.setIri("port_realisation", portRealisation.toString());
 		queryStr.append("  INSERT { ");
 		queryStr.append("    GRAPH ?graph { ");
-		queryStr.append("      ?subject se:hasPortRealisation ?port_realisation . ");
+		queryStr.append("      ?hamburger se:hasPortRealisation ?port_realisation . ");
 		queryStr.append("    } ");
 		queryStr.append("  }");
 		queryStr.append("WHERE { } ");

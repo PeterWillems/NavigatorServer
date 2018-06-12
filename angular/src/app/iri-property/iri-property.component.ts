@@ -11,6 +11,7 @@ import {RealisationModuleService} from '../realisation-module.service';
 import {RealisationPortService} from '../realisation-port.service';
 import {HamburgerService} from '../hamburger.service';
 import {NumericPropertyService} from '../numeric-property.service';
+import {PortRealisationService} from '../port-realisation.service';
 
 @Component({
   selector: 'app-iri-property',
@@ -36,6 +37,7 @@ export class IriPropertyComponent implements OnInit, OnChanges {
               private _realisationModuleService: RealisationModuleService,
               private _realisationPortService: RealisationPortService,
               private _hamburgerService: HamburgerService,
+              private _portRealisationService: PortRealisationService,
               private _numericPropertyService: NumericPropertyService) {
     console.log('IriPropertyComponent created ', this.seObjectType);
   }
@@ -107,7 +109,7 @@ export class IriPropertyComponent implements OnInit, OnChanges {
 
       case SeObjectType.PortRealisationModel:
         console.log('port realisation options');
-        // this.options = this._portRealisationService.portRealisations;
+        this.options = this._portRealisationService.portRealisations;
         break;
 
       case SeObjectType.RealisationModuleModel:

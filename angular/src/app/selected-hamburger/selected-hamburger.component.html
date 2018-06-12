@@ -27,13 +27,29 @@
                       (valueChanged)="onTechnicalSolutionChanged($event)" [disabled]="false">
     </app-iri-property>
 
-    <app-iri-property-list name="port realisations" [items]="portRealisations"
-                           (editModeChanged)="onPortRealisationsEditModeChange($event)"></app-iri-property-list>
-    <div *ngIf="portRealisationsEditMode" class="card card-body border-info mb-3 pb-0">
-      <app-iri-property *ngFor="let item of portRealisations" name="port realisation" [seObject]="item"
-                        [seObjectType]="portRealisationType"
-                        [disabled]="false"></app-iri-property>
-    </div>
+    <!--<app-iri-property-list name="port realisations" [items]="portRealisations"-->
+                           <!--(editModeChanged)="onPortRealisationsEditModeChange($event)"></app-iri-property-list>-->
+    <!--<div *ngIf="portRealisationsEditMode" class="card card-body border-info mb-3 pb-0">-->
+      <!--<app-iri-property *ngFor="let item of portRealisations" name="port realisation" [seObject]="item"-->
+                        <!--[seObjectType]="portRealisationType"-->
+                        <!--[disabled]="false"></app-iri-property>-->
+    <!--</div>-->
 
+    <app-iri-property-list name="port realisations" [items]="portRealisations"
+                           [selectedItemLabel]="selectedPortRealisation?selectedPortRealisation.label:''"
+                           (editModeChanged)="onPortRealisationsEditModeChange($event)"
+                           (itemAdded)="onPortAdded($event)">
+    </app-iri-property-list>
+    <div *ngIf="portRealisationsEditMode" class="card card-body border-info mb-3 pb-0">
+      <app-se-objectslist seObjectType="PortRealisation" [seObjects]="portRealisations" [global]="false"
+                          [selectedSeObject]="selectedPortRealisation"
+                          [seObjectService]="_portRealisationService"
+                          (selectedSeObjectChanged)="onSelectedPortRealisationChanged($event)"
+                          (objectCreated)="onPortRealisationCreated($event)">
+      </app-se-objectslist>
+      <app-selected-port-realisation *ngIf="selectedPortRealisation"
+                                     [selectedPortRealisation]="selectedPortRealisation">
+      </app-selected-port-realisation>
+    </div>
   </div>
 </div>

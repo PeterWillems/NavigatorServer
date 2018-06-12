@@ -10,6 +10,7 @@ import {PerformanceService} from './performance.service';
 import {HamburgerService} from './hamburger.service';
 import {RealisationPortService} from './realisation-port.service';
 import {NumericPropertyService} from './numeric-property.service';
+import {PortRealisationService} from './port-realisation.service';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +25,7 @@ import {NumericPropertyService} from './numeric-property.service';
     RequirementService,
     SystemInterfaceService,
     HamburgerService,
+    PortRealisationService,
     RealisationPortService,
     NumericPropertyService
   ]
@@ -41,6 +43,7 @@ export class AppComponent implements OnInit {
               private _requirementService: RequirementService,
               private _systemInterfaceService: SystemInterfaceService,
               private _hamburgerService: HamburgerService,
+              private _portRealisationService: PortRealisationService,
               private _realisationPortService: RealisationPortService,
               private _numericPropertyService: NumericPropertyService) {
   }
@@ -64,6 +67,7 @@ export class AppComponent implements OnInit {
       this._requirementService.loadObjects(this.selectedDataset);
       this._systemInterfaceService.loadObjects(this.selectedDataset);
       this._hamburgerService.loadObjects(this.selectedDataset);
+      this._portRealisationService.loadObjects(this.selectedDataset);
       this._realisationPortService.loadObjects(this.selectedDataset);
       this._numericPropertyService.loadObjects(this.selectedDataset);
     }

@@ -10,6 +10,7 @@ import {SeObjectType} from '../se-object-type';
 export class IriPropertyListComponent implements OnInit, OnChanges {
   @Input() name: string;
   @Input() items: SeObjectModel[];
+  @Input() selectedItemLabel: string;
   @Output() editModeChanged = new EventEmitter();
   @Output() itemAdded = new EventEmitter();
   editMode = false;
@@ -35,6 +36,11 @@ export class IriPropertyListComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const itemsChanged = changes['items'];
     if (itemsChanged) {
+      console.log('IriPropertyListComponent/ngOnChanges: ' + this.items);
+      this.labels = this._getLabels();
+    }
+    const selectedItemLabelChanged = changes['selectedItemLabel'];
+    if (selectedItemLabelChanged) {
       this.labels = this._getLabels();
     }
   }

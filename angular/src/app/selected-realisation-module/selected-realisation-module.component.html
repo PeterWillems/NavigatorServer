@@ -33,6 +33,7 @@
     </div>
 
     <app-iri-property-list name="ports" [items]="ports"
+                           [selectedItemLabel]="selectedRealisationPort?selectedRealisationPort.label:''"
                            (editModeChanged)="onPortsEditModeChange($event)"
                            (itemAdded)="onPortAdded($event)">
     </app-iri-property-list>
@@ -46,10 +47,6 @@
       <app-selected-realisation-port *ngIf="selectedRealisationPort"
                                      [selectedRealisationPort]="selectedRealisationPort">
       </app-selected-realisation-port>
-      <!--<app-iri-property *ngFor="let item of ports" name="port" [seObject]="item"-->
-      <!--[seObjectType]="realisationPortType"-->
-      <!--[disabled]="true" (valueChanged)="onPortChanged($event,item)">-->
-      <!--</app-iri-property>-->
     </div>
 
     <app-iri-property-list name="system slots" [items]="systemSlots"
